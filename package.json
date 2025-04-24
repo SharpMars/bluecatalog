@@ -1,0 +1,33 @@
+{
+  "name": "bluecatalog",
+  "version": "0.0.0",
+  "description": "",
+  "type": "module",
+  "scripts": {
+    "start": "vite",
+    "dev": "vite",
+    "build": "vite build",
+    "serve": "vite preview"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "@types/bun": "^1.2.8",
+    "@unocss/preset-wind4": "^66.1.0-beta.8",
+    "unocss": "^66.1.0-beta.8",
+    "vite": "^6.0.0",
+    "vite-plugin-pages": "^0.32.4",
+    "vite-plugin-solid": "^2.11.6"
+  },
+  "dependencies": {
+    "@atcute/bluesky": "2.0.2",
+    "@atcute/client": "3.0.1",
+    "@atcute/oauth-browser-client": "^1.0.16",
+    "@corvu/dialog": "^0.2.4",
+    "@corvu/popover": "^0.2.0",
+    "@solidjs/router": "^0.15.1",
+    "@tanstack/solid-query": "^5.74.4",
+    "hls.js": "^1.6.2",
+    "minisearch": "^7.1.2",
+    "solid-js": "^1.9.5"
+  }
+}
