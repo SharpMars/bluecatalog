@@ -25,7 +25,6 @@ export default defineConfig({
 				} else {
 					const redirectUri = (() => {
 						const url = new URL(metadata.redirect_uris[0]);
-						console.log(`http://${SERVER_HOST}:${SERVER_PORT}${url.pathname}`);
 						return `http://${SERVER_HOST}:${SERVER_PORT}${url.pathname}`;
 					})();
 
@@ -33,8 +32,6 @@ export default defineConfig({
 						`http://localhost` +
 						`?redirect_uri=${encodeURIComponent(redirectUri)}` +
 						`&scope=${encodeURIComponent(metadata.scope)}`;
-
-					console.log(clientId);
 
 					process.env.VITE_DEV_SERVER_PORT = '' + SERVER_PORT;
 					process.env.VITE_OAUTH_CLIENT_ID = clientId;
