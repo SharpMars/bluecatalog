@@ -1,3 +1,4 @@
+import { segmentize } from "@atcute/bluesky-richtext-segmenter";
 import type {
   AppBskyEmbedExternal,
   AppBskyEmbedImages,
@@ -6,6 +7,7 @@ import type {
   AppBskyEmbedVideo,
   AppBskyFeedDefs,
   AppBskyFeedPost,
+  AppBskyRichtextFacet,
   Brand,
 } from "@atcute/client/lexicons";
 import Dialog, { useContext } from "@corvu/dialog";
@@ -48,7 +50,29 @@ export function BskyPost(props: BskyPostProps) {
             {"@" + author.handle}
           </span>
         </div>
-        <p class="m-b-2 whitespace-pre-wrap">{record?.text}</p>
+        <p class="break-words whitespace-pre-wrap m-b-2">
+          <For each={segmentize(record?.text, record.facets)}>
+            {(item) => {
+              return (
+                <Switch fallback={item.text}>
+                  <Match
+                    when={
+                      item.features?.length > 0 &&
+                      item.features[0].$type == "app.bsky.richtext.facet#link"
+                    }
+                  >
+                    <a
+                      href={(item.features[0] as AppBskyRichtextFacet.Link).uri}
+                      class="text-blue hover:underline"
+                    >
+                      {item.text}
+                    </a>
+                  </Match>
+                </Switch>
+              );
+            }}
+          </For>
+        </p>
         <Show when={embed !== undefined}>
           <EmbedView embed={embed}></EmbedView>
         </Show>

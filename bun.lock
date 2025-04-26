@@ -5,6 +5,7 @@
       "name": "vite-template-solid",
       "dependencies": {
         "@atcute/bluesky": "2.0.2",
+        "@atcute/bluesky-richtext-segmenter": "^2.0.0",
         "@atcute/client": "3.0.1",
         "@atcute/oauth-browser-client": "^1.0.16",
         "@corvu/dialog": "^0.2.4",
@@ -33,6 +34,8 @@
     "@antfu/utils": ["@antfu/utils@8.1.1", "", {}, "sha512-Mex9nXf9vR6AhcXmMrlz/HVgYYZpVGJ6YlPgwl7UnaFpnshXs6EK/oa5Gpf3CzENMjkvEx2tQtntGnb7UtSTOQ=="],
 
     "@atcute/bluesky": ["@atcute/bluesky@2.0.2", "", { "peerDependencies": { "@atcute/client": "^3.0.0" } }, "sha512-xU+9Rp8bzc9AOnWSc11M1urRppDt3BiWR7v2QrLt3Qoysa5jvL8j2p2w4iRT8vLByz8Q+Xgk5Kz4zWVx1zCiug=="],
+
+    "@atcute/bluesky-richtext-segmenter": ["@atcute/bluesky-richtext-segmenter@2.0.0", "", { "peerDependencies": { "@atcute/bluesky": "^2.0.0", "@atcute/client": "^3.0.0" } }, "sha512-BummI6zgdXSx9f5TJg2oR2ervCJhG8zcbAMDLWjccNLt/0P38lIRsXqOBdIIAZoBtk8g5LpgnnICdiMsDM2iDQ=="],
 
     "@atcute/client": ["@atcute/client@3.0.1", "", {}, "sha512-j51SuQYQj5jeKrx1DCXx+Q3fpVvO0JYGnKnJAdDSlesSLjPXjvnx1abC+hkuro58KRHHJvRA6P1MC0pmJsWfcg=="],
 
