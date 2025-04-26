@@ -137,33 +137,33 @@ export default function LoggedIn() {
 
   return (
     <section>
-      <div class="flex justify-center">
-        <button
-          onclick={() => {
-            refetch = true;
-            likesQuery.refetch();
-          }}
-        >
-          🏇
-        </button>
-        <div class="b-gray b-1 b-solid rounded p-1 [&:focus-within]:b-gray-900 box-content [&:focus-within]:b-2 [&:focus-within]:m--1px">
-          <input
-            style={{ border: "none", outline: "none" }}
-            type="text"
-            placeholder="Search..."
-            onchange={(ev) => setSearchVal(ev.target.value)}
-            value={searchVal()}
-          ></input>
-          <button onClick={() => setSearchVal("")}>⨉</button>
-        </div>
-      </div>
-      <PaginationButtons
-        currentIndex={currentIndex}
-        setCurrentIndex={setCurrentIndex}
-        pageCount={Math.ceil(filteredLikes()?.length / 50)}
-      ></PaginationButtons>
       <Switch>
         <Match when={likesQuery.isSuccess}>
+          <div class="flex justify-center">
+            <button
+              onclick={() => {
+                refetch = true;
+                likesQuery.refetch();
+              }}
+            >
+              🏇
+            </button>
+            <div class="b-gray b-1 b-solid rounded p-1 [&:focus-within]:b-gray-900 box-content [&:focus-within]:b-2 [&:focus-within]:m--1px">
+              <input
+                style={{ border: "none", outline: "none" }}
+                type="text"
+                placeholder="Search..."
+                onchange={(ev) => setSearchVal(ev.target.value)}
+                value={searchVal()}
+              ></input>
+              <button onClick={() => setSearchVal("")}>⨉</button>
+            </div>
+          </div>
+          <PaginationButtons
+            currentIndex={currentIndex}
+            setCurrentIndex={setCurrentIndex}
+            pageCount={Math.ceil(filteredLikes()?.length / 50)}
+          ></PaginationButtons>
           <div class="flex justify-center">
             <ul class="flex flex-col gap-2">
               <For
