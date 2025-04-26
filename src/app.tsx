@@ -18,7 +18,7 @@ import {
 } from "@atcute/oauth-browser-client";
 import { At } from "@atcute/client/lexicons";
 import { XRPC } from "@atcute/client";
-import { A, useNavigate } from "@solidjs/router";
+import { A } from "@solidjs/router";
 import Popover from "@corvu/popover";
 import Dialog from "@corvu/dialog";
 

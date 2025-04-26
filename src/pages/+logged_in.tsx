@@ -2,18 +2,14 @@ import {
   Accessor,
   createEffect,
   createMemo,
-  createResource,
   createSignal,
   For,
   Match,
   onMount,
   Setter,
-  Suspense,
   Switch,
 } from "solid-js";
 import { agent, xrpc } from "../app";
-import { deleteStoredSession } from "@atcute/oauth-browser-client";
-import { useNavigate } from "@solidjs/router";
 import { BskyPost } from "../components/BskyPost";
 import {
   AppBskyEmbedImages,
