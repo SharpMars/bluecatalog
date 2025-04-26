@@ -163,6 +163,61 @@ function EmbedView(props: {
       </Match>
       <Match
         when={(() => {
+          return props.embed.$type === "app.bsky.embed.record#view"
+            ? (props.embed as AppBskyEmbedRecord.View)
+            : undefined;
+        })()}
+      >
+        {(recordView) => (
+          <Show when={!props.recursed}>
+            <Switch>
+              <Match
+                when={(() => {
+                  const record = recordView().record;
+                  return record.$type === "app.bsky.embed.record#viewRecord"
+                    ? (record as AppBskyEmbedRecord.ViewRecord)
+                    : undefined;
+                })()}
+              >
+                {(viewRecord) => (
+                  <div class="b-1 b-gray b-solid rounded p-2 m-t-1">
+                    <div class="flex gap-2 items-center m-b-2">
+                      <img
+                        width={24}
+                        height={24}
+                        src={viewRecord().author.avatar}
+                        alt="profile picture"
+                        class="rounded"
+                      ></img>
+                      <span class="font-700 text-ellipsis overflow-hidden">
+                        {viewRecord().author.displayName}
+                      </span>
+                      <span class="text-gray text-ellipsis overflow-hidden">
+                        {"@" + viewRecord().author.handle}
+                      </span>
+                    </div>
+                    <p class="m-b-2 whitespace-pre-wrap">
+                      {(viewRecord().value as AppBskyFeedPost.Record).text}
+                    </p>
+                    <Show
+                      when={
+                        viewRecord().embeds && viewRecord().embeds.length > 0
+                      }
+                    >
+                      <EmbedView
+                        embed={viewRecord().embeds[0]}
+                        recursed
+                      ></EmbedView>
+                    </Show>
+                  </div>
+                )}
+              </Match>
+            </Switch>
+          </Show>
+        )}
+      </Match>
+      <Match
+        when={(() => {
           return props.embed.$type === "app.bsky.embed.recordWithMedia#view"
             ? (props.embed as AppBskyEmbedRecordWithMedia.View)
             : undefined;
