@@ -61,12 +61,6 @@ export default function LoggedIn() {
   const [currentIndex, setCurrentIndex] = createSignal(0);
   const [searchVal, setSearchVal] = createSignal("");
 
-  createEffect(() => {
-    if (currentIndex() > Math.floor(filteredLikes()?.length / 50)) {
-      setCurrentIndex(Math.floor(filteredLikes()?.length / 50));
-    }
-  });
-
   let refetch = false;
 
   const likesQuery = useQuery(() => ({
@@ -131,6 +125,16 @@ export default function LoggedIn() {
     return data;
   });
 
+  const pageCount = createMemo(() => {
+    return Math.ceil(filteredLikes()?.length / 50);
+  });
+
+  createEffect(() => {
+    if (currentIndex() > pageCount()) {
+      setCurrentIndex(pageCount());
+    }
+  });
+
   return (
     <section>
       <Switch>
@@ -182,7 +186,7 @@ export default function LoggedIn() {
           <PaginationButtons
             currentIndex={currentIndex}
             setCurrentIndex={setCurrentIndex}
-            pageCount={Math.ceil(filteredLikes()?.length / 50)}
+            pageCount={pageCount()}
           ></PaginationButtons>
         </Match>
       </Switch>
