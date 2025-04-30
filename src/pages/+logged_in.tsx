@@ -154,34 +154,36 @@ export default function LoggedIn() {
   });
 
   return (
-    <section>
+    <section class="p-y-2 p-x-2">
       <Switch>
         <Match when={likesQuery.isSuccess && likesQuery.data != null}>
-          <div class="flex justify-center">
-            <button
-              onclick={() => {
-                refetch = true;
-                likesQuery.refetch();
-              }}
-            >
-              🏇
-            </button>
-            <div class="b-gray b-1 b-solid rounded p-1 light:[&:focus-within]:b-gray-900 dark:[&:focus-within]:b-gray-100 box-content [&:focus-within]:b-2 [&:focus-within]:m--1px light:text-black dark:text-white">
-              <input
-                style={{ border: "none", outline: "none" }}
-                type="text"
-                placeholder="Search..."
-                onchange={(ev) => setSearchVal(ev.target.value)}
-                value={searchVal()}
-              ></input>
-              <button onClick={() => setSearchVal("")}>⨉</button>
+          <div class="m-b-1">
+            <div class="flex justify-center">
+              <button
+                onclick={() => {
+                  refetch = true;
+                  likesQuery.refetch();
+                }}
+              >
+                🏇
+              </button>
+              <div class="b-gray b-1 b-solid rounded p-1 light:[&:focus-within]:b-gray-900 dark:[&:focus-within]:b-gray-100 box-content [&:focus-within]:b-2 [&:focus-within]:m--1px light:text-black dark:text-white">
+                <input
+                  style={{ border: "none", outline: "none" }}
+                  type="text"
+                  placeholder="Search..."
+                  onchange={(ev) => setSearchVal(ev.target.value)}
+                  value={searchVal()}
+                ></input>
+                <button onClick={() => setSearchVal("")}>⨉</button>
+              </div>
             </div>
+            <PaginationButtons
+              currentIndex={currentIndex}
+              setCurrentIndex={setCurrentIndex}
+              pageCount={Math.ceil(filteredLikes()?.length / 50)}
+            ></PaginationButtons>
           </div>
-          <PaginationButtons
-            currentIndex={currentIndex}
-            setCurrentIndex={setCurrentIndex}
-            pageCount={Math.ceil(filteredLikes()?.length / 50)}
-          ></PaginationButtons>
           <div class="flex justify-center">
             <ul class="flex flex-col gap-2">
               <For
@@ -193,7 +195,7 @@ export default function LoggedIn() {
                 )}
                 children={(item) => {
                   return (
-                    <li class="max-w-xl">
+                    <li class="max-w-[min(36rem,calc(100vw-32px))]">
                       <BskyPost post={item.post}></BskyPost>
                     </li>
                   );
@@ -201,11 +203,13 @@ export default function LoggedIn() {
               />
             </ul>
           </div>
-          <PaginationButtons
-            currentIndex={currentIndex}
-            setCurrentIndex={setCurrentIndex}
-            pageCount={pageCount()}
-          ></PaginationButtons>
+          <div class="m-t-1">
+            <PaginationButtons
+              currentIndex={currentIndex}
+              setCurrentIndex={setCurrentIndex}
+              pageCount={pageCount()}
+            ></PaginationButtons>
+          </div>
         </Match>
         <Match when={likesQuery.data == null}>
           <div class="flex items-center flex-col">
