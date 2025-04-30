@@ -113,7 +113,10 @@ export default function App(props: { children: JSX.Element }) {
           </Match>
           <Match when={!loginState()}>
             <Dialog closeOnEscapeKeyDown closeOnOutsidePointer>
-              <Dialog.Trigger class="bg-neutral-700 text-white p-2 rounded">
+              <Dialog.Trigger
+                class="bg-neutral-700 text-white p-2 rounded"
+                id="login"
+              >
                 Login
               </Dialog.Trigger>
               <Dialog.Portal>
