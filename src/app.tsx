@@ -53,6 +53,7 @@ createEffect(() => {
 
   switch (colorScheme()) {
     case "auto":
+      setColorSchemeClass(colorSchemeMedia.matches);
       colorSchemeMedia.addEventListener("change", onColorSchemeMediaChange);
       break;
     case "light":
