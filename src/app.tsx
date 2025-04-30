@@ -75,7 +75,7 @@ export default function App(props: { children: JSX.Element }) {
   });
 
   return (
-    <>
+    <div class="flex flex-col min-h-screen">
       <nav class="flex bg-neutral-800 text-white p-2 justify-between items-center h-16">
         <A href="/" class="text-6 font-bold">
           <span class="text-blue-500">Blue</span>
@@ -148,10 +148,16 @@ export default function App(props: { children: JSX.Element }) {
           </Match>
         </Switch>
       </nav>
-      <main>
+      <main class="flex-1">
         <Suspense>{props.children}</Suspense>
       </main>
-    </>
+      <footer class="flex bg-neutral-800 text-white p-2 h-16 items-center justify-between">
+        <div></div>
+        <div>
+          <a href="https://github.com/SharpMars/bluecatalog">GitHub</a>
+        </div>
+      </footer>
+    </div>
   );
 }
 
