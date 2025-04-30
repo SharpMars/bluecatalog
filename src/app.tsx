@@ -33,25 +33,34 @@ export default function App(props: { children: JSX.Element }) {
 
   let handleInput: HTMLInputElement;
 
-  const login = async () => {
-    const { identity, metadata } = await resolveFromIdentity(handleInput.value);
+  const login = async (ev: MouseEvent) => {
+    try {
+      (ev.target as HTMLButtonElement).disabled = true;
 
-    const authUrl = await createAuthorizationUrl({
-      metadata: metadata,
-      identity: identity,
-      scope: import.meta.env.VITE_OAUTH_SCOPE,
-    });
+      const { identity, metadata } = await resolveFromIdentity(
+        handleInput.value
+      );
 
-    await new Promise((resolve) => setTimeout(resolve, 250));
-    location.assign(authUrl);
+      const authUrl = await createAuthorizationUrl({
+        metadata: metadata,
+        identity: identity,
+        scope: import.meta.env.VITE_OAUTH_SCOPE,
+      });
 
-    await new Promise((_resolve, reject) => {
-      const listener = () => {
-        reject(new Error(`user aborted the login request`));
-      };
+      await new Promise((resolve) => setTimeout(resolve, 250));
+      location.assign(authUrl);
 
-      window.addEventListener("pageshow", listener, { once: true });
-    });
+      await new Promise((_resolve, reject) => {
+        const listener = () => {
+          (ev.target as HTMLButtonElement).disabled = false;
+          reject(new Error(`user aborted the login request`));
+        };
+
+        window.addEventListener("pageshow", listener, { once: true });
+      });
+    } finally {
+      (ev.target as HTMLButtonElement).disabled = false;
+    }
   };
 
   const logout = async () => {
@@ -129,18 +138,31 @@ export default function App(props: { children: JSX.Element }) {
                     </Dialog.Label>
                     <hr class="text-neutral-600 m-y-2"></hr>
                     <label>Handle:</label>
-                    <input
-                      type="text"
-                      placeholder="example.bsky.social"
-                      class="w-full p-1 bg-neutral-700 rounded m-t-1"
-                      ref={handleInput}
-                    ></input>
-                    <button
-                      class="text-align-center w-full p-2 bg-neutral-700 rounded m-t-3"
-                      onclick={login}
-                    >
-                      Login
-                    </button>
+                    {(() => {
+                      let actualLoginButton: HTMLButtonElement;
+                      return (
+                        <>
+                          <input
+                            type="text"
+                            placeholder="example.bsky.social"
+                            class="w-full p-1 bg-neutral-700 rounded m-t-1"
+                            ref={handleInput}
+                            onkeypress={(ev) => {
+                              if (ev.key == "Enter") {
+                                actualLoginButton.click();
+                              }
+                            }}
+                          ></input>
+                          <button
+                            class="text-align-center w-full p-2 bg-neutral-700 rounded m-t-3 disabled:bg-neutral-900 transition-ease-linear transition-all transition-100"
+                            onclick={login}
+                            ref={actualLoginButton}
+                          >
+                            Login
+                          </button>
+                        </>
+                      );
+                    })()}
                   </Dialog.Content>
                 </Dialog.Portal>
               </Dialog>
