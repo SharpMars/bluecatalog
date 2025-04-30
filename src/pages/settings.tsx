@@ -15,11 +15,11 @@ export default function Settings() {
           <Dialog.Content class="fixed left-50% top-50% z-50 min-w-80 translate-x--50% translate-y--50% rounded-lg b-2 b-neutral-700 px-6 py-5 bg-neutral-800 text-white">
             <Dialog.Label class="text-lg font-bold">Clear cache</Dialog.Label>
             <div class="mt-3 flex justify-between">
-              <Dialog.Close class="rounded-md bg-corvu-200 px-3 py-2 bg-neutral-600">
+              <Dialog.Close class="rounded-md px-3 py-2 bg-neutral-600">
                 Close
               </Dialog.Close>
               <Dialog.Close
-                class="rounded-md bg-corvu-200 px-3 py-2 bg-red-700"
+                class="rounded-md px-3 py-2 bg-red-700"
                 on:click={() => {
                   ldb.delete("likes-cache");
                 }}
