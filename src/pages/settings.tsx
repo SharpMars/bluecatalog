@@ -1,4 +1,5 @@
 import Dialog from "@corvu/dialog";
+import ldb from "localdata";
 
 export default function Settings() {
   return (
@@ -20,7 +21,7 @@ export default function Settings() {
               <Dialog.Close
                 class="rounded-md bg-corvu-200 px-3 py-2 bg-red-700"
                 on:click={() => {
-                  localStorage.removeItem("likes-cache");
+                  ldb.delete("likes-cache");
                 }}
               >
                 Confirm
