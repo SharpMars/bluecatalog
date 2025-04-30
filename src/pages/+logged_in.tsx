@@ -65,45 +65,56 @@ export default function LoggedIn() {
 
   const likesQuery = useQuery(() => ({
     queryFn: async () => {
-      let likes: AppBskyFeedDefs.FeedViewPost[] = [];
-
-      const cacheJson = localStorage.getItem("likes-cache");
-
-      if (cacheJson === null || refetch) {
-        let cursor = undefined;
-
-        refetch = false;
-
-        do {
-          const res = await xrpc.get("app.bsky.feed.getActorLikes", {
-            params: { actor: agent.sub as At.Did, cursor: cursor, limit: 100 },
-          });
-          likes.push(...res.data.feed);
-          cursor = res.data.cursor;
-          if (res.data.feed.length === 0) {
-            cursor = undefined;
-          }
-        } while (cursor);
-
-        localStorage.setItem("likes-cache", JSON.stringify(likes));
-      } else {
-        likes = JSON.parse(cacheJson);
-      }
-
       try {
-        searcher.removeAll();
-        searcher.addAll(likes);
+        let likes: AppBskyFeedDefs.FeedViewPost[] = [];
+
+        const cacheJson = localStorage.getItem("likes-cache");
+
+        if (refetch) {
+          let cursor = undefined;
+
+          refetch = false;
+
+          do {
+            const res = await xrpc.get("app.bsky.feed.getActorLikes", {
+              params: {
+                actor: agent.sub as At.Did,
+                cursor: cursor,
+                limit: 100,
+              },
+            });
+            likes.push(...res.data.feed);
+            cursor = res.data.cursor;
+            if (res.data.feed.length === 0) {
+              cursor = undefined;
+            }
+          } while (cursor);
+
+          localStorage.setItem("likes-cache", JSON.stringify(likes));
+        } else if (cacheJson == null) {
+          return null;
+        } else {
+          likes = JSON.parse(cacheJson);
+        }
+
+        try {
+          searcher.removeAll();
+          searcher.addAll(likes);
+        } catch (error) {
+          console.error(error);
+        }
+
+        return likes;
       } catch (error) {
         console.error(error);
+        throw error;
       }
-
-      return likes;
     },
     queryKey: ["likes"],
   }));
 
   onMount(() => {
-    if (searcher && likesQuery.isSuccess) {
+    if (searcher && likesQuery.isSuccess && likesQuery.data != null) {
       searcher.removeAll();
       searcher.addAll(likesQuery.data);
     }
@@ -138,7 +149,7 @@ export default function LoggedIn() {
   return (
     <section>
       <Switch>
-        <Match when={likesQuery.isSuccess}>
+        <Match when={likesQuery.isSuccess && likesQuery.data != null}>
           <div class="flex justify-center">
             <button
               onclick={() => {
@@ -188,6 +199,21 @@ export default function LoggedIn() {
             setCurrentIndex={setCurrentIndex}
             pageCount={pageCount()}
           ></PaginationButtons>
+        </Match>
+        <Match when={likesQuery.data == null}>
+          <div class="flex items-center flex-col">
+            <p>Like data hasn't been indexed yet.</p>
+            <p>Would you like to?</p>
+            <button
+              class="bg-neutral-700 text-white p-2 rounded w-48"
+              onclick={() => {
+                refetch = true;
+                likesQuery.refetch();
+              }}
+            >
+              Index
+            </button>
+          </div>
         </Match>
       </Switch>
     </section>
