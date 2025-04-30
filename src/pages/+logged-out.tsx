@@ -6,13 +6,13 @@ export default function LoggedOut() {
           <span class="text-blue-500">Blue</span>
           <span class="text-yellow-500">Catalog</span>
         </h1>
-        <p class="text-[clamp(8px,7vw,2rem)] text-center">
+        <p class="text-[clamp(8px,7vw,2rem)] text-center light:text-black dark:text-white">
           Search through your
           <br /> likes and bookmarks <b>easily</b>
         </p>
         <button
           onClick={() => document.getElementById("login").click()}
-          class="bg-neutral-700 text-white p-2 rounded m-t-4 w-48"
+          class="bg-sky-500 text-white p-2 rounded m-t-4 w-48"
         >
           Login
         </button>

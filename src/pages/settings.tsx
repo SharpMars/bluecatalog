@@ -24,8 +24,10 @@ export default function Settings() {
 
   return (
     <section class="p-2">
-      <h1 class="text-8 font-700 m-b-2">Settings</h1>
-      <h2 class="text-7 font-600">Cache</h2>
+      <h1 class="text-8 font-700 m-b-2 light:text-black dark:text-white">
+        Settings
+      </h1>
+      <h2 class="text-7 font-600 light:text-black dark:text-white">Cache</h2>
       <Dialog>
         <Dialog.Trigger class="p-2 rounded bg-red-700 b-1 b-red-600 b-solid text-white">
           Clear cache
@@ -50,8 +52,8 @@ export default function Settings() {
           </Dialog.Content>
         </Dialog.Portal>
       </Dialog>
-      <h2 class="text-7 font-600">Theme</h2>
-      <fieldset class="flex gap-2">
+      <h2 class="text-7 font-600 light:text-black dark:text-white">Theme</h2>
+      <fieldset class="flex gap-2 light:text-black dark:text-white">
         <input
           type="radio"
           id="auto"

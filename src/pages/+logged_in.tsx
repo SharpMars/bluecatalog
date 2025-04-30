@@ -166,7 +166,7 @@ export default function LoggedIn() {
             >
               🏇
             </button>
-            <div class="b-gray b-1 b-solid rounded p-1 [&:focus-within]:b-gray-900 box-content [&:focus-within]:b-2 [&:focus-within]:m--1px">
+            <div class="b-gray b-1 b-solid rounded p-1 light:[&:focus-within]:b-gray-900 dark:[&:focus-within]:b-gray-100 box-content [&:focus-within]:b-2 [&:focus-within]:m--1px light:text-black dark:text-white">
               <input
                 style={{ border: "none", outline: "none" }}
                 type="text"
@@ -282,9 +282,9 @@ function PaginationButtons(props: {
             e.target.value = "" + props.currentIndex() + 1;
           }
         }}
-        class="w-min field-sizing-content text-center m-0 moz-appearance-textfield [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+        class="w-min field-sizing-content text-center m-0 moz-appearance-textfield [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none light:text-black dark:text-white"
       ></input>
-      <p>/{props.pageCount}</p>
+      <p class="light:text-black dark:text-white">/{props.pageCount}</p>
       <button
         onclick={() =>
           props.setCurrentIndex((props.currentIndex() + 1) % props.pageCount)
