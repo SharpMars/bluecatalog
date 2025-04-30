@@ -193,7 +193,7 @@ export default function LoggedIn() {
                 )}
                 children={(item) => {
                   return (
-                    <li class="w-md">
+                    <li class="max-w-xl">
                       <BskyPost post={item.post}></BskyPost>
                     </li>
                   );
