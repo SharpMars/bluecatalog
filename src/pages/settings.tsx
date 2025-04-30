@@ -1,7 +1,27 @@
 import Dialog from "@corvu/dialog";
 import ldb from "localdata";
+import { colorScheme, setColorScheme } from "../app";
+import { onMount } from "solid-js";
 
 export default function Settings() {
+  let autoRadio: HTMLInputElement;
+  let lightRadio: HTMLInputElement;
+  let darkRadio: HTMLInputElement;
+
+  onMount(() => {
+    switch (colorScheme()) {
+      case "auto":
+        autoRadio.checked = true;
+        break;
+      case "light":
+        lightRadio.checked = true;
+        break;
+      case "dark":
+        darkRadio.checked = true;
+        break;
+    }
+  });
+
   return (
     <section class="p-2">
       <h1 class="text-8 font-700 m-b-2">Settings</h1>
@@ -30,6 +50,42 @@ export default function Settings() {
           </Dialog.Content>
         </Dialog.Portal>
       </Dialog>
+      <h2 class="text-7 font-600">Theme</h2>
+      <fieldset class="flex gap-2">
+        <input
+          type="radio"
+          id="auto"
+          value="auto"
+          name="theme"
+          ref={autoRadio}
+          onchange={() => {
+            setColorScheme("auto");
+          }}
+        />
+        <label for="auto">System</label>
+        <input
+          type="radio"
+          id="light"
+          value="light"
+          name="theme"
+          ref={lightRadio}
+          onchange={() => {
+            setColorScheme("light");
+          }}
+        />
+        <label for="light">Light</label>
+        <input
+          type="radio"
+          id="dark"
+          value="dark"
+          name="theme"
+          ref={darkRadio}
+          onchange={() => {
+            setColorScheme("dark");
+          }}
+        />
+        <label for="dark">Dark</label>
+      </fieldset>
     </section>
   );
 }

@@ -6,6 +6,7 @@ import {
   Switch,
   Match,
   createResource,
+  createEffect,
 } from "solid-js";
 import {
   createAuthorizationUrl,
@@ -22,7 +23,49 @@ import { A } from "@solidjs/router";
 import Popover from "@corvu/popover";
 import Dialog from "@corvu/dialog";
 
+type ColorSchemeType = "auto" | "light" | "dark";
+
 export const [loginState, setLoginState] = createSignal(false);
+export const [colorScheme, setColorScheme] = createSignal<ColorSchemeType>(
+  (localStorage.getItem("color-scheme") as ColorSchemeType)
+    ? (localStorage.getItem("color-scheme") as ColorSchemeType)
+    : "auto"
+);
+
+const colorSchemeMedia = window.matchMedia("(prefers-color-scheme: dark)");
+
+function setColorSchemeClass(dark: boolean) {
+  if (dark) {
+    document.documentElement.classList.remove("light");
+    document.documentElement.classList.add("dark");
+  } else {
+    document.documentElement.classList.remove("dark");
+    document.documentElement.classList.add("light");
+  }
+}
+
+function onColorSchemeMediaChange(ev: MediaQueryListEvent) {
+  setColorSchemeClass(ev.matches);
+}
+
+createEffect(() => {
+  localStorage.setItem("color-scheme", colorScheme());
+
+  switch (colorScheme()) {
+    case "auto":
+      colorSchemeMedia.addEventListener("change", onColorSchemeMediaChange);
+      break;
+    case "light":
+      colorSchemeMedia.removeEventListener("change", onColorSchemeMediaChange);
+      setColorSchemeClass(false);
+      break;
+    case "dark":
+      colorSchemeMedia.removeEventListener("change", onColorSchemeMediaChange);
+      setColorSchemeClass(true);
+      break;
+  }
+});
+
 export let agent: OAuthUserAgent;
 export let xrpc: XRPC;
 
