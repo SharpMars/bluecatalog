@@ -112,36 +112,39 @@ export default function App(props: { children: JSX.Element }) {
             </Popover>
           </Match>
           <Match when={!loginState()}>
-            <Dialog closeOnEscapeKeyDown closeOnOutsidePointer>
-              <Dialog.Trigger
-                class="bg-neutral-700 text-white p-2 rounded"
-                id="login"
-              >
-                Login
-              </Dialog.Trigger>
-              <Dialog.Portal>
-                <Dialog.Overlay class="fixed inset-0 z-50 bg-black/50" />
-                <Dialog.Content class="fixed left-50% top-50% z-50 min-w-80 translate-x--50% translate-y--50% rounded-lg b-2 b-neutral-700 px-6 py-5 bg-neutral-800 text-white">
-                  <Dialog.Label class="text-center font-700 text-6">
-                    Login
-                  </Dialog.Label>
-                  <hr class="text-neutral-600 m-y-2"></hr>
-                  <label>Handle:</label>
-                  <input
-                    type="text"
-                    placeholder="example.bsky.social"
-                    class="w-full p-1 bg-neutral-700 rounded m-t-1"
-                    ref={handleInput}
-                  ></input>
-                  <button
-                    class="text-align-center w-full p-2 bg-neutral-700 rounded m-t-3"
-                    onclick={login}
-                  >
-                    Login
-                  </button>
-                </Dialog.Content>
-              </Dialog.Portal>
-            </Dialog>
+            <div class="flex gap-3 items-center">
+              <A href="/settings">Settings</A>
+              <Dialog closeOnEscapeKeyDown closeOnOutsidePointer>
+                <Dialog.Trigger
+                  class="bg-neutral-700 text-white p-2 rounded"
+                  id="login"
+                >
+                  Login
+                </Dialog.Trigger>
+                <Dialog.Portal>
+                  <Dialog.Overlay class="fixed inset-0 z-50 bg-black/50" />
+                  <Dialog.Content class="fixed left-50% top-50% z-50 min-w-80 translate-x--50% translate-y--50% rounded-lg b-2 b-neutral-700 px-6 py-5 bg-neutral-800 text-white">
+                    <Dialog.Label class="text-center font-700 text-6">
+                      Login
+                    </Dialog.Label>
+                    <hr class="text-neutral-600 m-y-2"></hr>
+                    <label>Handle:</label>
+                    <input
+                      type="text"
+                      placeholder="example.bsky.social"
+                      class="w-full p-1 bg-neutral-700 rounded m-t-1"
+                      ref={handleInput}
+                    ></input>
+                    <button
+                      class="text-align-center w-full p-2 bg-neutral-700 rounded m-t-3"
+                      onclick={login}
+                    >
+                      Login
+                    </button>
+                  </Dialog.Content>
+                </Dialog.Portal>
+              </Dialog>
+            </div>
           </Match>
         </Switch>
       </nav>
