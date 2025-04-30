@@ -106,14 +106,24 @@ export default function App(props: { children: JSX.Element }) {
               </Popover.Anchor>
               <Popover.Portal>
                 <Popover.Content>
-                  <div class="bg-neutral-700 p-2 rounded">
-                    <p class="text-white">{profile().displayName}</p>
-                    <p class="text-neutral-500">@{profile().handle}</p>
-                    <div class="flex justify-evenly text-white">
-                      <Popover.Close>
-                        <A href="/settings">Settings</A>
-                      </Popover.Close>
-                      <button onclick={logout}>Logout</button>
+                  <div class="m-x-1">
+                    <div class="flex justify-end p-x-3 m-t-1">
+                      <svg viewBox="0 0 100 100" class="w-4 text-neutral-700">
+                        <polygon
+                          points="0,100 50,0, 100,100"
+                          fill="currentColor"
+                        ></polygon>
+                      </svg>
+                    </div>
+                    <div class="bg-neutral-700 p-2 rounded">
+                      <p class="text-white">{profile().displayName}</p>
+                      <p class="text-neutral-500">@{profile().handle}</p>
+                      <div class="flex justify-evenly text-white">
+                        <Popover.Close>
+                          <A href="/settings">Settings</A>
+                        </Popover.Close>
+                        <button onclick={logout}>Logout</button>
+                      </div>
                     </div>
                   </div>
                 </Popover.Content>
