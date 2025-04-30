@@ -179,18 +179,18 @@ export default function App(props: { children: JSX.Element }) {
               <A href="/settings">Settings</A>
               <Dialog closeOnEscapeKeyDown closeOnOutsidePointer>
                 <Dialog.Trigger
-                  class="bg-sky-500 text-white p-2 rounded"
+                  class="light:bg-sky-500 light:hover:bg-sky-400 dark:bg-sky-600 dark:hover:bg-sky-500 text-white p-2 rounded transition-ease-linear transition-all transition-100"
                   id="login"
                 >
                   Login
                 </Dialog.Trigger>
                 <Dialog.Portal>
                   <Dialog.Overlay class="fixed inset-0 z-50 bg-black/50" />
-                  <Dialog.Content class="fixed left-50% top-50% z-50 min-w-80 translate-x--50% translate-y--50% rounded-lg b-2 b-neutral-700 px-6 py-5 bg-neutral-800 text-white">
+                  <Dialog.Content class="fixed left-50% top-50% z-50 min-w-80 translate-x--50% translate-y--50% rounded-lg b-2 light:b-neutral-300 dark:b-neutral-700 px-6 py-5 light:bg-neutral-200 dark:bg-neutral-800 light:text-black dark:text-white">
                     <Dialog.Label class="text-center font-700 text-6">
                       Login
                     </Dialog.Label>
-                    <hr class="text-neutral-600 m-y-2"></hr>
+                    <hr class="light:text-neutral-400 dark:text-neutral-600 m-y-2"></hr>
                     <label>Handle:</label>
                     {(() => {
                       let actualLoginButton: HTMLButtonElement;
@@ -199,7 +199,7 @@ export default function App(props: { children: JSX.Element }) {
                           <input
                             type="text"
                             placeholder="example.bsky.social"
-                            class="w-full p-1 bg-neutral-700 rounded m-t-1"
+                            class="w-full p-1 light:bg-neutral-300 dark:bg-neutral-700 rounded m-t-1"
                             ref={handleInput}
                             onkeypress={(ev) => {
                               if (ev.key == "Enter") {
@@ -208,7 +208,7 @@ export default function App(props: { children: JSX.Element }) {
                             }}
                           ></input>
                           <button
-                            class="text-align-center w-full p-2 bg-neutral-700 rounded m-t-3 disabled:bg-neutral-900 transition-ease-linear transition-all transition-100"
+                            class="text-align-center w-full p-2 light:bg-neutral-300 dark:bg-neutral-600 rounded m-t-3 light:hover:bg-neutral-400 dark:hover:bg-neutral-700 light:disabled:bg-neutral-500 dark:disabled:bg-neutral-900 disabled:cursor-no-drop transition-ease-linear transition-all transition-100"
                             onclick={login}
                             ref={actualLoginButton}
                           >

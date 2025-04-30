@@ -12,7 +12,7 @@ export default function LoggedOut() {
         </p>
         <button
           onClick={() => document.getElementById("login").click()}
-          class="bg-sky-500 text-white p-2 rounded m-t-4 w-48"
+          class="light:bg-sky-500 light:hover:bg-sky-400 dark:bg-sky-600 dark:hover:bg-sky-500 text-white p-2 rounded m-t-4 w-48 transition-ease-linear transition-all transition-100"
         >
           Login
         </button>
