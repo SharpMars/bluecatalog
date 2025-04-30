@@ -20,6 +20,7 @@ import {
 } from "@atcute/client/lexicons";
 import { useQuery } from "@tanstack/solid-query";
 import MiniSearch from "minisearch";
+import ldb from "localdata";
 
 const searcher = new MiniSearch({
   idField: "cid",
@@ -68,7 +69,13 @@ export default function LoggedIn() {
       try {
         let likes: AppBskyFeedDefs.FeedViewPost[] = [];
 
-        const cacheJson = localStorage.getItem("likes-cache");
+        const cacheJson = await new Promise(
+          (resolve: (value: string) => void, reject) => {
+            ldb.get("likes-cache", (value) => {
+              resolve(value);
+            });
+          }
+        );
 
         if (refetch) {
           let cursor = undefined;
@@ -90,7 +97,7 @@ export default function LoggedIn() {
             }
           } while (cursor);
 
-          localStorage.setItem("likes-cache", JSON.stringify(likes));
+          ldb.set("likes-cache", JSON.stringify(likes));
         } else if (cacheJson == null) {
           return null;
         } else {
