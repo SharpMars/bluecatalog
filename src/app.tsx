@@ -169,21 +169,30 @@ export default function App(props: { children: JSX.Element }) {
                 <Popover.Content>
                   <div class="m-x-1">
                     <div class="flex justify-end p-x-3 m-t-1">
-                      <svg viewBox="0 0 100 100" class="w-4 text-neutral-700">
+                      <svg
+                        viewBox="0 0 100 100"
+                        class="w-4 light:text-neutral-300 dark:text-neutral-700"
+                      >
                         <polygon
                           points="0,100 50,0, 100,100"
                           fill="currentColor"
                         ></polygon>
                       </svg>
                     </div>
-                    <div class="bg-neutral-700 p-2 rounded">
-                      <p class="text-white">{profile().displayName}</p>
+                    <div class="light:bg-neutral-300 dark:bg-neutral-700 p-2 rounded light:text-black dark:text-white">
+                      <p class="font-600">{profile().displayName}</p>
                       <p class="text-neutral-500">@{profile().handle}</p>
-                      <div class="flex justify-evenly text-white">
+                      <div class="flex justify-evenly">
                         <Popover.Close>
-                          <A href="/settings">Settings</A>
+                          <A href="/settings">
+                            <div class="i-mingcute-settings-5-line inline-block v--10%"></div>
+                            Settings
+                          </A>
                         </Popover.Close>
-                        <button onclick={logout}>Logout</button>
+                        <button onclick={logout} class="cursor-pointer">
+                          <div class="i-mingcute-exit-line inline-block v--10%"></div>
+                          Logout
+                        </button>
                       </div>
                     </div>
                   </div>
