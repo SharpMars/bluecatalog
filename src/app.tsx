@@ -35,12 +35,29 @@ export const [colorScheme, setColorScheme] = createSignal<ColorSchemeType>(
 const colorSchemeMedia = window.matchMedia("(prefers-color-scheme: dark)");
 
 function setColorSchemeClass(dark: boolean) {
-  if (dark) {
-    document.documentElement.classList.remove("light");
-    document.documentElement.classList.add("dark");
+  const setter = (dark: boolean) => {
+    if (dark) {
+      document.documentElement.classList.remove("light");
+      document.documentElement.classList.add("dark");
+    } else {
+      document.documentElement.classList.remove("dark");
+      document.documentElement.classList.add("light");
+    }
+  };
+  if (document.startViewTransition) {
+    const transition = document.startViewTransition(() => {
+      setter(dark);
+    });
+
+    transition.ready.then(() => {
+      document.documentElement.animate({
+        duration: 300,
+        easing: "ease-in-out",
+        pseudoElement: "::view-transition-new(root)",
+      });
+    });
   } else {
-    document.documentElement.classList.remove("dark");
-    document.documentElement.classList.add("light");
+    setter(dark);
   }
 }
 
