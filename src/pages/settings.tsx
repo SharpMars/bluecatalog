@@ -53,14 +53,14 @@ export default function Settings() {
                   </Dialog.Description>
                   <div class="mt-3 flex justify-between text-white">
                     <Dialog.Close
-                      class="rounded-md px-3 py-2 bg-red-700 hover:bg-red-800 active:bg-red-900 transition-all transition-100 transition-all transition-100 transition-ease-linear"
+                      class="rounded-md px-3 py-2 bg-red-700 hover:bg-red-800 active:bg-red-900 transition-all transition-100 transition-ease-linear"
                       on:click={() => {
                         ldb.delete("likes-cache");
                       }}
                     >
                       Yes
                     </Dialog.Close>
-                    <Dialog.Close class="rounded-md px-3 py-2 bg-neutral-600 hover:bg-neutral-700 active:bg-neutral-900 transition-all transition-100 transition-all transition-100 transition-ease-linear">
+                    <Dialog.Close class="rounded-md px-3 py-2 bg-neutral-600 hover:bg-neutral-700 active:bg-neutral-900 transition-all transition-100 transition-ease-linear">
                       No
                     </Dialog.Close>
                   </div>
