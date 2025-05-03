@@ -21,6 +21,7 @@ import {
 import { useQuery } from "@tanstack/solid-query";
 import MiniSearch from "minisearch";
 import ldb from "localdata";
+import { LoadingIndicator } from "../components/LoadingIndicator";
 
 const searcher = new MiniSearch({
   idField: "cid",
@@ -225,7 +226,13 @@ export default function LoggedIn() {
                   likesQuery.refetch();
                 }}
               >
-                Index
+                <Switch fallback={"Index"}>
+                  <Match when={likesQuery.isFetching}>
+                    <div class="text-6 flex justify-center">
+                      <LoadingIndicator />
+                    </div>
+                  </Match>
+                </Switch>
               </button>
             </div>
           </div>
