@@ -212,18 +212,22 @@ export default function LoggedIn() {
           </div>
         </Match>
         <Match when={likesQuery.data == null}>
-          <div class="flex items-center flex-col">
-            <p>Like data hasn't been indexed yet.</p>
-            <p>Would you like to?</p>
-            <button
-              class="bg-neutral-700 text-white p-2 rounded w-48"
-              onclick={() => {
-                refetch = true;
-                likesQuery.refetch();
-              }}
-            >
-              Index
-            </button>
+          <div>
+            <div class="flex items-center flex-col b-2 b-blue-500 b-dashed w-max h-max p-4 rounded-xl absolute top-45% left-50% translate-x--50% translate-y--50% gap-2">
+              <p class="text-center dark:text-white light:text-black">
+                Like data hasn't been indexed yet.
+                <br /> Would you like to?
+              </p>
+              <button
+                class="bg-neutral-600 text-white p-2 rounded w-48 hover:bg-neutral-700 active:bg-neutral-800 transition-all transition-100 transition-ease-linear"
+                onclick={() => {
+                  refetch = true;
+                  likesQuery.refetch();
+                }}
+              >
+                Index
+              </button>
+            </div>
           </div>
         </Match>
       </Switch>
