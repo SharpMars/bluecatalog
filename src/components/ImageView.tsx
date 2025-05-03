@@ -15,9 +15,7 @@ export default function ImageView(props: { embed: AppBskyEmbedImages.View }) {
               current() - 1 < 0 ? props.embed.images.length - 1 : current() - 1
             );
           }}
-        >
-          🐀
-        </button>
+        ></button>
         <button
           class="absolute top-50% right-0 text-8 translate-y--50% p-2 i-mingcute-right-fill mix-blend-difference"
           onClick={() => {
@@ -25,9 +23,7 @@ export default function ImageView(props: { embed: AppBskyEmbedImages.View }) {
               current() + 1 >= props.embed.images.length ? 0 : current() + 1
             );
           }}
-        >
-          🐀
-        </button>
+        ></button>
       </Show>
       <For each={props.embed.images}>
         {(item, index) => (
