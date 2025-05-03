@@ -5,10 +5,12 @@ import {
   AppBskyEmbedRecordWithMedia,
   AppBskyEmbedVideo,
   AppBskyFeedPost,
+  AppBskyRichtextFacet,
   Brand,
 } from "@atcute/client/lexicons";
-import { lazy, Match, Show, Switch } from "solid-js";
+import { For, lazy, Match, Show, Switch } from "solid-js";
 import ImageView from "./ImageView";
+import { segmentize } from "@atcute/bluesky-richtext-segmenter";
 
 const HlsPlayer = lazy(() => import("./HlsPlayer"));
 
@@ -46,7 +48,7 @@ export default function EmbedView(props: {
               <>
                 <a
                   href={externalView().external.uri}
-                  class="b-1 b-gray b-solid block rounded-xl overflow-hidden"
+                  class="b-1 b-gray b-solid block rounded overflow-hidden"
                 >
                   <img
                     src={externalView().external.thumb}
@@ -134,7 +136,38 @@ export default function EmbedView(props: {
                       </span>
                     </div>
                     <p class="m-b-2 whitespace-pre-wrap">
-                      {(viewRecord().value as AppBskyFeedPost.Record).text}
+                      <For
+                        each={segmentize(
+                          (viewRecord().value as AppBskyFeedPost.Record)?.text,
+                          (viewRecord().value as AppBskyFeedPost.Record)?.facets
+                        )}
+                      >
+                        {(item) => {
+                          return (
+                            <Switch fallback={item.text}>
+                              <Match
+                                when={
+                                  item.features?.length > 0 &&
+                                  item.features[0].$type ==
+                                    "app.bsky.richtext.facet#link"
+                                }
+                              >
+                                <a
+                                  href={
+                                    (
+                                      item
+                                        .features[0] as AppBskyRichtextFacet.Link
+                                    ).uri
+                                  }
+                                  class="text-blue hover:underline"
+                                >
+                                  {item.text}
+                                </a>
+                              </Match>
+                            </Switch>
+                          );
+                        }}
+                      </For>
                     </p>
                     <Show
                       when={
@@ -191,7 +224,40 @@ export default function EmbedView(props: {
                         </span>
                       </div>
                       <p class="m-b-2 whitespace-pre-wrap">
-                        {(viewRecord().value as AppBskyFeedPost.Record).text}
+                        <For
+                          each={segmentize(
+                            (viewRecord().value as AppBskyFeedPost.Record)
+                              ?.text,
+                            (viewRecord().value as AppBskyFeedPost.Record)
+                              ?.facets
+                          )}
+                        >
+                          {(item) => {
+                            return (
+                              <Switch fallback={item.text}>
+                                <Match
+                                  when={
+                                    item.features?.length > 0 &&
+                                    item.features[0].$type ==
+                                      "app.bsky.richtext.facet#link"
+                                  }
+                                >
+                                  <a
+                                    href={
+                                      (
+                                        item
+                                          .features[0] as AppBskyRichtextFacet.Link
+                                      ).uri
+                                    }
+                                    class="text-blue hover:underline"
+                                  >
+                                    {item.text}
+                                  </a>
+                                </Match>
+                              </Switch>
+                            );
+                          }}
+                        </For>
                       </p>
                       <Show
                         when={
