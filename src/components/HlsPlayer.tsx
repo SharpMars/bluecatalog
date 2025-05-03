@@ -11,7 +11,7 @@ export default function HlsPlayer(props: { src: string; thumbnail?: string }) {
 
   return (
     <video
-      class="w-full max-h-2xl"
+      class="w-full max-h-2xl rounded-xl"
       controls
       ref={(element) => {
         hls.attachMedia(element);

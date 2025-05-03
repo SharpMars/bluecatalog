@@ -9,7 +9,7 @@ export default function ImageView(props: { embed: AppBskyEmbedImages.View }) {
     <div class="relative">
       <Show when={props.embed.images.length > 1}>
         <button
-          class="absolute top-50% left-0 text-8 translate-y--50% p-2 i-mingcute-left-fill mix-blend-difference"
+          class="absolute top-50% left-0 text-8 translate-y--50% p-2 i-mingcute-left-fill mix-blend-difference text-white"
           onClick={() => {
             setCurrent(
               current() - 1 < 0 ? props.embed.images.length - 1 : current() - 1
@@ -17,7 +17,7 @@ export default function ImageView(props: { embed: AppBskyEmbedImages.View }) {
           }}
         ></button>
         <button
-          class="absolute top-50% right-0 text-8 translate-y--50% p-2 i-mingcute-right-fill mix-blend-difference"
+          class="absolute top-50% right-0 text-8 translate-y--50% p-2 i-mingcute-right-fill mix-blend-difference text-white"
           onClick={() => {
             setCurrent(
               current() + 1 >= props.embed.images.length ? 0 : current() + 1
@@ -28,14 +28,16 @@ export default function ImageView(props: { embed: AppBskyEmbedImages.View }) {
       <For each={props.embed.images}>
         {(item, index) => (
           <Dialog closeOnEscapeKeyDown closeOnOutsidePointer>
-            <Dialog.Trigger>
+            <Dialog.Trigger
+              class="w-100%"
+              style={{ display: current() === index() ? "block" : "none" }}
+            >
               <img
-                class="max-h-2xl m-x-auto"
+                class="max-h-2xl m-x-auto rounded-xl"
                 style={{
                   "aspect-ratio": item.aspectRatio
                     ? item.aspectRatio.width / item.aspectRatio.height
                     : "initial",
-                  display: current() === index() ? "block" : "none",
                 }}
                 title={item.alt}
                 alt={item.alt}

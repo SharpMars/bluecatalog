@@ -46,7 +46,7 @@ export default function EmbedView(props: {
               <>
                 <a
                   href={externalView().external.uri}
-                  class="b-1 b-gray b-solid block rounded overflow-hidden"
+                  class="b-1 b-gray b-solid block rounded-xl overflow-hidden"
                 >
                   <img
                     src={externalView().external.thumb}
@@ -74,7 +74,7 @@ export default function EmbedView(props: {
                         width={16}
                         class="aspect-square object-contain h-16px"
                       />
-                      <span class="text-ellipsis overflow-hidden text-nowrap text-neutral-300 text-3">
+                      <span class="text-ellipsis overflow-hidden text-nowrap light:text-neutral-500 dark:text-neutral-300 text-3">
                         {externalView().external.uri}
                       </span>
                     </div>
@@ -117,7 +117,7 @@ export default function EmbedView(props: {
                 })()}
               >
                 {(viewRecord) => (
-                  <div class="b-1 b-gray b-solid rounded p-2 m-t-1">
+                  <div class="b-1 b-gray b-solid rounded-xl p-2 m-t-1">
                     <div class="flex gap-2 items-center m-b-2">
                       <img
                         width={24}
@@ -174,7 +174,7 @@ export default function EmbedView(props: {
                   })()}
                 >
                   {(viewRecord) => (
-                    <div class="b-1 b-gray b-solid rounded p-2 m-t-1">
+                    <div class="b-1 b-gray b-solid rounded-xl p-2 m-t-1">
                       <div class="flex gap-2 items-center m-b-2">
                         <img
                           width={24}
