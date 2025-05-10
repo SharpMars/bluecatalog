@@ -268,7 +268,7 @@ function PaginationButtons(props: {
           type="number"
           min={1}
           max={props.pageCount}
-          value={props.currentIndex() + 1}
+          value={(props.currentIndex() + 1).toString()}
           onkeypress={(e) => {
             if (e.key != "Enter") return;
 
@@ -298,8 +298,9 @@ function PaginationButtons(props: {
               if (newIndex < 1) throw new Error();
 
               props.setCurrentIndex(newIndex - 1);
+              e.target.value = newIndex.toString();
             } catch (error) {
-              e.target.value = "" + props.currentIndex() + 1;
+              e.target.value = (props.currentIndex() + 1).toString();
             }
           }}
           class="w-min field-sizing-content text-center m-0 moz-appearance-textfield [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none p-x-2"
