@@ -22,6 +22,7 @@ import { useQuery } from "@tanstack/solid-query";
 import MiniSearch from "minisearch";
 import ldb from "localdata";
 import { LoadingIndicator } from "../components/LoadingIndicator";
+import Dialog from "@corvu/dialog";
 
 const searcher = new MiniSearch({
   idField: "cid",
@@ -154,20 +155,50 @@ export default function LoggedIn() {
     }
   });
 
+  {
+    /* onclick={() => {
+                    refetch = true;
+                    likesQuery.refetch();
+                  }} */
+  }
   return (
     <section class="p-y-2 p-x-2">
       <Switch>
         <Match when={likesQuery.isSuccess && likesQuery.data != null}>
           <div class="m-b-1">
-            <div class="flex justify-center">
-              <button
-                onclick={() => {
-                  refetch = true;
-                  likesQuery.refetch();
-                }}
-              >
-                🏇
-              </button>
+            <div class="flex justify-center gap-2">
+              <Dialog>
+                <Dialog.Trigger class="text-6 dark:text-white light:text-black hover:rotate-180 transition-all transition-300 transition-ease-in-out">
+                  <div class="i-mingcute-refresh-3-line"></div>
+                </Dialog.Trigger>
+                <Dialog.Portal>
+                  <Dialog.Overlay class="fixed inset-0 z-50 bg-black/50" />
+                  <Dialog.Content class="fixed left-50% top-50% z-50 min-w-80 translate-x--50% translate-y--50% rounded-lg b-2 px-6 py-5 light:b-neutral-200 light:bg-neutral-300 light:text-black dark:b-neutral-700 dark:bg-neutral-800 dark:text-white">
+                    <Dialog.Label class="text-lg font-bold">
+                      Refresh the cache?
+                    </Dialog.Label>
+                    <Dialog.Description class="text-wrap">
+                      This will update currently cached likes. <br />
+                      This will take a minute.
+                    </Dialog.Description>
+                    <div class="mt-3 flex justify-between text-white">
+                      <Dialog.Close
+                        class="rounded-md px-3 py-2 bg-sky-500 hover:bg-sky-600 active:bg-sky-700 transition-all transition-100 transition-ease-linear"
+                        on:click={() => {
+                          refetch = true;
+                          likesQuery.refetch();
+                        }}
+                      >
+                        Yes
+                      </Dialog.Close>
+                      <Dialog.Close class="rounded-md px-3 py-2 bg-neutral-600 hover:bg-neutral-700 active:bg-neutral-900 transition-all transition-100 transition-ease-linear">
+                        No
+                      </Dialog.Close>
+                    </div>
+                  </Dialog.Content>
+                </Dialog.Portal>
+              </Dialog>
+
               <div class="b-gray b-1 b-solid rounded p-1 light:[&:focus-within]:b-gray-900 dark:[&:focus-within]:b-gray-100 box-content [&:focus-within]:b-2 [&:focus-within]:m--1px light:text-black dark:text-white">
                 <input
                   style={{ border: "none", outline: "none" }}
