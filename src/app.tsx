@@ -7,6 +7,7 @@ import {
   Match,
   createResource,
   createEffect,
+  Show,
 } from "solid-js";
 import {
   createAuthorizationUrl,
@@ -22,6 +23,7 @@ import { XRPC } from "@atcute/client";
 import { A } from "@solidjs/router";
 import Popover from "@corvu/popover";
 import Dialog from "@corvu/dialog";
+import { LoadingIndicator } from "./components/LoadingIndicator";
 
 type ColorSchemeType = "auto" | "light" | "dark";
 
@@ -94,9 +96,11 @@ export default function App(props: { children: JSX.Element }) {
 
   let handleInput: HTMLInputElement;
 
+  const [isBeingLoggedIn, setIsBeingLoggedIn] = createSignal(false);
+
   const login = async (ev: MouseEvent) => {
     try {
-      (ev.target as HTMLButtonElement).disabled = true;
+      setIsBeingLoggedIn(true);
 
       const { identity, metadata } = await resolveFromIdentity(
         handleInput.value
@@ -113,14 +117,14 @@ export default function App(props: { children: JSX.Element }) {
 
       await new Promise((_resolve, reject) => {
         const listener = () => {
-          (ev.target as HTMLButtonElement).disabled = false;
+          setIsBeingLoggedIn(false);
           reject(new Error(`user aborted the login request`));
         };
 
         window.addEventListener("pageshow", listener, { once: true });
       });
     } finally {
-      (ev.target as HTMLButtonElement).disabled = false;
+      setIsBeingLoggedIn(false);
     }
   };
 
@@ -237,8 +241,13 @@ export default function App(props: { children: JSX.Element }) {
                             class="text-align-center w-full p-2 light:bg-neutral-300 dark:bg-neutral-600 rounded m-t-3 light:hover:bg-neutral-400 dark:hover:bg-neutral-700 light:disabled:bg-neutral-500 dark:disabled:bg-neutral-900 disabled:cursor-no-drop transition-ease-linear transition-all transition-100"
                             onclick={login}
                             ref={actualLoginButton}
+                            disabled={isBeingLoggedIn()}
                           >
-                            Login
+                            <Show when={isBeingLoggedIn()} fallback={"Login"}>
+                              <div class="flex text-6 justify-center m-x-1.80">
+                                <LoadingIndicator></LoadingIndicator>
+                              </div>
+                            </Show>
                           </button>
                         </>
                       );
