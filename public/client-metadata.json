@@ -1,8 +1,9 @@
 {
-  "client_id": "https://example.com/client-metadata.json",
+  "client_id": "https://bluecatalog.app/client-metadata.json",
   "client_name": "BlueCatalog",
-  "client_uri": "https://example.com",
-  "redirect_uris": ["https://example.com/"],
+  "client_uri": "https://bluecatalog.app/",
+  "policy_uri": "https://bluecatalog.app/privacy",
+  "redirect_uris": ["https://bluecatalog.app/"],
   "scope": "atproto transition:generic",
   "grant_types": ["authorization_code", "refresh_token"],
   "response_types": ["code"],
