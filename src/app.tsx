@@ -262,9 +262,10 @@ export default function App(props: { children: JSX.Element }) {
       <main class="flex-1 dark:bg-neutral-900 light:bg-neutral-200">
         <Suspense>{props.children}</Suspense>
       </main>
-      <footer class="flex light:bg-neutral-100 dark:bg-neutral-800 light:text-black dark:text-white p-2 h-16 items-center justify-between">
+      <footer class="flex light:bg-neutral-100 dark:bg-neutral-800 light:text-black dark:text-white p-y-2 p-x-4 h-16 items-center justify-between">
         <div></div>
-        <div>
+        <div class="flex gap-4">
+          <a href="/privacy">Privacy Policy</a>
           <a href="https://github.com/SharpMars/bluecatalog">GitHub</a>
         </div>
       </footer>
