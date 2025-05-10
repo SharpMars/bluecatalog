@@ -281,9 +281,10 @@ function PaginationButtons(props: {
               if (newIndex < 1) throw new Error();
 
               props.setCurrentIndex(newIndex - 1);
+              e.currentTarget.value = newIndex.toString();
               e.currentTarget.blur();
             } catch (error) {
-              e.currentTarget.value = "" + props.currentIndex() + 1;
+              e.currentTarget.value = (props.currentIndex() + 1).toString();
               e.currentTarget.blur();
             }
           }}
