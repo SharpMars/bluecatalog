@@ -3,9 +3,12 @@ import solidPlugin from "vite-plugin-solid";
 import Pages from "vite-plugin-pages";
 import UnoCSS from 'unocss/vite'
 import metadata from './public/client-metadata.json' with { type: 'json' };
+import {dirname, resolve} from 'node:path';
+import { fileURLToPath } from "node:url";
 
 const SERVER_HOST = "127.0.0.1";
 const SERVER_PORT = 3000;
+const __dirname = dirname(fileURLToPath(import.meta.url));
 
 export default defineConfig({
   plugins: [
@@ -49,5 +52,11 @@ export default defineConfig({
   },
   build: {
     target: "esnext",
+	rollupOptions: {
+		input: {
+			main: resolve(__dirname, "index.html"),
+			"404": resolve(__dirname, "404.html")
+		}
+	}
   },
 });
