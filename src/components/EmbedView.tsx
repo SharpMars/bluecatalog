@@ -6,16 +6,16 @@ import {
   AppBskyEmbedVideo,
   AppBskyFeedPost,
   AppBskyRichtextFacet,
-  Brand,
-} from "@atcute/client/lexicons";
+} from "@atcute/bluesky";
 import { For, lazy, Match, Show, Switch } from "solid-js";
 import ImageView from "./ImageView";
 import { segmentize } from "@atcute/bluesky-richtext-segmenter";
+import { $type, is } from "@atcute/lexicons";
 
 const HlsPlayer = lazy(() => import("./HlsPlayer"));
 
 export default function EmbedView(props: {
-  embed?: Brand.Union<
+  embed?: $type.enforce<
     | AppBskyEmbedExternal.View
     | AppBskyEmbedImages.View
     | AppBskyEmbedRecord.View
@@ -138,8 +138,8 @@ export default function EmbedView(props: {
                     <p class="m-b-2 whitespace-pre-wrap">
                       <For
                         each={segmentize(
-                          (viewRecord().value as AppBskyFeedPost.Record)?.text,
-                          (viewRecord().value as AppBskyFeedPost.Record)?.facets
+                          (viewRecord().value as AppBskyFeedPost.Main)?.text,
+                          (viewRecord().value as AppBskyFeedPost.Main)?.facets
                         )}
                       >
                         {(item) => {
@@ -148,8 +148,10 @@ export default function EmbedView(props: {
                               <Match
                                 when={
                                   item.features?.length > 0 &&
-                                  item.features[0].$type ==
-                                    "app.bsky.richtext.facet#link"
+                                  is(
+                                    AppBskyRichtextFacet.linkSchema,
+                                    item.features[0]
+                                  )
                                 }
                               >
                                 <a
@@ -226,10 +228,8 @@ export default function EmbedView(props: {
                       <p class="m-b-2 whitespace-pre-wrap">
                         <For
                           each={segmentize(
-                            (viewRecord().value as AppBskyFeedPost.Record)
-                              ?.text,
-                            (viewRecord().value as AppBskyFeedPost.Record)
-                              ?.facets
+                            (viewRecord().value as AppBskyFeedPost.Main)?.text,
+                            (viewRecord().value as AppBskyFeedPost.Main)?.facets
                           )}
                         >
                           {(item) => {
@@ -238,8 +238,10 @@ export default function EmbedView(props: {
                                 <Match
                                   when={
                                     item.features?.length > 0 &&
-                                    item.features[0].$type ==
-                                      "app.bsky.richtext.facet#link"
+                                    is(
+                                      AppBskyRichtextFacet.linkSchema,
+                                      item.features[0]
+                                    )
                                   }
                                 >
                                   <a

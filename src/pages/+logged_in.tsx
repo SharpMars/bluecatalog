@@ -16,13 +16,13 @@ import {
   AppBskyEmbedVideo,
   AppBskyFeedDefs,
   AppBskyFeedPost,
-  At,
-} from "@atcute/client/lexicons";
+} from "@atcute/bluesky";
 import { useQuery } from "@tanstack/solid-query";
 import MiniSearch from "minisearch";
 import ldb from "localdata";
 import { LoadingIndicator } from "../components/LoadingIndicator";
 import Dialog from "@corvu/dialog";
+import { Did } from "@atcute/lexicons";
 
 const searcher = new MiniSearch({
   idField: "cid",
@@ -35,7 +35,7 @@ const searcher = new MiniSearch({
     }
 
     if (fieldName == "text") {
-      const record = feedViewPost.post.record as AppBskyFeedPost.Record;
+      const record = feedViewPost.post.record as AppBskyFeedPost.Main;
       return record.text;
     }
 
@@ -87,11 +87,15 @@ export default function LoggedIn() {
           do {
             const res = await xrpc.get("app.bsky.feed.getActorLikes", {
               params: {
-                actor: agent.sub as At.Did,
+                actor: agent.sub as Did,
                 cursor: cursor,
                 limit: 100,
               },
             });
+            if (!res.ok) {
+              throw new Error(JSON.stringify(res.data));
+            }
+
             likes.push(...res.data.feed);
             cursor = res.data.cursor;
             if (res.data.feed.length === 0) {

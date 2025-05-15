@@ -7,11 +7,7 @@ export default defineConfig({
     }),
     presetIcons({}),
   ],
-  rules: [
-    ["field-sizing-fixed", { "field-sizing": "fixed" }],
-    ["field-sizing-content", { "field-sizing": "content" }],
-    ["moz-appearance-textfield", { "-moz-appearance": "textfield" }],
-  ],
+  rules: [["moz-appearance-textfield", { "-moz-appearance": "textfield" }]],
   theme: {
     animation: {
       keyframes: {

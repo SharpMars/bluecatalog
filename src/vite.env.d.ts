@@ -1,6 +1,6 @@
 /// <reference types="vite/client" />
 /// <reference types="vite-plugin-pages/client-solid" />
-/// <reference types="@atcute/bluesky/lexicons" />
+/// <reference types="@atcute/bluesky" />
 
 interface ImportMetaEnv {
   readonly VITE_DEV_SERVER_PORT?: string;

@@ -1,9 +1,10 @@
 import { segmentize } from "@atcute/bluesky-richtext-segmenter";
-import type {
+import {
   AppBskyFeedDefs,
   AppBskyFeedPost,
   AppBskyRichtextFacet,
-} from "@atcute/client/lexicons";
+} from "@atcute/bluesky";
+import { is } from "@atcute/lexicons";
 import { For, Match, Show, Switch } from "solid-js";
 import EmbedView from "./EmbedView";
 
@@ -14,7 +15,7 @@ interface BskyPostProps {
 export function BskyPost(props: BskyPostProps) {
   const post = props.post;
   const author = post.author;
-  const record = post.record as AppBskyFeedPost.Record;
+  const record = post.record as AppBskyFeedPost.Main;
   const embed = post.embed;
 
   return (
@@ -42,7 +43,7 @@ export function BskyPost(props: BskyPostProps) {
                 <Match
                   when={
                     item.features?.length > 0 &&
-                    item.features[0].$type == "app.bsky.richtext.facet#link"
+                    is(AppBskyRichtextFacet.linkSchema, item.features[0])
                   }
                 >
                   <a

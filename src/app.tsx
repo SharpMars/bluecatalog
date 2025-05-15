@@ -18,12 +18,12 @@ import {
   resolveFromIdentity,
   Session,
 } from "@atcute/oauth-browser-client";
-import { At } from "@atcute/client/lexicons";
-import { XRPC } from "@atcute/client";
+import { Client } from "@atcute/client";
 import { A } from "@solidjs/router";
 import Popover from "@corvu/popover";
 import Dialog from "@corvu/dialog";
 import { LoadingIndicator } from "./components/LoadingIndicator";
+import { Did } from "@atcute/lexicons";
 
 type ColorSchemeType = "auto" | "light" | "dark";
 
@@ -87,7 +87,7 @@ createEffect(() => {
 });
 
 export let agent: OAuthUserAgent;
-export let xrpc: XRPC;
+export let xrpc: Client;
 
 export default function App(props: { children: JSX.Element }) {
   onMount(async () => {
@@ -141,9 +141,13 @@ export default function App(props: { children: JSX.Element }) {
   const [profile] = createResource(loginState, async () => {
     const res = await xrpc.get("app.bsky.actor.getProfile", {
       params: {
-        actor: agent.sub as At.Did,
+        actor: agent.sub as Did,
       },
     });
+
+    if (!res.ok) {
+      throw new Error(JSON.stringify(res.data));
+    }
 
     return res.data;
   });
@@ -290,9 +294,9 @@ const retrieveSession = async () => {
 
       if (lastSignedIn) {
         try {
-          return await getSession(lastSignedIn as At.Did);
+          return await getSession(lastSignedIn as Did);
         } catch (err) {
-          deleteStoredSession(lastSignedIn as At.Did);
+          deleteStoredSession(lastSignedIn as Did);
           localStorage.removeItem("lastSignedIn");
           throw err;
         }
@@ -304,7 +308,7 @@ const retrieveSession = async () => {
 
   if (session) {
     agent = new OAuthUserAgent(session);
-    xrpc = new XRPC({ handler: agent });
+    xrpc = new Client({ handler: agent });
     setLoginState(true);
   }
 };

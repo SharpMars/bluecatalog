@@ -1,4 +1,4 @@
-import { AppBskyEmbedImages } from "@atcute/client/lexicons";
+import { AppBskyEmbedImages } from "@atcute/bluesky";
 import Dialog, { useContext } from "@corvu/dialog";
 import { createSignal, For, Show } from "solid-js";
 
