@@ -56,6 +56,7 @@ export default function Settings() {
                       class="rounded-md px-3 py-2 bg-red-700 hover:bg-red-800 active:bg-red-900 transition-all transition-100 transition-ease-linear"
                       on:click={() => {
                         ldb.delete("likes-cache");
+                        ldb.delete("pins-cache");
                       }}
                     >
                       Yes
