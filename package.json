@@ -24,6 +24,7 @@
     "@atcute/bluesky": "^3.0.0",
     "@atcute/bluesky-richtext-segmenter": "^2.0.1",
     "@atcute/client": "^4.0.0",
+    "@atcute/identity-resolver": "^1.0.1",
     "@atcute/lexicons": "^1.0.0",
     "@atcute/oauth-browser-client": "^1.0.19",
     "@corvu/dialog": "^0.2.4",

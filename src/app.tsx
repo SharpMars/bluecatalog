@@ -24,6 +24,11 @@ import Popover from "@corvu/popover";
 import Dialog from "@corvu/dialog";
 import { LoadingIndicator } from "./components/LoadingIndicator";
 import { Did } from "@atcute/lexicons";
+import {
+  CompositeDidDocumentResolver,
+  PlcDidDocumentResolver,
+  WebDidDocumentResolver,
+} from "@atcute/identity-resolver";
 
 type ColorSchemeType = "auto" | "light" | "dark";
 
@@ -88,6 +93,12 @@ createEffect(() => {
 
 export let agent: OAuthUserAgent;
 export let xrpc: Client;
+export const docResolver = new CompositeDidDocumentResolver({
+  methods: {
+    plc: new PlcDidDocumentResolver(),
+    web: new WebDidDocumentResolver(),
+  },
+});
 
 export default function App(props: { children: JSX.Element }) {
   onMount(async () => {
@@ -188,8 +199,10 @@ export default function App(props: { children: JSX.Element }) {
                       </svg>
                     </div>
                     <div class="light:bg-neutral-300 dark:bg-neutral-700 p-2 rounded light:text-black dark:text-white">
-                      <p class="font-600">{profile().displayName}</p>
-                      <p class="text-neutral-500">@{profile().handle}</p>
+                      <Show when={!profile.error}>
+                        <p class="font-600">{profile().displayName}</p>
+                        <p class="text-neutral-500">@{profile().handle}</p>
+                      </Show>
                       <div class="flex justify-evenly">
                         <Popover.Close>
                           <A href="/settings">
@@ -309,6 +322,12 @@ const retrieveSession = async () => {
   if (session) {
     agent = new OAuthUserAgent(session);
     xrpc = new Client({ handler: agent });
+    xrpc.proxy = {
+      did: localStorage.getItem("proxyDid")
+        ? (localStorage.getItem("proxyDid") as Did)
+        : "did:web:api.bsky.app",
+      serviceId: "#bsky_appview",
+    };
     setLoginState(true);
   }
 };

@@ -1,12 +1,15 @@
 import Dialog from "@corvu/dialog";
 import ldb from "localdata";
-import { colorScheme, setColorScheme } from "../app";
+import { colorScheme, docResolver, setColorScheme, xrpc } from "../app";
 import { onMount } from "solid-js";
+import { Did, isDid } from "@atcute/lexicons/syntax";
 
 export default function Settings() {
   let autoRadio: HTMLInputElement;
   let lightRadio: HTMLInputElement;
   let darkRadio: HTMLInputElement;
+  let appviewInput: HTMLInputElement;
+  let appviewError: HTMLParagraphElement;
 
   onMount(() => {
     switch (colorScheme()) {
@@ -20,6 +23,9 @@ export default function Settings() {
         darkRadio.checked = true;
         break;
     }
+
+    if (localStorage.getItem("proxyDid"))
+      appviewInput.value = localStorage.getItem("proxyDid");
   });
 
   return (
@@ -111,6 +117,62 @@ export default function Settings() {
               />
               <label for="dark">Dark</label>
             </fieldset>
+          </div>
+          <div>
+            <h2 class="text-7 font-600 light:text-black dark:text-white m-b-1">
+              AppView
+            </h2>
+            <p class="m-t--1 text-neutral-500 m-b-2">
+              Allows you to set which API backend you want to use for fetching
+              data.
+            </p>
+            <div class="b-gray b-1 b-solid rounded p-1 light:[&:focus-within]:b-gray-900 dark:[&:focus-within]:b-gray-100 box-content [&:focus-within]:b-2 [&:focus-within]:m--1px light:text-black dark:text-white flex">
+              <input
+                class="border-none outline-0 placeholder-neutral-500 flex-1"
+                type="text"
+                placeholder="did:web:api.bsky.app"
+                ref={appviewInput}
+                onchange={async (ev) => {
+                  const input = ev.currentTarget;
+                  if (input.value.trim() === "") {
+                    input.parentElement.style.borderColor = "";
+                    xrpc.proxy.did = "did:web:api.bsky.app";
+                    localStorage.removeItem("proxyDid");
+                    appviewError.innerText = "";
+                    return;
+                  }
+
+                  if (isDid(input.value.trim())) {
+                    const doc = await docResolver.resolve(
+                      input.value.trim() as Did<"plc"> | Did<"web">
+                    );
+
+                    if (doc.service.some((val) => val.id == "#bsky_appview")) {
+                      localStorage.setItem("proxyDid", input.value.trim());
+                      xrpc.proxy.did = input.value.trim() as Did;
+                      input.parentElement.style.borderColor = "";
+                      appviewError.innerText = "";
+                    } else {
+                      input.parentElement.style.borderColor = "red";
+                      appviewError.innerText =
+                        "Provided DID doesn't provide a Bluesky AppView.";
+                    }
+                  } else {
+                    input.parentElement.style.borderColor = "red";
+                    appviewError.innerText = "Invalid DID was provided.";
+                  }
+                }}
+              ></input>
+              <button
+                onclick={(ev) => {
+                  appviewInput.value = "";
+                  appviewInput.dispatchEvent(new Event("change"));
+                }}
+              >
+                ⨉
+              </button>
+            </div>
+            <p ref={appviewError} class="text-red"></p>
           </div>
         </div>
       </div>
