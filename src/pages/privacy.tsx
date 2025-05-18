@@ -1,7 +1,7 @@
 export default function PrivacyPolicy() {
   return (
     <section class="p-4 p-y-0 flex md:justify-center light:text-black dark:text-white">
-      <div class="md:min-w-2xl w-full md:w-a m-x-2 m-t-2">
+      <div class="md:min-w-2xl w-full md:w-a m-x-2 m-y-2">
         <h1 class="font-900 text-10 m-b-2">Privacy Policy</h1>
         <p>
           BlueCatalog is completely client-side app. This means that all data
