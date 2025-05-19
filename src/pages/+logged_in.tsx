@@ -23,8 +23,22 @@ import { Tabs } from "../components/Tabs";
 import { PaginationButtons } from "../components/PaginationButtons";
 import { fetchLikes } from "../misc/likes";
 import { fetchPins } from "../misc/pins";
+import { Masonry } from "../components/Masonry";
 
 export default function LoggedIn() {
+  const [masonryEnabled] = createSignal(
+    (() => {
+      return localStorage.getItem("masonry-enabled") !== null;
+    })()
+  );
+
+  const [masonryColumnCount] = createSignal(
+    (() => {
+      const saved = localStorage.getItem("masonry-columns");
+      if (saved) return parseInt(saved);
+      return 1;
+    })()
+  );
   const [currentIndex, setCurrentIndex] = createSignal(0);
   const [searchVal, setSearchVal] = createSignal("");
   const [selectedTab, setSelectedTab] = createSignal<"likes" | "pins">(
@@ -143,6 +157,15 @@ export default function LoggedIn() {
     return Math.ceil(filteredPosts()?.length / 50);
   });
 
+  const currentPagePosts = createMemo(() =>
+    filteredPosts()?.slice(
+      0 + currentIndex() * 50,
+      50 + currentIndex() * 50 > filteredPosts()?.length
+        ? filteredPosts()?.length
+        : 50 + currentIndex() * 50
+    )
+  );
+
   createEffect(() => {
     if (currentIndex() > pageCount()) {
       setCurrentIndex(pageCount());
@@ -197,7 +220,10 @@ export default function LoggedIn() {
       <Switch>
         <Match when={postsQuery.isSuccess && postsQuery.data != null}>
           <ErrorBoundary
-            fallback={(err, reset) => <ErrorScreen reset={reset}></ErrorScreen>}
+            fallback={(err, reset) => {
+              console.error(err);
+              return <ErrorScreen reset={reset}></ErrorScreen>;
+            }}
           >
             <div class="m-b-1">
               <div class="flex justify-center gap-2">
@@ -252,25 +278,42 @@ export default function LoggedIn() {
                 ></PaginationButtons>
               </div>
             </div>
-            <div class="flex justify-center">
-              <ul class="flex flex-col gap-2">
-                <For
-                  each={filteredPosts()?.slice(
-                    0 + currentIndex() * 50,
-                    50 + currentIndex() * 50 > filteredPosts()?.length
-                      ? filteredPosts()?.length
-                      : 50 + currentIndex() * 50
-                  )}
-                  children={(item) => {
+            <Switch
+              fallback={
+                <div class="flex w-full justify-center">
+                  <ul class="flex flex-col gap-4">
+                    <For each={currentPagePosts()}>
+                      {(item) => {
+                        return (
+                          <li class="max-w-[min(36rem,calc(100vw-32px))] w-full">
+                            <BskyPost post={item}></BskyPost>
+                          </li>
+                        );
+                      }}
+                    </For>
+                  </ul>
+                </div>
+              }
+            >
+              <Match when={masonryEnabled() && masonryColumnCount() > 1}>
+                <Masonry
+                  each={currentPagePosts()}
+                  columns={masonryColumnCount()}
+                  maxWidth={576}
+                  gap={8}
+                  verticalOnlyGap={4}
+                >
+                  {(item) => {
                     return (
-                      <li class="max-w-[min(36rem,calc(100vw-32px))]">
+                      <li class="max-w-[min(36rem,calc(100vw-32px))] w-full">
                         <BskyPost post={item}></BskyPost>
                       </li>
                     );
                   }}
-                />
-              </ul>
-            </div>
+                </Masonry>
+              </Match>
+            </Switch>
+
             <div class="m-t-2">
               <PaginationButtons
                 currentIndex={currentIndex}

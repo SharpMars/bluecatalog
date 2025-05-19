@@ -1,7 +1,7 @@
 import Dialog from "@corvu/dialog";
 import ldb from "localdata";
 import { colorScheme, docResolver, setColorScheme, xrpc } from "../app";
-import { onMount } from "solid-js";
+import { createSignal, onMount, Show } from "solid-js";
 import { Did, isDid } from "@atcute/lexicons/syntax";
 
 export default function Settings() {
@@ -10,6 +10,20 @@ export default function Settings() {
   let darkRadio: HTMLInputElement;
   let appviewInput: HTMLInputElement;
   let appviewError: HTMLParagraphElement;
+
+  const [masonryEnabled, setMasonryEnabled] = createSignal(
+    (() => {
+      return localStorage.getItem("masonry-enabled") !== null;
+    })()
+  );
+
+  const [masonryColumnCount, setMasonryColumnCount] = createSignal(
+    (() => {
+      const saved = localStorage.getItem("masonry-columns");
+      if (saved) return parseInt(saved);
+      return 1;
+    })()
+  );
 
   onMount(() => {
     switch (colorScheme()) {
@@ -117,6 +131,53 @@ export default function Settings() {
               />
               <label for="dark">Dark</label>
             </fieldset>
+          </div>
+          <div class="light:text-black dark:text-white">
+            <h2 class="text-7 font-600 m-b-1">Masonry</h2>
+            <p class="m-t--1 text-neutral-500 m-b-2">
+              DISCLAIMER: Don't use on your phone. <br />
+              Allows you to have multiple columns of posts.
+            </p>
+            <div class="flex gap-2">
+              <input
+                name="masonry-enabled"
+                type="checkbox"
+                class="appearance-none rounded b-2 b-neutral w-4 h-4 m-y-auto relative checked:bg-blue-500 after:text-white after:i-mingcute-check-fill after:absolute after:top-50% after:left-50% after:translate-x--50% after:translate-y--50% checked:after:scale-100 after:scale-0 after:rounded-2xl after:w-3 after:h-3 after:content-[''] after:transition-all after:transition-100 after:transition-ease-linear"
+                checked={masonryEnabled()}
+                onclick={(ev) => {
+                  if (ev.currentTarget.checked) {
+                    setMasonryEnabled(true);
+                    localStorage.setItem("masonry-enabled", "");
+                  } else {
+                    setMasonryEnabled(false);
+                    localStorage.removeItem("masonry-enabled");
+                  }
+                }}
+              ></input>
+              <label for="masonry-enabled">Enabled</label>
+            </div>
+            <Show when={masonryEnabled()}>
+              <label>Column count: </label>
+              <input
+                type="number"
+                min={1}
+                max={3}
+                value={masonryColumnCount()}
+                onchange={(ev) => {
+                  const num = ev.currentTarget.valueAsNumber;
+                  if (!isNaN(num) && num > 0 && num <= 3) {
+                    localStorage.setItem(
+                      "masonry-columns",
+                      ev.currentTarget.value
+                    );
+                    setMasonryColumnCount(ev.currentTarget.valueAsNumber);
+                  } else {
+                    ev.currentTarget.valueAsNumber = masonryColumnCount();
+                  }
+                }}
+                class="b-neutral b-1 b-solid rounded p-l-1"
+              ></input>
+            </Show>
           </div>
           <div>
             <h2 class="text-7 font-600 light:text-black dark:text-white m-b-1">
