@@ -19,7 +19,7 @@ export function BskyPost(props: BskyPostProps) {
   const embed = post.embed;
 
   return (
-    <div class="light:bg-neutral-100 dark:bg-neutral-800 p-4 light:text-black dark:text-white b-[HSL(211,100%,63%)] b-1 rounded-xl">
+    <div class="light:bg-neutral-100 dark:bg-neutral-800 p-4 light:text-black dark:text-white b-transparent hover:b-[HSL(211,100%,63%)] b-1 rounded-xl transition-ease-in-out transition-100 transition-border-color">
       <div class="flex gap-2 items-center m-b-2">
         <img
           width={32}
