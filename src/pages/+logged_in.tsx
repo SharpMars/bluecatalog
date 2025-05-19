@@ -8,7 +8,6 @@ import {
   onMount,
   Switch,
 } from "solid-js";
-import { agent, xrpc } from "../app";
 import { BskyPost } from "../components/BskyPost";
 import {
   AppBskyEmbedImages,
@@ -18,12 +17,12 @@ import {
 } from "@atcute/bluesky";
 import { useQuery } from "@tanstack/solid-query";
 import MiniSearch from "minisearch";
-import ldb from "localdata";
 import { LoadingIndicator } from "../components/LoadingIndicator";
 import Dialog from "@corvu/dialog";
-import { Did, ResourceUri } from "@atcute/lexicons";
 import { Tabs } from "../components/Tabs";
 import { PaginationButtons } from "../components/PaginationButtons";
+import { fetchLikes } from "../misc/likes";
+import { fetchPins } from "../misc/pins";
 
 export default function LoggedIn() {
   const [currentIndex, setCurrentIndex] = createSignal(0);
@@ -77,188 +76,61 @@ export default function LoggedIn() {
 
   let refetch = false;
 
-  const likesQuery = useQuery(() => ({
-    queryFn: async () => {
+  const postsQuery = useQuery(() => ({
+    queryFn: async ({ queryKey }) => {
       try {
-        let likes: AppBskyFeedDefs.PostView[] = [];
+        let posts: AppBskyFeedDefs.PostView[] = [];
+        switch (queryKey[0]) {
+          case "likes":
+            posts = await fetchLikes(refetch);
+            break;
+          case "pins":
+            posts = await fetchPins(refetch);
+            break;
+          default:
+            throw new Error("unimplemented fetching");
+        }
+        refetch = false;
 
-        const cacheJson = await new Promise(
-          (resolve: (value: string) => void, reject) => {
-            ldb.get("likes-cache", (value) => {
-              resolve(value);
-            });
-          }
-        );
-
-        if (refetch) {
-          let cursor = undefined;
-
-          refetch = false;
-
-          do {
-            const res = await xrpc.get("app.bsky.feed.getActorLikes", {
-              params: {
-                actor: agent.sub as Did,
-                cursor: cursor,
-                limit: 100,
-              },
-            });
-            if (!res.ok) {
-              throw new Error(JSON.stringify(res.data));
-            }
-
-            likes.push(
-              ...res.data.feed.map((feedViewPost) => feedViewPost.post)
-            );
-            cursor = res.data.cursor;
-            if (res.data.feed.length === 0) {
-              cursor = undefined;
-            }
-          } while (cursor);
-
-          ldb.set("likes-cache", JSON.stringify(likes));
-        } else if (cacheJson == null) {
+        if (posts === null) {
           return null;
-        } else {
-          likes = JSON.parse(cacheJson);
         }
 
         try {
           searcher.removeAll();
-          searcher.addAll(likes);
+          searcher.addAll(posts);
         } catch (error) {
           console.error(error);
         }
 
-        return likes;
+        return posts;
       } catch (error) {
         console.error(error);
         throw error;
       }
     },
-    queryKey: ["likes"],
-    enabled: selectedTab() === "likes",
-  }));
-
-  const pinsQuery = useQuery(() => ({
-    queryFn: async () => {
-      try {
-        let pins: AppBskyFeedDefs.PostView[] = [];
-
-        const cacheJson = await new Promise(
-          (resolve: (value: string) => void, reject) => {
-            ldb.get("pins-cache", (value) => {
-              resolve(value);
-            });
-          }
-        );
-
-        if (refetch) {
-          let cursor = undefined;
-
-          refetch = false;
-
-          let pinsRefs: {
-            cid: string;
-            uri: ResourceUri;
-            $type?: "com.atproto.repo.strongRef";
-          }[] = [];
-
-          do {
-            const res = await xrpc.get("app.bsky.feed.searchPosts", {
-              params: {
-                q: "from:me 📌",
-                cursor: cursor,
-                limit: 100,
-                sort: "latest",
-              },
-            });
-            if (!res.ok) {
-              throw new Error(JSON.stringify(res.data));
-            }
-
-            pinsRefs.push(
-              ...res.data.posts
-                .map((comment) => {
-                  const commentPost = comment.record as AppBskyFeedPost.Main;
-                  if (commentPost.text.trim() !== "📌") return null;
-                  return commentPost.reply ? commentPost.reply.parent : null;
-                })
-                .filter((ref) => ref)
-            );
-            cursor = res.data.cursor;
-            if (res.data.posts.length === 0) {
-              cursor = undefined;
-            }
-          } while (cursor);
-
-          while (pinsRefs.length > 0) {
-            const res = await xrpc.get("app.bsky.feed.getPosts", {
-              params: {
-                uris: pinsRefs.splice(0, 25).map((ref) => ref.uri),
-              },
-            });
-            if (!res.ok) {
-              throw new Error(JSON.stringify(res.data));
-            }
-
-            pins.push(...res.data.posts);
-          }
-
-          ldb.set("pins-cache", JSON.stringify(pins));
-        } else if (cacheJson == null) {
-          return null;
-        } else {
-          pins = JSON.parse(cacheJson);
-        }
-
-        try {
-          searcher.removeAll();
-          searcher.addAll(pins);
-        } catch (error) {
-          console.error(error);
-        }
-
-        return pins;
-      } catch (error) {
-        console.error(error);
-        throw error;
-      }
-    },
-    queryKey: ["pins"],
-    enabled: selectedTab() === "pins",
+    queryKey: [selectedTab()],
   }));
 
   onMount(() => {
-    if (searcher && currentQuery().isSuccess && currentQuery().data != null) {
+    if (searcher && postsQuery.isSuccess && postsQuery.data != null) {
       try {
         searcher.removeAll();
-        searcher.addAll(currentQuery().data);
+        searcher.addAll(postsQuery.data);
       } catch (error) {
         console.error(error);
       }
     }
   });
 
-  const currentQuery = () => {
-    switch (selectedTab()) {
-      case "likes":
-        return likesQuery;
-      case "pins":
-        return pinsQuery;
-      default:
-        throw new Error("how tf did we fail in currentQuery?");
-    }
-  };
-
   const filteredPosts = createMemo(() => {
-    if (!currentQuery().isSuccess) return [];
+    if (!postsQuery.isSuccess) return [];
 
-    if (searchVal().trim() === "") return currentQuery().data;
+    if (searchVal().trim() === "") return postsQuery.data;
 
     const result = searcher.search(searchVal(), { fuzzy: 0.1 });
 
-    const data = currentQuery().data.filter(
+    const data = postsQuery.data.filter(
       (val) => result.find((res) => res.id == val.cid) !== undefined
     );
 
@@ -289,12 +161,12 @@ export default function LoggedIn() {
             class="bg-neutral-600 text-white p-2 rounded w-48 hover:bg-neutral-700 active:bg-neutral-800 transition-all transition-100 transition-ease-linear"
             onclick={async () => {
               refetch = true;
-              await currentQuery().refetch();
+              await postsQuery.refetch();
               if (props.reset) props.reset();
             }}
           >
             <Switch fallback={"Index"}>
-              <Match when={currentQuery().isFetching}>
+              <Match when={postsQuery.isFetching}>
                 <div class="text-6 flex justify-center">
                   <LoadingIndicator />
                 </div>
@@ -323,7 +195,7 @@ export default function LoggedIn() {
       </div>
 
       <Switch>
-        <Match when={currentQuery().isSuccess && currentQuery().data != null}>
+        <Match when={postsQuery.isSuccess && postsQuery.data != null}>
           <ErrorBoundary
             fallback={(err, reset) => <ErrorScreen reset={reset}></ErrorScreen>}
           >
@@ -348,7 +220,7 @@ export default function LoggedIn() {
                           class="rounded-md px-3 py-2 bg-sky-500 hover:bg-sky-600 active:bg-sky-700 transition-all transition-100 transition-ease-linear"
                           on:click={() => {
                             refetch = true;
-                            currentQuery().refetch();
+                            postsQuery.refetch();
                           }}
                         >
                           Yes
@@ -408,7 +280,7 @@ export default function LoggedIn() {
             </div>
           </ErrorBoundary>
         </Match>
-        <Match when={currentQuery().data == null}>
+        <Match when={postsQuery.data == null}>
           <div>
             <div class="flex items-center flex-col b-2 b-blue-500 b-dashed w-max h-max p-4 rounded-xl absolute top-45% left-50% translate-x--50% translate-y--50% gap-2">
               <p class="text-center dark:text-white light:text-black">
@@ -419,11 +291,11 @@ export default function LoggedIn() {
                 class="bg-neutral-600 text-white p-2 rounded w-48 hover:bg-neutral-700 active:bg-neutral-800 transition-all transition-100 transition-ease-linear"
                 onclick={() => {
                   refetch = true;
-                  currentQuery().refetch();
+                  postsQuery.refetch();
                 }}
               >
                 <Switch fallback={"Index"}>
-                  <Match when={currentQuery().isFetching}>
+                  <Match when={postsQuery.isFetching}>
                     <div class="text-6 flex justify-center">
                       <LoadingIndicator />
                     </div>
