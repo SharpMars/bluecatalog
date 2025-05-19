@@ -19,7 +19,7 @@ export function BskyPost(props: BskyPostProps) {
   const embed = post.embed;
 
   return (
-    <div class="light:bg-neutral-100 dark:bg-neutral-800 p-4 light:text-black dark:text-white b-[HSL(211,100%,63%)] b-3 rounded-xl">
+    <div class="light:bg-neutral-100 dark:bg-neutral-800 p-4 light:text-black dark:text-white b-[HSL(211,100%,63%)] b-1 rounded-xl">
       <div class="flex gap-2 items-center m-b-2">
         <img
           width={32}
@@ -31,7 +31,7 @@ export function BskyPost(props: BskyPostProps) {
         <span class="font-700 text-ellipsis overflow-hidden">
           {author.displayName}
         </span>
-        <span class="text-gray text-ellipsis overflow-hidden">
+        <span class="light:text-neutral-600 dark:text-neutral-400 text-ellipsis overflow-hidden">
           {"@" + author.handle}
         </span>
       </div>
@@ -66,12 +66,12 @@ export function BskyPost(props: BskyPostProps) {
           href={`https://bsky.app/profile/${author.did}/post/${post.uri
             .split("/")
             .at(-1)}`}
-          class="relative after:transform-origin-left after:scale-x-0 hover:after:scale-x-100 after:w-full light:after:bg-black dark:after:bg-white after:h-2px after:rounded after:content-[''] after:absolute after:bottom--1 after:left-0 after:transition-all after:transition-100 after:transition-ease-linear"
+          class="relative after:transform-origin-left light:text-neutral-600 dark:text-neutral-400 hover:text-inherit transition-all transition-100 transition-ease-linear after:scale-x-0 hover:after:scale-x-100 after:w-full after:bg-current after:h-2px after:rounded after:content-[''] after:absolute after:bottom--1 after:left-0 after:transition-all after:transition-100 after:transition-ease-linear"
         >
           View on Bluesky
           <div class="i-mingcute-arrow-right-up-fill inline-block v-middle"></div>
         </a>
-        <p>
+        <p class="light:text-neutral-600 dark:text-neutral-400">
           {new Intl.DateTimeFormat("en-UK", {
             hour: "2-digit",
             minute: "2-digit",
