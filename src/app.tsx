@@ -165,7 +165,7 @@ export default function App(props: { children: JSX.Element }) {
 
   return (
     <div class="flex flex-col min-h-screen">
-      <nav class="flex light:bg-neutral-100 dark:bg-neutral-800 light:text-black dark:text-white p-2 justify-between items-center h-16">
+      <nav class="flex light:bg-neutral-100 dark:bg-neutral-800 light:text-black dark:text-white p-x-3 justify-between items-center h-16">
         <A href="/" class="text-6 font-bold">
           <span class="text-blue-500">Blue</span>
           <span class="text-yellow-500">Catalog</span>
