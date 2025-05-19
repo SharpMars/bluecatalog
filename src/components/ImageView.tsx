@@ -24,6 +24,16 @@ export default function ImageView(props: { embed: AppBskyEmbedImages.View }) {
             );
           }}
         ></button>
+        <div class="flex absolute bottom-2 left-50% translate-x--50% gap-1 mix-blend-difference">
+          {Array.from({ length: props.embed.images.length }, (_, i) => {
+            return (
+              <div
+                class="w-2 h-2 bg-white rounded-50%"
+                style={{ opacity: i === current() ? "100%" : "50%" }}
+              ></div>
+            );
+          })}
+        </div>
       </Show>
       <For each={props.embed.images}>
         {(item, index) => (
