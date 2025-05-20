@@ -2,10 +2,15 @@ export default function PrivacyPolicy() {
   return (
     <section class="p-4 p-y-0 flex md:justify-center light:text-black dark:text-white">
       <div class="md:min-w-2xl w-full md:w-a m-x-2 m-y-2">
-        <h1 class="font-900 text-10 m-b-2">Privacy Policy</h1>
+        <h1 class="font-900 text-10">Privacy Policy</h1>
+        <p class="m-b-2">Last updated: 20/05/2025</p>
         <p>
           BlueCatalog is completely client-side app. This means that all data
           used to operate this web app is stored only on your device.
+        </p>
+        <h2 class="text-6 font-700 m-t-2">Updates</h2>
+        <p>
+          We reserve the right to update this privacy policy from time to time.
         </p>
         <h2 class="text-6 font-700 m-t-2">Data stored on your device</h2>
         <p>
@@ -38,6 +43,7 @@ export default function PrivacyPolicy() {
           <li>
             Bluesky/ATProto network is used to get the data used in the app
           </li>
+          <li>Fonts are using Bunny Fonts</li>
         </ul>
         <h2 class="text-6 font-700 m-t-2">Data deletion</h2>
         <p>To delete the data stored on your device you need to:</p>
