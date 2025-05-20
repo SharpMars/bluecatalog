@@ -1,9 +1,19 @@
-import { defineConfig, presetIcons, presetWind4 } from "unocss";
+import { defineConfig, presetIcons, presetWebFonts, presetWind4 } from "unocss";
 
 export default defineConfig({
   presets: [
     presetWind4({
       dark: "class",
+    }),
+    presetWebFonts({
+      provider: "bunny",
+      fonts: {
+        sans: {
+          name: "DM Sans",
+          weights: [400, 600, 700, 900],
+        },
+      },
+      themeKey: "font",
     }),
     presetIcons({}),
   ],
