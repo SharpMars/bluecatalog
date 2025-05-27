@@ -93,6 +93,7 @@ export default function EmbedView(props: {
                 }
               >
                 <img
+                  class="rounded-xl m-x-auto"
                   src={externalView().external.uri}
                   alt={externalView().external.description.replace("Alt: ", "")}
                   title={externalView().external.description.replace(
