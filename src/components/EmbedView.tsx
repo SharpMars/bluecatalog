@@ -49,7 +49,7 @@ export default function EmbedView(props: {
                 <>
                   <a
                     href={externalView().external.uri}
-                    class="b-1 light:b-neutral-400 dark:b-neutral-600 b-solid block rounded-xl overflow-hidden"
+                    class="b-1 light:b-neutral-400 dark:b-neutral-600 b-solid block rounded-xl overflow-hidden light:hover:bg-black/5 dark:hover:bg-white/5 transition-ease-linear transition-all transition-100"
                   >
                     <img
                       src={externalView().external.thumb}
