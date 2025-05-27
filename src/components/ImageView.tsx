@@ -69,7 +69,7 @@ export default function ImageView(props: { embed: AppBskyEmbedImages.View }) {
                       title={item.alt}
                       alt={item.alt}
                       src={item.fullsize}
-                      class="w-100vw object-contain max-h-[calc(100vh-4rem)] max-w-[calc(100vw-8rem)]"
+                      class="w-100vw object-contain max-h-[calc(100vh-2rem)] portrait:max-h-[calc(100vh-8rem)] landscape:max-w-[calc(100vw-8rem)]"
                     ></img>
                   </Dialog.Content>
                 );
