@@ -19,8 +19,8 @@ import { LoadingIndicator } from "../components/LoadingIndicator";
 import Dialog from "@corvu/dialog";
 import { Tabs } from "../components/Tabs";
 import { PaginationButtons } from "../components/PaginationButtons";
-import { fetchLikes } from "../misc/likes";
-import { fetchPins } from "../misc/pins";
+import { fetchLikes } from "../fetching/likes";
+import { fetchPins } from "../fetching/pins";
 import { PostList } from "../components/PostList";
 
 export default function LoggedIn() {
