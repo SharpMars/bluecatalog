@@ -1,3 +1,5 @@
+import { A } from "@solidjs/router";
+
 export default function PrivacyPolicy() {
   return (
     <section class="p-4 p-y-0 flex md:justify-center light:text-black dark:text-white">
@@ -50,12 +52,12 @@ export default function PrivacyPolicy() {
         <ul class="list-disc p-l-8">
           <li>
             Go to the{" "}
-            <a
+            <A
               href="/settings"
               class="text-sky-500 underline underline-1 underline-sky-500 underline-solid"
             >
               Settings
-            </a>{" "}
+            </A>{" "}
             and press "Clear cache". This will delete the cache.
           </li>
           <li>Log out. This will delete the credentials.</li>
