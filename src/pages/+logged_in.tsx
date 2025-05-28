@@ -152,8 +152,12 @@ export default function LoggedIn() {
   );
 
   createEffect(() => {
-    if (currentIndex() > pageCount()) {
-      setCurrentIndex(pageCount());
+    if (pageCount() == 0) {
+      setCurrentIndex(-1);
+    } else if (currentIndex() == -1 && pageCount() > 0) {
+      setCurrentIndex(0);
+    } else if (currentIndex() > pageCount()) {
+      setCurrentIndex(pageCount() - 1);
     }
   });
 
