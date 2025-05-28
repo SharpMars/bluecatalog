@@ -49,6 +49,7 @@ export function BskyPost(props: BskyPostProps) {
                   <a
                     href={(item.features[0] as AppBskyRichtextFacet.Link).uri}
                     class="text-blue hover:underline"
+                    target="_blank"
                   >
                     {item.text}
                   </a>
@@ -67,6 +68,7 @@ export function BskyPost(props: BskyPostProps) {
             .split("/")
             .at(-1)}`}
           class="relative after:transform-origin-left light:text-neutral-600 dark:text-neutral-400 hover:text-inherit transition-all transition-100 transition-ease-linear after:scale-x-0 hover:after:scale-x-100 after:w-full after:bg-current after:h-2px after:rounded after:content-[''] after:absolute after:bottom--1 after:left-0 after:transition-all after:transition-100 after:transition-ease-linear"
+          target="_blank"
         >
           View on Bluesky
           <div class="i-mingcute-arrow-right-up-fill inline-block v-middle"></div>
