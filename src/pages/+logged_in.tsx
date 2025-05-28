@@ -24,7 +24,11 @@ import { fetchPins } from "../fetching/pins";
 import { PostList } from "../components/PostList";
 
 export default function LoggedIn() {
-  const [currentIndex, setCurrentIndex] = createSignal(0);
+  const [currentIndex, setCurrentIndex] = createSignal(
+    sessionStorage.getItem("currentIndex")
+      ? parseInt(sessionStorage.getItem("currentIndex"))
+      : 0
+  );
   const [searchVal, setSearchVal] = createSignal("");
   const [selectedTab, setSelectedTab] = createSignal<"likes" | "pins">(
     localStorage.getItem("lastTab")
@@ -159,6 +163,8 @@ export default function LoggedIn() {
     } else if (currentIndex() > pageCount()) {
       setCurrentIndex(pageCount() - 1);
     }
+
+    sessionStorage.setItem("currentIndex", currentIndex().toString());
   });
 
   const ErrorScreen = (props: { reset?: () => void }) => {
