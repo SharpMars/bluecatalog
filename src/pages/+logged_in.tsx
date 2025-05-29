@@ -3,8 +3,11 @@ import {
   createMemo,
   createSignal,
   ErrorBoundary,
+  For,
   Match,
+  on,
   onMount,
+  Show,
   Switch,
 } from "solid-js";
 import {
@@ -22,6 +25,8 @@ import { PaginationButtons } from "../components/PaginationButtons";
 import { fetchLikes } from "../fetching/likes";
 import { fetchPins } from "../fetching/pins";
 import { PostList } from "../components/PostList";
+import { FetchData } from "../fetching/fetch-data";
+import Popover from "@corvu/popover";
 
 export default function LoggedIn() {
   const [currentIndex, setCurrentIndex] = createSignal(
@@ -30,6 +35,7 @@ export default function LoggedIn() {
       : 0
   );
   const [searchVal, setSearchVal] = createSignal("");
+  const [selectedAuthors, setSelectedAuthors] = createSignal<string[]>([]);
   const [selectedTab, setSelectedTab] = createSignal<"likes" | "pins">(
     localStorage.getItem("lastTab")
       ? (localStorage.getItem("lastTab") as "likes" | "pins")
@@ -82,31 +88,31 @@ export default function LoggedIn() {
   const postsQuery = useQuery(() => ({
     queryFn: async ({ queryKey }) => {
       try {
-        let posts: AppBskyFeedDefs.PostView[] = [];
+        let data: FetchData;
         switch (queryKey[0]) {
           case "likes":
-            posts = await fetchLikes(refetch);
+            data = await fetchLikes(refetch);
             break;
           case "pins":
-            posts = await fetchPins(refetch);
+            data = await fetchPins(refetch);
             break;
           default:
             throw new Error("unimplemented fetching");
         }
         refetch = false;
 
-        if (posts === null) {
+        if (data === null) {
           return null;
         }
 
         try {
           searcher.removeAll();
-          searcher.addAll(posts);
+          searcher.addAll(data.posts);
         } catch (error) {
           console.error(error);
         }
 
-        return posts;
+        return data;
       } catch (error) {
         console.error(error);
         throw error;
@@ -119,27 +125,41 @@ export default function LoggedIn() {
     if (searcher && postsQuery.isSuccess && postsQuery.data != null) {
       try {
         searcher.removeAll();
-        searcher.addAll(postsQuery.data);
+        searcher.addAll(postsQuery.data.posts);
       } catch (error) {
         console.error(error);
       }
     }
   });
 
+  createEffect(
+    on(selectedTab, () => {
+      setSelectedAuthors([]);
+    })
+  );
+
   const filteredPosts = createMemo(() => {
-    if (!postsQuery.isSuccess) return [];
+    if (!postsQuery.isSuccess || postsQuery.data == null) return [];
 
-    if (searchVal().trim() === "") return postsQuery.data;
+    let posts = postsQuery.data.posts;
 
-    const result = searcher.search(searchVal(), { fuzzy: 0.1 });
+    if (selectedAuthors().length > 0) {
+      posts = posts.filter(
+        (val) =>
+          selectedAuthors().find((author) => author == val.author.did) !==
+          undefined
+      );
+    }
 
-    const data = postsQuery.data.filter(
-      (val) => result.find((res) => res.id == val.cid) !== undefined
-    );
+    if (searchVal().trim() !== "") {
+      const result = searcher.search(searchVal(), { fuzzy: 0.1 });
 
-    console.log([result, data, searchVal()]);
+      posts = posts.filter(
+        (val) => result.find((res) => res.id == val.cid) !== undefined
+      );
+    }
 
-    return data;
+    return posts;
   });
 
   const pageCount = createMemo(() => {
@@ -213,6 +233,9 @@ export default function LoggedIn() {
       </div>
 
       <Switch>
+        <Match when={postsQuery.isError}>
+          <ErrorScreen reset={() => {}}></ErrorScreen>;
+        </Match>
         <Match when={postsQuery.isSuccess && postsQuery.data != null}>
           <ErrorBoundary
             fallback={(err, reset) => {
@@ -257,6 +280,7 @@ export default function LoggedIn() {
                 <div class="b-gray b-1 b-solid rounded p-1 light:[&:focus-within]:b-gray-900 dark:[&:focus-within]:b-gray-100 box-content [&:focus-within]:b-2 [&:focus-within]:m--1px light:text-black dark:text-white">
                   <input
                     style={{ border: "none", outline: "none" }}
+                    class="h-full"
                     type="text"
                     placeholder="Search..."
                     onchange={(ev) => setSearchVal(ev.target.value)}
@@ -264,6 +288,99 @@ export default function LoggedIn() {
                   ></input>
                   <button onClick={() => setSearchVal("")}>⨉</button>
                 </div>
+
+                <Popover
+                  floatingOptions={{
+                    offset: 12,
+                    shift: true,
+                  }}
+                >
+                  <Popover.Trigger class="rounded-lg dark:bg-slate-700 light:bg-slate-400 p-2 text-5 dark:hover:bg-slate-800 light:hover:bg-slate-500 dark:active:bg-slate-900 light:active:bg-slate-600 transition-all transition-100 transition-ease-linear b-1 dark:b-slate-700 light:b-slate-400">
+                    <div class="i-mingcute-filter-3-fill text-white"></div>
+                  </Popover.Trigger>
+                  <Popover.Portal>
+                    <Popover.Content class="dark:bg-slate-800 light:bg-slate-500 p-2 rounded-lg text-white b-2 dark:b-slate-700 light:b-slate-400">
+                      <Popover.Label class="font-bold">Filter</Popover.Label>
+                      <hr class="m-y-2"></hr>
+                      <div class="flex flex-col gap-2 items-center">
+                        <label>Author:</label>
+                        <Popover>
+                          <Popover.Trigger class="w-88 p-2 b-1 b-white b-solid rounded-lg">
+                            <Show
+                              when={selectedAuthors().length > 0}
+                              fallback={
+                                <span class="text-neutral">
+                                  Select an author...
+                                </span>
+                              }
+                            >
+                              <div class="flex p-x-2 justify-between">
+                                <span>
+                                  Selected {selectedAuthors().length} items
+                                </span>
+                                <button
+                                  onclick={() => {
+                                    setSelectedAuthors([]);
+                                  }}
+                                  class="p-x-2"
+                                >
+                                  ⨉
+                                </button>
+                              </div>
+                            </Show>
+                          </Popover.Trigger>
+                          <Popover.Portal>
+                            <Popover.Content class="w-88 flex flex-col gap-0.5 max-h-64 overflow-y-auto dark:bg-slate-800 light:bg-slate-500 p-1 rounded-lg text-white b-2 dark:b-slate-700 light:b-slate-400">
+                              <For each={postsQuery.data.authors}>
+                                {(author) => {
+                                  return (
+                                    <button
+                                      class="max-h-9 h-9 h-full flex items-center gap-2 w-full p-x-1 rounded p-y-2 hover:bg-black/50 [&:not(.toggled)]:hover:bg-black/20 [&.toggled]:bg-black/40 transition-all transition-100 transition-ease-linear"
+                                      classList={{
+                                        toggled:
+                                          selectedAuthors().find(
+                                            (val) => val == author.did
+                                          ) != undefined,
+                                      }}
+                                      onclick={(ev) => {
+                                        ev.currentTarget.classList.toggle(
+                                          "toggled"
+                                        );
+                                        if (
+                                          selectedAuthors().find(
+                                            (val1) => val1 == author.did
+                                          ) == undefined
+                                        ) {
+                                          setSelectedAuthors([
+                                            author.did,
+                                            ...selectedAuthors(),
+                                          ]);
+                                        } else {
+                                          setSelectedAuthors(
+                                            selectedAuthors().filter(
+                                              (val1) => val1 != author.did
+                                            )
+                                          );
+                                        }
+                                      }}
+                                    >
+                                      <img
+                                        class="aspect-ratio-square max-h-7 rounded"
+                                        src={author.avatar}
+                                      />
+                                      <span>{author.handle}</span>
+                                    </button>
+                                  );
+                                }}
+                              </For>
+                            </Popover.Content>
+                          </Popover.Portal>
+                        </Popover>
+                      </div>
+                      <Popover.Arrow class="dark:text-slate-700 light:text-slate-400"></Popover.Arrow>
+                    </Popover.Content>
+                  </Popover.Portal>
+                </Popover>
               </div>
               <div class="m-y-2">
                 <PaginationButtons

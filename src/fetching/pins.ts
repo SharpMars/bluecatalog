@@ -1,10 +1,14 @@
-import { AppBskyFeedDefs, AppBskyFeedPost } from "@atcute/bluesky";
+import { AppBskyActorDefs, AppBskyFeedPost } from "@atcute/bluesky";
 import ldb from "localdata";
 import { xrpc } from "../app";
 import { ResourceUri } from "@atcute/lexicons";
+import { FetchData } from "./fetch-data";
 
 export async function fetchPins(refetch: boolean) {
-  let pins: AppBskyFeedDefs.PostView[] = [];
+  let data: FetchData = {
+    posts: [],
+    authors: [],
+  };
 
   const cacheJson = await new Promise(
     (resolve: (value: string) => void, reject) => {
@@ -51,6 +55,8 @@ export async function fetchPins(refetch: boolean) {
       }
     } while (cursor);
 
+    const authors: AppBskyActorDefs.ProfileViewBasic[] = [];
+
     while (pinsRefs.length > 0) {
       const res = await xrpc.get("app.bsky.feed.getPosts", {
         params: {
@@ -61,15 +67,27 @@ export async function fetchPins(refetch: boolean) {
         throw new Error(JSON.stringify(res.data));
       }
 
-      pins.push(...res.data.posts);
+      data.posts.push(...res.data.posts);
+      authors.push(
+        ...res.data.posts.map((feedViewPost) => feedViewPost.author)
+      );
     }
 
-    ldb.set("pins-cache", JSON.stringify(pins));
+    data.authors = authors
+      .filter((val, index, array) => {
+        return array.findIndex((val1) => val.did == val1.did) == index;
+      })
+      .sort((a, b) => a.handle.localeCompare(b.handle));
+
+    ldb.set("pins-cache", JSON.stringify(data));
   } else if (cacheJson == null) {
     return null;
   } else {
-    pins = JSON.parse(cacheJson);
+    const cache = JSON.parse(cacheJson) as FetchData;
+    if (!cache.posts) throw new Error("Old or malformed cache.");
+
+    data = cache;
   }
 
-  return pins;
+  return data;
 }

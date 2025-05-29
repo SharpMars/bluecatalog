@@ -1,10 +1,14 @@
-import { AppBskyFeedDefs } from "@atcute/bluesky";
 import ldb from "localdata";
 import { agent, xrpc } from "../app";
 import { Did } from "@atcute/lexicons";
+import { FetchData } from "./fetch-data";
+import { AppBskyActorDefs } from "@atcute/bluesky";
 
 export async function fetchLikes(refetch: boolean) {
-  let likes: AppBskyFeedDefs.PostView[] = [];
+  let data: FetchData = {
+    posts: [],
+    authors: [],
+  };
 
   const cacheJson = await new Promise(
     (resolve: (value: string) => void, reject) => {
@@ -16,6 +20,8 @@ export async function fetchLikes(refetch: boolean) {
 
   if (refetch) {
     let cursor = undefined;
+
+    const authors: AppBskyActorDefs.ProfileViewBasic[] = [];
 
     do {
       const res = await xrpc.get("app.bsky.feed.getActorLikes", {
@@ -29,19 +35,33 @@ export async function fetchLikes(refetch: boolean) {
         throw new Error(JSON.stringify(res.data));
       }
 
-      likes.push(...res.data.feed.map((feedViewPost) => feedViewPost.post));
+      data.posts.push(
+        ...res.data.feed.map((feedViewPost) => feedViewPost.post)
+      );
+      authors.push(
+        ...res.data.feed.map((feedViewPost) => feedViewPost.post.author)
+      );
       cursor = res.data.cursor;
       if (res.data.feed.length === 0) {
         cursor = undefined;
       }
     } while (cursor);
 
-    ldb.set("likes-cache", JSON.stringify(likes));
+    data.authors = authors
+      .filter((val, index, array) => {
+        return array.findIndex((val1) => val.did == val1.did) == index;
+      })
+      .sort((a, b) => a.handle.localeCompare(b.handle));
+
+    ldb.set("likes-cache", JSON.stringify(data));
   } else if (cacheJson == null) {
     return null;
   } else {
-    likes = JSON.parse(cacheJson);
+    const cache = JSON.parse(cacheJson) as FetchData;
+    if (!cache.posts) throw new Error("Old or malformed cache.");
+
+    data = cache;
   }
 
-  return likes;
+  return data;
 }
