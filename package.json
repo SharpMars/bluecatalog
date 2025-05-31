@@ -16,7 +16,7 @@
     "@unocss/preset-icons": "^66.1.2",
     "@unocss/preset-wind4": "^66.1.2",
     "unocss": "^66.1.2",
-    "vite": "^6.3.5",
+    "vite": "npm:rolldown-vite@latest",
     "vite-plugin-pages": "^0.33.0",
     "vite-plugin-solid": "^2.11.6"
   },
