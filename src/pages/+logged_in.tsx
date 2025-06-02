@@ -27,6 +27,7 @@ import { fetchPins } from "../fetching/pins";
 import { PostList } from "../components/PostList";
 import { FetchData } from "../fetching/fetch-data";
 import Popover from "@corvu/popover";
+import { TextInput } from "../components/TextInput";
 
 export default function LoggedIn() {
   const [currentIndex, setCurrentIndex] = createSignal(
@@ -276,19 +277,10 @@ export default function LoggedIn() {
                     </Dialog.Content>
                   </Dialog.Portal>
                 </Dialog>
-
-                <div class="b-gray b-1 b-solid rounded p-1 light:[&:focus-within]:b-gray-900 dark:[&:focus-within]:b-gray-100 box-content [&:focus-within]:b-2 [&:focus-within]:m--1px light:text-black dark:text-white">
-                  <input
-                    style={{ border: "none", outline: "none" }}
-                    class="h-full"
-                    type="text"
-                    placeholder="Search..."
-                    onchange={(ev) => setSearchVal(ev.target.value)}
-                    value={searchVal()}
-                  ></input>
-                  <button onClick={() => setSearchVal("")}>⨉</button>
-                </div>
-
+                <TextInput
+                  placeholder="Search..."
+                  onChange={(value) => setSearchVal(value)}
+                ></TextInput>
                 <Popover
                   floatingOptions={{
                     offset: 12,

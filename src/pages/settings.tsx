@@ -3,12 +3,12 @@ import ldb from "localdata";
 import { colorScheme, docResolver, setColorScheme, xrpc } from "../app";
 import { createSignal, onMount, Show } from "solid-js";
 import { Did, isDid } from "@atcute/lexicons/syntax";
+import { TextInput } from "../components/TextInput";
 
 export default function Settings() {
   let autoRadio: HTMLInputElement;
   let lightRadio: HTMLInputElement;
   let darkRadio: HTMLInputElement;
-  let appviewInput: HTMLInputElement;
   let appviewError: HTMLParagraphElement;
 
   const [masonryEnabled, setMasonryEnabled] = createSignal(
@@ -38,8 +38,8 @@ export default function Settings() {
         break;
     }
 
-    if (localStorage.getItem("proxyDid"))
-      appviewInput.value = localStorage.getItem("proxyDid");
+    // if (localStorage.getItem("proxyDid"))
+    // appviewInput.value = localStorage.getItem("proxyDid");
   });
 
   return (
@@ -187,52 +187,39 @@ export default function Settings() {
               Allows you to set which API backend you want to use for fetching
               data.
             </p>
-            <div class="b-gray b-1 b-solid rounded p-1 light:[&:focus-within]:b-gray-900 dark:[&:focus-within]:b-gray-100 box-content [&:focus-within]:b-2 [&:focus-within]:m--1px light:text-black dark:text-white flex">
-              <input
-                class="border-none outline-0 placeholder-neutral-500 flex-1"
-                type="text"
-                placeholder="did:web:api.bsky.app"
-                ref={appviewInput}
-                onchange={async (ev) => {
-                  const input = ev.currentTarget;
-                  if (input.value.trim() === "") {
-                    input.parentElement.style.borderColor = "";
-                    if (xrpc) xrpc.proxy.did = "did:web:api.bsky.app";
-                    localStorage.removeItem("proxyDid");
+            <TextInput
+              placeholder="did:web:api.bsky.app"
+              initialValue={localStorage.getItem("proxyDid")}
+              onChange={async (value, setErrorState) => {
+                if (value.trim() === "") {
+                  setErrorState(false);
+                  if (xrpc) xrpc.proxy.did = "did:web:api.bsky.app";
+                  localStorage.removeItem("proxyDid");
+                  appviewError.innerText = "";
+                  return;
+                }
+
+                if (isDid(value.trim())) {
+                  const doc = await docResolver.resolve(
+                    value.trim() as Did<"plc"> | Did<"web">
+                  );
+
+                  if (doc.service.some((val) => val.id == "#bsky_appview")) {
+                    localStorage.setItem("proxyDid", value.trim());
+                    if (xrpc) xrpc.proxy.did = value.trim() as Did;
+                    setErrorState(false);
                     appviewError.innerText = "";
-                    return;
-                  }
-
-                  if (isDid(input.value.trim())) {
-                    const doc = await docResolver.resolve(
-                      input.value.trim() as Did<"plc"> | Did<"web">
-                    );
-
-                    if (doc.service.some((val) => val.id == "#bsky_appview")) {
-                      localStorage.setItem("proxyDid", input.value.trim());
-                      if (xrpc) xrpc.proxy.did = input.value.trim() as Did;
-                      input.parentElement.style.borderColor = "";
-                      appviewError.innerText = "";
-                    } else {
-                      input.parentElement.style.borderColor = "red";
-                      appviewError.innerText =
-                        "Provided DID doesn't provide a Bluesky AppView.";
-                    }
                   } else {
-                    input.parentElement.style.borderColor = "red";
-                    appviewError.innerText = "Invalid DID was provided.";
+                    setErrorState(true);
+                    appviewError.innerText =
+                      "Provided DID doesn't provide a Bluesky AppView.";
                   }
-                }}
-              ></input>
-              <button
-                onclick={(ev) => {
-                  appviewInput.value = "";
-                  appviewInput.dispatchEvent(new Event("change"));
-                }}
-              >
-                ⨉
-              </button>
-            </div>
+                } else {
+                  setErrorState(true);
+                  appviewError.innerText = "Invalid DID was provided.";
+                }
+              }}
+            ></TextInput>
             <p ref={appviewError} class="text-red"></p>
           </div>
         </div>
