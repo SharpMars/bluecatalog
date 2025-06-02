@@ -1,8 +1,14 @@
 import Hls, { Events } from "hls.js";
 import { createSignal, onCleanup, Show } from "solid-js";
 
+// based of https://github.com/bluesky-social/social-app/pull/8377
+let [bandwidthEstimate, setBandwidthEstimate] = createSignal<
+  number | undefined
+>();
+
 export default function HlsPlayer(props: { src: string; thumbnail?: string }) {
   const hls = new Hls({ progressive: true, maxMaxBufferLength: 1 });
+  if (bandwidthEstimate()) hls.bandwidthEstimate = bandwidthEstimate();
   onCleanup(() => hls.destroy());
 
   const [alreadyLoaded, setAlreadyLoaded] = createSignal(false);
@@ -15,6 +21,10 @@ export default function HlsPlayer(props: { src: string; thumbnail?: string }) {
       (bufName) => bufName === "audio" || bufName === "audiovideo"
     );
     if (!hasAudio) setVideoOnly(true);
+  });
+
+  hls.on(Events.FRAG_LOADED, () => {
+    setBandwidthEstimate(hls.bandwidthEstimate);
   });
 
   return (
