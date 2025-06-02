@@ -278,6 +278,7 @@ export default function LoggedIn() {
                   </Dialog.Portal>
                 </Dialog>
                 <TextInput
+                  icon={<div class="i-mingcute-search-2-fill h-full"></div>}
                   placeholder="Search..."
                   onChange={(value) => setSearchVal(value)}
                 ></TextInput>
