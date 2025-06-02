@@ -197,7 +197,7 @@ export default function Settings() {
                   const input = ev.currentTarget;
                   if (input.value.trim() === "") {
                     input.parentElement.style.borderColor = "";
-                    xrpc.proxy.did = "did:web:api.bsky.app";
+                    if (xrpc) xrpc.proxy.did = "did:web:api.bsky.app";
                     localStorage.removeItem("proxyDid");
                     appviewError.innerText = "";
                     return;
@@ -210,7 +210,7 @@ export default function Settings() {
 
                     if (doc.service.some((val) => val.id == "#bsky_appview")) {
                       localStorage.setItem("proxyDid", input.value.trim());
-                      xrpc.proxy.did = input.value.trim() as Did;
+                      if (xrpc) xrpc.proxy.did = input.value.trim() as Did;
                       input.parentElement.style.borderColor = "";
                       appviewError.innerText = "";
                     } else {
