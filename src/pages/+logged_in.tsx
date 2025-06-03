@@ -181,7 +181,7 @@ export default function LoggedIn() {
       setCurrentIndex(-1);
     } else if (currentIndex() == -1 && pageCount() > 0) {
       setCurrentIndex(0);
-    } else if (currentIndex() > pageCount()) {
+    } else if (currentIndex() >= pageCount()) {
       setCurrentIndex(pageCount() - 1);
     }
 
