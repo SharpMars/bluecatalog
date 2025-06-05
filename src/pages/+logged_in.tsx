@@ -153,7 +153,7 @@ export default function LoggedIn() {
     }
 
     if (searchVal().trim() !== "") {
-      const result = searcher.search(searchVal(), { fuzzy: 0.1 });
+      const result = searcher.search(searchVal(), { fuzzy: 0.2 });
 
       posts = posts.filter(
         (val) => result.find((res) => res.id == val.cid) !== undefined
