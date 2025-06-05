@@ -384,12 +384,18 @@ export default function LoggedIn() {
               </div>
             </div>
             <PostList posts={currentPagePosts}></PostList>
-            <div class="m-t-2">
+            <div class="m-t-2 flex gap-2 justify-center">
               <PaginationButtons
                 currentIndex={currentIndex}
                 setCurrentIndex={setCurrentIndex}
                 pageCount={pageCount()}
               ></PaginationButtons>
+              <button
+                class="rounded-lg dark:bg-slate-700 light:bg-slate-400 p-2 text-5 dark:hover:bg-slate-800 light:hover:bg-slate-500 dark:active:bg-slate-900 light:active:bg-slate-600 transition-all transition-100 transition-ease-linear b-1 dark:b-slate-700 light:b-slate-400"
+                onclick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+              >
+                <div class="i-mingcute-up-fill text-white"></div>
+              </button>
             </div>
           </ErrorBoundary>
         </Match>
