@@ -11,7 +11,10 @@ import {
   Switch,
 } from "solid-js";
 import {
+  AppBskyEmbedExternal,
   AppBskyEmbedImages,
+  AppBskyEmbedRecord,
+  AppBskyEmbedRecordWithMedia,
   AppBskyEmbedVideo,
   AppBskyFeedDefs,
   AppBskyFeedPost,
@@ -28,6 +31,8 @@ import { PostList } from "../components/PostList";
 import { FetchData } from "../fetching/fetch-data";
 import Popover from "@corvu/popover";
 import { TextInput } from "../components/TextInput";
+import { $type } from "@atcute/lexicons";
+import { createStore } from "solid-js/store";
 
 export default function LoggedIn() {
   const [currentIndex, setCurrentIndex] = createSignal(
@@ -42,6 +47,33 @@ export default function LoggedIn() {
       ? (localStorage.getItem("lastTab") as "likes" | "pins")
       : "likes"
   );
+  const [embedOptions, setEmbedOptions] = createStore<{
+    none: boolean;
+    image: boolean;
+    video: boolean;
+    post: boolean;
+    external: boolean;
+    isAllFalse: boolean;
+  }>({
+    none: false,
+    image: false,
+    video: false,
+    post: false,
+    external: false,
+    isAllFalse: true,
+  });
+
+  createEffect(() => {
+    setEmbedOptions("isAllFalse", () => {
+      return (
+        !embedOptions.none &&
+        !embedOptions.image &&
+        !embedOptions.video &&
+        !embedOptions.post &&
+        !embedOptions.external
+      );
+    });
+  });
 
   let searcher;
   try {
@@ -139,10 +171,26 @@ export default function LoggedIn() {
     })
   );
 
-  const filteredPosts = createMemo(() => {
+  const searchedPosts = createMemo(() => {
     if (!postsQuery.isSuccess || postsQuery.data == null) return [];
 
     let posts = postsQuery.data.posts;
+
+    if (searchVal().trim() !== "") {
+      const result = searcher.search(searchVal(), { fuzzy: 0.2 });
+
+      posts = posts.filter(
+        (val) => result.find((res) => res.id == val.cid) !== undefined
+      );
+    }
+
+    return posts;
+  });
+
+  const filteredPosts = createMemo(() => {
+    let posts = searchedPosts();
+
+    if (posts.length == 0) return posts;
 
     if (selectedAuthors().length > 0) {
       posts = posts.filter(
@@ -150,6 +198,28 @@ export default function LoggedIn() {
           selectedAuthors().find((author) => author == val.author.did) !==
           undefined
       );
+    }
+
+    if (!embedOptions.isAllFalse) {
+      posts = posts.filter((val) => {
+        const res = {
+          none: 0,
+          image: 0,
+          video: 0,
+          post: 0,
+          external: 0,
+        };
+
+        countEmbeds(res, val.embed);
+
+        return (
+          (embedOptions.none && res.none > 0) ||
+          (embedOptions.image && res.image > 0) ||
+          (embedOptions.video && res.video > 0) ||
+          (embedOptions.post && res.post > 0) ||
+          (embedOptions.external && res.external > 0)
+        );
+      });
     }
 
     if (searchVal().trim() !== "") {
@@ -175,6 +245,87 @@ export default function LoggedIn() {
         : 50 + currentIndex() * 50
     )
   );
+
+  function countEmbeds(
+    res: {
+      none: number;
+      image: number;
+      video: number;
+      post: number;
+      external: number;
+    },
+    embed?: $type.enforce<
+      | AppBskyEmbedExternal.View
+      | AppBskyEmbedImages.View
+      | AppBskyEmbedRecord.View
+      | AppBskyEmbedRecordWithMedia.View
+      | AppBskyEmbedVideo.View
+    >,
+    recursed?: true
+  ) {
+    if (embed) {
+      switch (embed.$type) {
+        case "app.bsky.embed.images#view":
+          res.image++;
+          break;
+        case "app.bsky.embed.video#view":
+          res.video++;
+          break;
+        case "app.bsky.embed.external#view":
+          res.external++;
+          break;
+        case "app.bsky.embed.record#view":
+          if (!recursed) {
+            res.post++;
+
+            if (
+              embed.record.$type == "app.bsky.embed.record#viewRecord" &&
+              embed.record.embeds?.length > 0
+            ) {
+              for (const innerEmbed of embed.record.embeds) {
+                countEmbeds(res, innerEmbed, true);
+              }
+            }
+          }
+          break;
+        case "app.bsky.embed.recordWithMedia#view":
+          countEmbeds(res, embed.media, true);
+          if (!recursed) {
+            res.post++;
+
+            if (
+              embed.record.record.$type == "app.bsky.embed.record#viewRecord" &&
+              embed.record.record?.embeds.length > 0
+            ) {
+              for (const innerEmbed of embed.record.record.embeds) {
+                countEmbeds(res, innerEmbed, true);
+              }
+            }
+          }
+          break;
+        default:
+          break;
+      }
+    } else res.none++;
+  }
+
+  const embedCount = createMemo(() => {
+    const res = {
+      none: 0,
+      image: 0,
+      video: 0,
+      post: 0,
+      external: 0,
+    };
+
+    if (postsQuery.isSuccess) {
+      for (const post of searchedPosts()) {
+        countEmbeds(res, post.embed);
+      }
+    }
+
+    return res;
+  });
 
   createEffect(() => {
     if (pageCount() == 0) {
@@ -369,6 +520,81 @@ export default function LoggedIn() {
                             </Popover.Content>
                           </Popover.Portal>
                         </Popover>
+                      </div>
+                      <div class="p-t-2">
+                        <h4>Embeds:</h4>
+                        <ul class="flex flex-col p-l-1">
+                          <li class="flex gap-2">
+                            <input
+                              type="checkbox"
+                              checked={embedOptions.none}
+                              onchange={(ev) =>
+                                setEmbedOptions(
+                                  "none",
+                                  () => ev.currentTarget.checked
+                                )
+                              }
+                              class="appearance-none rounded b-2 b-neutral w-4 h-4 m-y-auto relative checked:bg-blue-500 after:text-white after:i-mingcute-check-fill after:absolute after:top-50% after:left-50% after:translate-x--50% after:translate-y--50% checked:after:scale-100 after:scale-0 after:rounded-2xl after:w-3 after:h-3 after:content-[''] after:transition-all after:transition-100 after:transition-ease-linear"
+                            ></input>
+                            <label>None ({embedCount().none})</label>
+                          </li>
+                          <li class="flex gap-2">
+                            <input
+                              type="checkbox"
+                              checked={embedOptions.image}
+                              onchange={(ev) =>
+                                setEmbedOptions(
+                                  "image",
+                                  () => ev.currentTarget.checked
+                                )
+                              }
+                              class="appearance-none rounded b-2 b-neutral w-4 h-4 m-y-auto relative checked:bg-blue-500 after:text-white after:i-mingcute-check-fill after:absolute after:top-50% after:left-50% after:translate-x--50% after:translate-y--50% checked:after:scale-100 after:scale-0 after:rounded-2xl after:w-3 after:h-3 after:content-[''] after:transition-all after:transition-100 after:transition-ease-linear"
+                            ></input>
+                            <label>Images ({embedCount().image})</label>
+                          </li>
+                          <li class="flex gap-2">
+                            <input
+                              type="checkbox"
+                              checked={embedOptions.video}
+                              onchange={(ev) =>
+                                setEmbedOptions(
+                                  "video",
+                                  () => ev.currentTarget.checked
+                                )
+                              }
+                              class="appearance-none rounded b-2 b-neutral w-4 h-4 m-y-auto relative checked:bg-blue-500 after:text-white after:i-mingcute-check-fill after:absolute after:top-50% after:left-50% after:translate-x--50% after:translate-y--50% checked:after:scale-100 after:scale-0 after:rounded-2xl after:w-3 after:h-3 after:content-[''] after:transition-all after:transition-100 after:transition-ease-linear"
+                            ></input>
+                            <label>Videos ({embedCount().video})</label>
+                          </li>
+                          <li class="flex gap-2">
+                            <input
+                              type="checkbox"
+                              checked={embedOptions.post}
+                              onchange={(ev) =>
+                                setEmbedOptions(
+                                  "post",
+                                  () => ev.currentTarget.checked
+                                )
+                              }
+                              class="appearance-none rounded b-2 b-neutral w-4 h-4 m-y-auto relative checked:bg-blue-500 after:text-white after:i-mingcute-check-fill after:absolute after:top-50% after:left-50% after:translate-x--50% after:translate-y--50% checked:after:scale-100 after:scale-0 after:rounded-2xl after:w-3 after:h-3 after:content-[''] after:transition-all after:transition-100 after:transition-ease-linear"
+                            ></input>
+                            <label>Posts ({embedCount().post})</label>
+                          </li>
+                          <li class="flex gap-2">
+                            <input
+                              type="checkbox"
+                              checked={embedOptions.external}
+                              onchange={(ev) =>
+                                setEmbedOptions(
+                                  "external",
+                                  () => ev.currentTarget.checked
+                                )
+                              }
+                              class="appearance-none rounded b-2 b-neutral w-4 h-4 m-y-auto relative checked:bg-blue-500 after:text-white after:i-mingcute-check-fill after:absolute after:top-50% after:left-50% after:translate-x--50% after:translate-y--50% checked:after:scale-100 after:scale-0 after:rounded-2xl after:w-3 after:h-3 after:content-[''] after:transition-all after:transition-100 after:transition-ease-linear"
+                            ></input>
+                            <label>External ({embedCount().external})</label>
+                          </li>
+                        </ul>
                       </div>
                       <Popover.Arrow class="dark:text-slate-700 light:text-slate-400"></Popover.Arrow>
                     </Popover.Content>
