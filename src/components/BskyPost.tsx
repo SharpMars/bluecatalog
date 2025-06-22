@@ -67,7 +67,7 @@ export function BskyPost(props: BskyPostProps) {
           href={`https://bsky.app/profile/${author.did}/post/${post.uri
             .split("/")
             .at(-1)}`}
-          class="relative after:transform-origin-left light:text-neutral-600 dark:text-neutral-400 hover:text-inherit transition-all transition-100 transition-ease-linear after:scale-x-0 hover:after:scale-x-100 after:w-full after:bg-current after:h-2px after:rounded after:content-[''] after:absolute after:bottom--1 after:left-0 after:transition-all after:transition-100 after:transition-ease-linear"
+          class="relative after:transform-origin-left light:text-neutral-600 dark:text-neutral-400 light:hover:text-black dark:hover:text-white transition-all transition-100 transition-ease-linear after:scale-x-0 hover:after:scale-x-100 after:w-full after:bg-current after:h-2px after:rounded after:content-[''] after:absolute after:bottom--1 after:left-0 after:transition-all after:transition-100 after:transition-ease-linear"
           target="_blank"
         >
           View on Bluesky
