@@ -248,6 +248,7 @@ export default function App(props: { children: JSX.Element }) {
                           <input
                             type="text"
                             placeholder="example.bsky.social"
+                            name="handle"
                             class="w-full p-1 light:bg-neutral-300 dark:bg-neutral-700 rounded m-t-1"
                             ref={handleInput}
                             onkeypress={(ev) => {
