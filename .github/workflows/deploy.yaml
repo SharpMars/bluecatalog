@@ -28,6 +28,8 @@ jobs:
         run: bun i --frozen-lockfile
       - name: Run Build script
         run: bun run build
+        env:
+          VITE_POSTHOG_TOKEN: ${{ vars.VITE_POSTHOG_TOKEN }}
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:

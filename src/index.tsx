@@ -12,12 +12,21 @@ import "@atcute/bluesky";
 import { QueryClient, QueryClientProvider } from "@tanstack/solid-query";
 import { configureOAuth } from "@atcute/oauth-browser-client";
 
+import posthog from "posthog-js";
+
 const root = document.getElementById("root");
 
 if (import.meta.env.DEV && !(root instanceof HTMLElement)) {
   throw new Error(
     "Root element not found. Did you forget to add it to your index.html? Or maybe the id attribute got misspelled?"
   );
+}
+
+if (import.meta.env.VITE_POSTHOG_TOKEN) {
+  posthog.init(import.meta.env.VITE_POSTHOG_TOKEN, {
+    api_host: "https://eu.i.posthog.com",
+    person_profiles: "never",
+  });
 }
 
 configureOAuth({
