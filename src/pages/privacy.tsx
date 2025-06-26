@@ -1,7 +1,7 @@
 import { A } from "@solidjs/router";
 import { refetchPrivacyUpdated } from "../app";
 
-export const lastUpdatedPrivacy = new Date(2025, 4, 20);
+export const lastUpdatedPrivacy = new Date(2025, 5, 27);
 
 export default function PrivacyPolicy() {
   localStorage.setItem(
@@ -58,7 +58,17 @@ export default function PrivacyPolicy() {
             Bluesky/ATProto network is used to get the data used in the app
           </li>
           <li>Fonts are using Bunny Fonts</li>
+          <li>
+            PostHog used for collecting non-identifying basic web analytics
+            (page views, referrers, basic user journey info)
+          </li>
         </ul>
+        <h2 class="text-6 font-700 m-t-2">Analytics</h2>
+        <p>
+          We collect non-identifying analytics to gather data about page visits,
+          referrers, user journeys on our website and devices. <br />
+          This data is hosted within EU by PostHog.
+        </p>
         <h2 class="text-6 font-700 m-t-2">Data deletion</h2>
         <p>To delete the data stored on your device you need to:</p>
         <ul class="list-disc p-l-8">
