@@ -29,6 +29,7 @@ import {
   PlcDidDocumentResolver,
   WebDidDocumentResolver,
 } from "@atcute/identity-resolver";
+import { lastUpdatedPrivacy } from "./pages/privacy";
 
 type ColorSchemeType = "auto" | "light" | "dark";
 
@@ -38,6 +39,14 @@ export const [colorScheme, setColorScheme] = createSignal<ColorSchemeType>(
     ? (localStorage.getItem("color-scheme") as ColorSchemeType)
     : "auto"
 );
+
+export const [privacyUpdated, { refetch: refetchPrivacyUpdated }] =
+  createResource(() => {
+    return (
+      localStorage.getItem("previous-last-updated") !=
+      lastUpdatedPrivacy.toISOString()
+    );
+  });
 
 const colorSchemeMedia = window.matchMedia("(prefers-color-scheme: dark)");
 
@@ -285,7 +294,15 @@ export default function App(props: { children: JSX.Element }) {
       <footer class="flex light:bg-neutral-100 dark:bg-neutral-800 light:text-black dark:text-white p-y-2 p-x-4 h-16 items-center justify-between">
         <div></div>
         <div class="flex gap-4">
-          <a href="/privacy">Privacy Policy</a>
+          <a
+            class="relative after:bg-transparent after:content-[''] after:absolute after:w-2 after:h-2 [&.updated]:after:bg-red after:rounded after:top-0 after:right--1.5"
+            classList={{
+              updated: privacyUpdated(),
+            }}
+            href="/privacy"
+          >
+            Privacy Policy
+          </a>
           <a href="https://github.com/SharpMars/bluecatalog">GitHub</a>
         </div>
       </footer>

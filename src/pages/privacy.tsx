@@ -1,11 +1,23 @@
 import { A } from "@solidjs/router";
+import { refetchPrivacyUpdated } from "../app";
+
+export const lastUpdatedPrivacy = new Date(2025, 4, 20);
 
 export default function PrivacyPolicy() {
+  localStorage.setItem(
+    "previous-last-updated",
+    lastUpdatedPrivacy.toISOString()
+  );
+  refetchPrivacyUpdated();
+
   return (
     <section class="p-4 p-y-0 flex md:justify-center light:text-black dark:text-white">
       <div class="md:min-w-2xl w-full md:w-a m-x-2 m-y-2">
         <h1 class="font-900 text-10">Privacy Policy</h1>
-        <p class="m-b-2">Last updated: 20/05/2025</p>
+        <p class="m-b-2">
+          Last updated:{" "}
+          {new Intl.DateTimeFormat("en-GB").format(lastUpdatedPrivacy)}
+        </p>
         <p>
           BlueCatalog is completely client-side app. This means that all data
           used to operate this web app is stored only on your device.
