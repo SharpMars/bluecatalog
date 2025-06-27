@@ -59,13 +59,13 @@ export default function PrivacyPolicy() {
           </li>
           <li>Fonts are using Bunny Fonts</li>
           <li>
-            PostHog used for collecting non-identifying basic web analytics
-            (page views, referrers, basic user journey info)
+            PostHog used for collecting basic web analytics (page views,
+            referrers, basic user journey info)
           </li>
         </ul>
         <h2 class="text-6 font-700 m-t-2">Analytics</h2>
         <p>
-          We collect non-identifying analytics to gather data about page visits,
+          We collect basic web analytics to gather data about page visits,
           referrers, user journeys on our website and devices. <br />
           This data is hosted within EU by PostHog.
         </p>
