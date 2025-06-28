@@ -292,7 +292,11 @@ export default function App(props: { children: JSX.Element }) {
         <Suspense>{props.children}</Suspense>
       </main>
       <footer class="flex light:bg-neutral-100 dark:bg-neutral-800 light:text-black dark:text-white p-y-2 p-x-4 h-16 items-center justify-between">
-        <div></div>
+        <div>
+          <a href="https://bsky.app/profile/did:plc:irx36xprktslecsbopbwnh5w">
+            Made by SharpMars
+          </a>
+        </div>
         <div class="flex gap-4">
           <a
             class="relative after:bg-transparent after:content-[''] after:absolute after:w-2 after:h-2 [&.updated]:after:bg-red after:rounded after:top-0 after:right--1.5"
