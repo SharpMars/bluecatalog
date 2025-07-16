@@ -12,7 +12,7 @@ Written in SolidJS, UnoCSS and atcute.
 
 - Pagination
 - Searching
-- Filtering based on type and author
+- Filtering based on embed type and author
 
 ## Development
 
