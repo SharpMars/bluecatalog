@@ -104,7 +104,9 @@ export function PostFilter(props: {
                         >
                           <img
                             class="aspect-ratio-square max-h-7 rounded"
-                            src={author.avatar}
+                            src={
+                              author.avatar ? author.avatar : "./fallback.svg"
+                            }
                             loading="lazy"
                           />
                           <span>{author.handle}</span>
