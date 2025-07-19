@@ -105,6 +105,7 @@ export function PostFilter(props: {
                           <img
                             class="aspect-ratio-square max-h-7 rounded"
                             src={author.avatar}
+                            loading="lazy"
                           />
                           <span>{author.handle}</span>
                         </button>
