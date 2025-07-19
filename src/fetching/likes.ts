@@ -4,7 +4,7 @@ import { Did } from "@atcute/lexicons";
 import { FetchData } from "./fetch-data";
 import { AppBskyActorDefs } from "@atcute/bluesky";
 
-export async function fetchLikes(refetch: boolean) {
+export async function fetchLikes(refetch: boolean, signal: AbortSignal) {
   let data: FetchData = {
     posts: [],
     authors: [],
@@ -25,6 +25,7 @@ export async function fetchLikes(refetch: boolean) {
 
     do {
       const res = await xrpc.get("app.bsky.feed.getActorLikes", {
+        signal: signal,
         params: {
           actor: agent.sub as Did,
           cursor: cursor,

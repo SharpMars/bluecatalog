@@ -4,7 +4,7 @@ import { xrpc } from "../app";
 import { ResourceUri } from "@atcute/lexicons";
 import { FetchData } from "./fetch-data";
 
-export async function fetchPins(refetch: boolean) {
+export async function fetchPins(refetch: boolean, signal: AbortSignal) {
   let data: FetchData = {
     posts: [],
     authors: [],
@@ -29,6 +29,7 @@ export async function fetchPins(refetch: boolean) {
 
     do {
       const res = await xrpc.get("app.bsky.feed.searchPosts", {
+        signal: signal,
         params: {
           q: "from:me 📌",
           cursor: cursor,
@@ -59,6 +60,7 @@ export async function fetchPins(refetch: boolean) {
 
     while (pinsRefs.length > 0) {
       const res = await xrpc.get("app.bsky.feed.getPosts", {
+        signal: signal,
         params: {
           uris: pinsRefs.splice(0, 25).map((ref) => ref.uri),
         },

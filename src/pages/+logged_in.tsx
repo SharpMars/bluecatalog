@@ -14,7 +14,7 @@ import {
   AppBskyFeedDefs,
   AppBskyFeedPost,
 } from "@atcute/bluesky";
-import { useQuery } from "@tanstack/solid-query";
+import { useQuery, useQueryClient } from "@tanstack/solid-query";
 import MiniSearch from "minisearch";
 import { LoadingIndicator } from "../components/LoadingIndicator";
 import Dialog from "@corvu/dialog";
@@ -113,16 +113,18 @@ export default function LoggedIn() {
 
   let refetch = false;
 
+  const queryClient = useQueryClient();
+
   const postsQuery = useQuery(() => ({
-    queryFn: async ({ queryKey }) => {
+    queryFn: async ({ queryKey, signal }) => {
       try {
         let data: FetchData;
         switch (queryKey[0]) {
           case "likes":
-            data = await fetchLikes(refetch);
+            data = await fetchLikes(refetch, signal);
             break;
           case "pins":
-            data = await fetchPins(refetch);
+            data = await fetchPins(refetch, signal);
             break;
           default:
             throw new Error("unimplemented fetching");
@@ -306,6 +308,7 @@ export default function LoggedIn() {
         <Tabs
           setValue={(value: string) => {
             localStorage.setItem("lastTab", value);
+            refetch = false;
             setSelectedTab(value as "likes" | "pins");
           }}
           getValue={selectedTab}
@@ -330,33 +333,72 @@ export default function LoggedIn() {
             <div class="m-b-1">
               <div class="flex justify-center gap-2">
                 <Dialog>
-                  <Dialog.Trigger class="text-6 dark:text-white light:text-black hover:rotate-180 transition-all transition-300 transition-ease-in-out">
-                    <div class="i-mingcute-refresh-3-line"></div>
+                  <Dialog.Trigger
+                    classList={{
+                      fetching: postsQuery.isFetching && refetch,
+                    }}
+                    class="group rounded-lg [&:not(.fetching)]:dark:bg-slate-700 [&:not(.fetching)]:light:bg-slate-400 p-2 text-5 [&:not(.fetching)]:dark:hover:bg-slate-800 [&:not(.fetching)]:light:hover:bg-slate-500 [&:not(.fetching)]:dark:active:bg-slate-900 [&:not(.fetching)]:light:active:bg-slate-600 transition-all transition-100 transition-ease-linear b-1 [&:not(.fetching)]:dark:b-slate-700 [&:not(.fetching)]:light:b-slate-400 dark:[&.fetching]:bg-red-700 dark:[&.fetching]:hover:bg-red-800 dark:[&.fetching]:active:bg-red-900 dark:[&.fetching]:b-red-700 light:[&.fetching]:bg-red-500 light:[&.fetching]:hover:bg-red-600 light:[&.fetching]:active:bg-red-700 light:[&.fetching]:b-red-500"
+                  >
+                    <div class="i-mingcute-refresh-3-line text-white group-[:not(.fetching)]:group-hover:rotate-180 transition-all transition-300 transition-ease-in-out group-[.fetching]:animate-spin group-[.fetching]:animate-ease-in-out"></div>
                   </Dialog.Trigger>
                   <Dialog.Portal>
                     <Dialog.Overlay class="fixed inset-0 z-50 bg-black/50" />
                     <Dialog.Content class="fixed left-50% top-50% z-50 min-w-80 translate-x--50% translate-y--50% rounded-lg b-2 px-6 py-5 light:b-neutral-200 light:bg-neutral-300 light:text-black dark:b-neutral-700 dark:bg-neutral-800 dark:text-white">
-                      <Dialog.Label class="text-lg font-bold">
-                        Refresh the cache?
-                      </Dialog.Label>
-                      <Dialog.Description class="text-wrap">
-                        This will update currently cached likes. <br />
-                        This will take a minute.
-                      </Dialog.Description>
-                      <div class="mt-3 flex justify-between text-white">
-                        <Dialog.Close
-                          class="rounded-md px-3 py-2 bg-sky-500 hover:bg-sky-600 active:bg-sky-700 transition-all transition-100 transition-ease-linear"
-                          on:click={() => {
-                            refetch = true;
-                            postsQuery.refetch();
-                          }}
-                        >
-                          Yes
-                        </Dialog.Close>
-                        <Dialog.Close class="rounded-md px-3 py-2 bg-neutral-600 hover:bg-neutral-700 active:bg-neutral-900 transition-all transition-100 transition-ease-linear">
-                          No
-                        </Dialog.Close>
-                      </div>
+                      <Switch
+                        fallback={
+                          <>
+                            <Dialog.Label class="text-lg font-bold">
+                              Refresh the cache?
+                            </Dialog.Label>
+                            <Dialog.Description class="text-wrap">
+                              This will update currently cached likes. <br />
+                              This will take a minute.
+                            </Dialog.Description>
+                            <div class="mt-3 flex justify-between text-white">
+                              <Dialog.Close
+                                class="rounded-md px-3 py-2 bg-sky-500 hover:bg-sky-600 active:bg-sky-700 transition-all transition-100 transition-ease-linear"
+                                on:click={() => {
+                                  refetch = true;
+                                  postsQuery.refetch();
+                                }}
+                              >
+                                Yes
+                              </Dialog.Close>
+                              <Dialog.Close class="rounded-md px-3 py-2 bg-neutral-600 hover:bg-neutral-700 active:bg-neutral-900 transition-all transition-100 transition-ease-linear">
+                                No
+                              </Dialog.Close>
+                            </div>
+                          </>
+                        }
+                      >
+                        <Match when={postsQuery.isFetching}>
+                          <>
+                            <Dialog.Label class="text-lg font-bold">
+                              Cancel refresh?
+                            </Dialog.Label>
+                            <Dialog.Description class="text-wrap">
+                              This will cancel currently running cache refresh.{" "}
+                              <br />
+                            </Dialog.Description>
+                            <div class="mt-3 flex justify-between text-white">
+                              <Dialog.Close
+                                class="rounded-md px-3 py-2 light:bg-red-500 light:hover:bg-red-600 light:active:bg-red-700 dark:bg-red-700 dark:hover:bg-red-800 dark:active:bg-red-900 transition-all transition-100 transition-ease-linear"
+                                on:click={() => {
+                                  refetch = false;
+                                  queryClient.cancelQueries({
+                                    queryKey: [selectedTab()],
+                                  });
+                                }}
+                              >
+                                Yes
+                              </Dialog.Close>
+                              <Dialog.Close class="rounded-md px-3 py-2 bg-neutral-600 hover:bg-neutral-700 active:bg-neutral-900 transition-all transition-100 transition-ease-linear">
+                                No
+                              </Dialog.Close>
+                            </div>
+                          </>
+                        </Match>
+                      </Switch>
                     </Dialog.Content>
                   </Dialog.Portal>
                 </Dialog>
