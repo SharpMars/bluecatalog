@@ -133,6 +133,9 @@ export default function EmbedView(props: {
                           src={viewRecord().author.avatar}
                           alt="profile picture"
                           class="rounded"
+                          onError={(err) => {
+                            err.currentTarget.src = "./fallback.svg";
+                          }}
                         ></img>
                         <span class="font-700 text-ellipsis overflow-hidden">
                           {viewRecord().author.displayName}
@@ -224,6 +227,9 @@ export default function EmbedView(props: {
                             src={viewRecord().author.avatar}
                             alt="profile picture"
                             class="rounded"
+                            onError={(err) => {
+                              err.currentTarget.src = "./fallback.svg";
+                            }}
                           ></img>
                           <span class="font-700 text-ellipsis overflow-hidden">
                             {viewRecord().author.displayName}

@@ -27,6 +27,9 @@ export function BskyPost(props: BskyPostProps) {
           src={author.avatar}
           alt="profile picture"
           class="rounded"
+          onError={(err) => {
+            err.currentTarget.src = "./fallback.svg";
+          }}
         ></img>
         <span class="font-700 text-ellipsis overflow-hidden">
           {author.displayName}

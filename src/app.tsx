@@ -195,6 +195,9 @@ export default function App(props: { children: JSX.Element }) {
                   width={32}
                   height={32}
                   class="rounded"
+                  onError={(err) => {
+                    err.currentTarget.src = "./fallback.svg";
+                  }}
                 />
               </Popover.Trigger>
               <Popover.Portal>
