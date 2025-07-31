@@ -248,12 +248,45 @@ export default function Stats() {
                     <tr>
                       <td class="p-1 flex items-center">
                         <div>
-                          <img class="rounded aspect-square" src={val[1].profile.avatar} width={32} height={32} />
+                          <img
+                            class="rounded aspect-square"
+                            src={val[1].profile.avatar}
+                            width={32}
+                            height={32}
+                            onerror={(ev) => {
+                              ev.currentTarget.src = "./fallback.svg";
+                            }}
+                          />
                         </div>
                         <div class="flex flex-col p-1 p-r-8">
-                          <span class="line-height-snug">{val[1].profile.displayName}</span>
-                          <span class="text-3 line-height-snug m-t--1 text-neutral">
-                            {val[1].profile.handle != "handle.invalid" ? val[1].profile.handle : val[1].profile.did}
+                          <span
+                            class="line-height-snug [&.expand]:h-7"
+                            classList={{
+                              expand: !val[1].profile.displayName && val[1].profile.handle == "handle.invalid",
+                            }}
+                          >
+                            {(() => {
+                              const profile = val[1].profile;
+
+                              if (profile.displayName) return profile.displayName;
+                              if (profile.handle != "handle.invalid") return profile.handle;
+
+                              return profile.did;
+                            })()}
+                          </span>
+                          <span
+                            class="text-3 line-height-snug m-t--1 text-neutral"
+                            hidden={!val[1].profile.displayName && val[1].profile.handle == "handle.invalid"}
+                          >
+                            {(() => {
+                              const profile = val[1].profile;
+
+                              if (!profile.displayName) return profile.did;
+                              if (profile.handle != "handle.invalid") return profile.handle;
+                              if (profile.handle == "handle.invalid") return profile.did;
+
+                              return "";
+                            })()}
                           </span>
                         </div>
                       </td>
