@@ -144,20 +144,30 @@ export default function Stats() {
 		<>
 			<Switch>
 				<Match when={postsQuery.isSuccess && postsQuery.data != null}>
-					<div class="flex justify-center flex-col w-min">
-						<p class="text-5 text-white font-bold text-center">
-							Likes having alt text:
+					<div class="card w-fit">
+						<p>Number of records: {postsQuery.data.records.length}</p>
+						<p>
+							Number of unavailable posts:{" "}
+							{postsQuery.data.records.length - postsQuery.data.posts.length}
 						</p>
-						<div class="flex gap-4">
-							<PieChart
-								padding={17}
-								data={Object.values(hasAltText())}
-								labels={["Yes", "No"]}
-							></PieChart>
-							<ChartLegend labels={["Yes", "No"]}></ChartLegend>
+					</div>
+					<div class="card w-fit">
+						<div class="flex justify-center flex-col w-min">
+							<p class="text-5 font-bold text-center">
+								How many likes have alt text:
+							</p>
+							<div class="flex gap-4">
+								<PieChart
+									padding={17}
+									data={Object.values(hasAltText())}
+									labels={["Yes", "No"]}
+								></PieChart>
+								<ChartLegend labels={["Yes", "No"]}></ChartLegend>
+							</div>
 						</div>
-						<div class="flex gap-4">
-							<PieChart
+						{/*
+						<div class="flex gap-4">	
+            <PieChart
 								padding={17}
 								data={[99999999, 9999909, 9999909, 9999909, 9999909]}
 								//data={[999990900, 999990900, 999990900, 999990900, 999990900]}
@@ -166,29 +176,23 @@ export default function Stats() {
 							></PieChart>
 							<ChartLegend labels={["Yes", "No"]}></ChartLegend>
 						</div>
+          */}
 					</div>
-					<div class="cols-2 p-2 gap-4">
-						<p class="text-white">
-							Number of records: {postsQuery.data.records.length}
-						</p>
-						<p class="text-white">
-							Number of unavailable posts:{" "}
-							{postsQuery.data.records.length - postsQuery.data.posts.length}
-						</p>
-						<table class="bg-gray [&_td]:p-2 h-min w-min">
-							<thead>
-								<tr>
-									<td>Mon</td>
-									<td>Tue</td>
-									<td>Wed</td>
-									<td>Thu</td>
-									<td>Fri</td>
-									<td>Sat</td>
-									<td>Sun</td>
+					<div class="card w-fit">
+						<table class="bg-neutral-700 text-white block [&_td]:p-2 rounded-xl w-fit b-1 b-solid b-white [&_th]:p-2 text-center overflow-hidden">
+							<thead class="b-b-1 b-solid b-white bg-sky-800">
+								<tr class="[&>th:not(:first-child)]:b-l-1 [&>th]:b-l-solid [&>th]:b-l-white">
+									<th>Mon</th>
+									<th>Tue</th>
+									<th>Wed</th>
+									<th>Thu</th>
+									<th>Fri</th>
+									<th>Sat</th>
+									<th>Sun</th>
 								</tr>
 							</thead>
 							<tbody>
-								<tr>
+								<tr class="[&>td:not(:first-child)]:b-l-1 [&>td]:b-l-solid [&>td]:b-l-white">
 									<td>{countPerDay()[0]}</td>
 									<td>{countPerDay()[1]}</td>
 									<td>{countPerDay()[2]}</td>
@@ -199,48 +203,44 @@ export default function Stats() {
 								</tr>
 							</tbody>
 						</table>
-						<div>
-							<p class="text-white m-t-2 font-bold text-5">
-								Likes based on hour:
-							</p>
-							<div class="flex gap-2 flex-wrap max-w-md justify-between">
-								<For
-									each={countPerHour()
-										.map((val, i) => {
-											return {
-												hour: i.toString().padStart(2, "0"),
-												count: val,
-											};
-										})
-										.sort((a, b) => a.count - b.count)
-										.reverse()}
-								>
-									{(val) => (
-										<p class="bg-gray p-2 w-32 text-center">
-											{val.hour}: {val.count}
-										</p>
-									)}
-								</For>
-							</div>
+					</div>
+					<div class="card w-fit">
+						<p class="text-5 font-bold">Likes based on hour:</p>
+						<div class="flex gap-2 flex-wrap max-w-md justify-between">
+							<For
+								each={countPerHour()
+									.map((val, i) => {
+										return {
+											hour: i.toString().padStart(2, "0"),
+											count: val,
+										};
+									})
+									.sort((a, b) => a.count - b.count)
+									.reverse()}
+							>
+								{(val) => (
+									<p class="bg-gray p-2 w-32 text-center">
+										{val.hour}: {val.count}
+									</p>
+								)}
+							</For>
 						</div>
+					</div>
+					<div class="card w-fit">
+						<p class="font-bold text-5">Likes based on author (top 10):</p>
 						<div>
-							<p class="text-white m-t-2 font-bold text-5">
-								Likes based on author (top 10):
-							</p>
-							<div class="text-white">
-								<For
-									each={countPerAuthor()
-										.sort((a, b) => a[1] - b[1])
-										.reverse()
-										.slice(0, 10)}
-								>
-									{(val) => (
-										<p>
-											{val[0]} - {val[1]}
-										</p>
-									)}
-								</For>
-							</div>
+							<For
+								each={countPerAuthor()
+									.sort((a, b) => a[1] - b[1])
+									.reverse()
+									.slice(0, 10)}
+							>
+								{(val) => (
+									<p>
+										{val[0]} - {val[1]}
+									</p>
+								)}
+							</For>
 						</div>
 					</div>
 				</Match>
