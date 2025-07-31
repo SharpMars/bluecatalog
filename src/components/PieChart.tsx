@@ -171,15 +171,32 @@ export default function PieChart(props: { padding: number; labels: string[]; dat
         </defs>
         <g
           onpointerleave={() => {
-            tooltip.hidden = true;
+            if (!window.matchMedia("(pointer: coarse)").matches) tooltip.hidden = true;
           }}
         >
           <For each={endPositionsPerSegment()}>
             {(v, i) => {
               return (
                 <g
-                  class="origin-center"
+                  class="origin-center focus:outline-none"
+                  tabindex={-1}
+                  onblur={() => {
+                    if (window.matchMedia("(pointer: coarse)").matches) tooltip.hidden = true;
+                  }}
+                  onpointerenter={(ev) => {
+                    if (window.matchMedia("(pointer: coarse)").matches) {
+                      ev.currentTarget.focus();
+                      tooltip.hidden = false;
+                      tooltip.style.left = ev.pageX + "px";
+                      tooltip.style.top = ev.pageY + "px";
+
+                      (tooltip.querySelector(".title") as HTMLParagraphElement).innerText = props.labels[i()];
+                      (tooltip.querySelector(".value") as HTMLParagraphElement).innerText = props.data[i()].toString();
+                      (tooltip.querySelector(".color") as HTMLDivElement).style.backgroundColor = colors[i()];
+                    }
+                  }}
                   onpointermove={(ev) => {
+                    if (window.matchMedia("(pointer: coarse)").matches) return;
                     tooltip.hidden = false;
                     tooltip.style.left = ev.pageX + 16 + "px";
                     tooltip.style.top = ev.pageY + 16 + "px";
