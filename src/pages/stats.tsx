@@ -1,10 +1,11 @@
 import { useQuery } from "@tanstack/solid-query";
 import { fetchLikes } from "../fetching/likes";
-import { createMemo, For, Match, Switch } from "solid-js";
+import { createMemo, createSignal, For, Match, Switch } from "solid-js";
 import PieChart from "../components/PieChart";
 import ChartLegend from "../components/ChartLegend";
 import { agent, xrpc } from "../app";
 import { AppBskyActorDefs } from "@atcute/bluesky";
+import { Did } from "@atcute/lexicons";
 
 export default function Stats() {
 	let refetch = false;
@@ -89,19 +90,50 @@ export default function Stats() {
 	});
 
 	const countPerAuthor = createMemo(() => {
-		if (!(postsQuery.isSuccess && postsQuery.data != null)) return;
+		if (!(postsQuery.isSuccess && postsQuery.data != null)) return [];
 
-		let res: Map<string, number> = new Map();
+		let res: Map<
+			Did,
+			{ count: number; profile: AppBskyActorDefs.ProfileViewBasic }
+		> = new Map();
 
 		for (const post of postsQuery.data.posts) {
-			if (!res.has(post.author.handle)) {
-				res.set(post.author.handle, 1);
+			if (!res.has(post.author.did)) {
+				res.set(post.author.did, { count: 1, profile: post.author });
 			} else {
-				res.set(post.author.handle, res.get(post.author.handle) + 1);
+				res.set(post.author.did, {
+					count: res.get(post.author.did).count + 1,
+					profile: post.author,
+				});
 			}
 		}
 
 		return res.entries().toArray();
+	});
+
+	const [currCountPerAuthorPageIndex, setCurrCountPerAuthorPageIndex] =
+		createSignal(0);
+	const [flipCountPerAuthor, setFlipCountPerAuthor] = createSignal(false);
+
+	const countPerAuthorPageCount = createMemo(() => {
+		return Math.ceil(countPerAuthor()?.length / 10);
+	});
+
+	const currentPageCountPerAuthor = createMemo(() => {
+		let data = countPerAuthor().sort((a, b) => {
+			const diff = a[1].count - b[1].count;
+			if (diff == 0) return a[0].localeCompare(b[0]);
+
+			return diff;
+		});
+		if (!flipCountPerAuthor()) data.reverse();
+
+		return data?.slice(
+			0 + currCountPerAuthorPageIndex() * 10,
+			10 + currCountPerAuthorPageIndex() * 10 > data?.length
+				? data?.length
+				: 10 + currCountPerAuthorPageIndex() * 10,
+		);
 	});
 
 	const hasAltText = createMemo(() => {
@@ -227,20 +259,127 @@ export default function Stats() {
 						</div>
 					</div>
 					<div class="card w-fit">
-						<p class="font-bold text-5">Likes based on author (top 10):</p>
-						<div>
-							<For
-								each={countPerAuthor()
-									.sort((a, b) => a[1] - b[1])
-									.reverse()
-									.slice(0, 10)}
+						<p class="font-bold text-5">Like count by author:</p>
+						<table class="m-t-2 rounded-t-lg overflow-hidden b-2 b-neutral/25 b-solid block">
+							<thead class="light:bg-neutral-200 dark:bg-neutral-900">
+								<tr class="b-b-2 b-neutral/25 b-solid [&>th:not(:first-child)]:b-l-2 [&>th]:b-neutral/25">
+									<th class="p-2">Name</th>
+									<th class="p-2">Count</th>
+								</tr>
+							</thead>
+							<tbody class="[&>tr:not(:last-child)]:b-b-1 [&>tr]:b-neutral/25">
+								<For each={currentPageCountPerAuthor()}>
+									{(val) => (
+										<tr>
+											<td class="p-1 flex items-center">
+												<div>
+													<img
+														class="rounded aspect-square"
+														src={val[1].profile.avatar}
+														width={32}
+														height={32}
+													/>
+												</div>
+												<div class="flex flex-col p-1 p-r-8">
+													<span class="line-height-snug">
+														{val[1].profile.displayName}
+													</span>
+													<span class="text-3 line-height-snug m-t--1 text-neutral">
+														{val[1].profile.handle != "handle.invalid"
+															? val[1].profile.handle
+															: val[1].profile.did}
+													</span>
+												</div>
+											</td>
+											<td class="p-1 text-center">{val[1].count}</td>
+										</tr>
+									)}
+								</For>
+							</tbody>
+						</table>
+						<div class="light:bg-neutral-200 dark:bg-neutral-900 b-2 b-t-0 b-neutral/25 rounded-b-lg flex overflow-hidden justify-between">
+							<div class="flex">
+								<button
+									class="p-x-1"
+									onclick={() =>
+										setCurrCountPerAuthorPageIndex(
+											currCountPerAuthorPageIndex() - 1 < 0
+												? countPerAuthorPageCount() - 1
+												: currCountPerAuthorPageIndex() - 1,
+										)
+									}
+								>
+									<div class="i-mingcute-left-fill"></div>
+								</button>
+								<input
+									class="w-min field-sizing-content text-center m-0 moz-appearance-textfield [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none p-x-2"
+									type="number"
+									value={currCountPerAuthorPageIndex() + 1}
+									onkeypress={(e) => {
+										if (e.key != "Enter") return;
+
+										const val = e.currentTarget.value;
+										try {
+											const newIndex = parseInt(val);
+
+											if (newIndex > countPerAuthorPageCount())
+												throw new Error();
+
+											if (newIndex < 1) throw new Error();
+
+											setCurrCountPerAuthorPageIndex(newIndex - 1);
+											e.currentTarget.value = newIndex.toString();
+											e.currentTarget.blur();
+										} catch (error) {
+											e.currentTarget.value = (
+												currCountPerAuthorPageIndex() + 1
+											).toString();
+											e.currentTarget.blur();
+										}
+									}}
+									onblur={(e) => {
+										const val = e.target.value;
+										try {
+											const newIndex = parseInt(val);
+
+											if (newIndex > countPerAuthorPageCount())
+												throw new Error();
+
+											if (newIndex < 1) throw new Error();
+
+											setCurrCountPerAuthorPageIndex(newIndex - 1);
+											e.target.value = newIndex.toString();
+										} catch (error) {
+											e.target.value = (
+												currCountPerAuthorPageIndex() + 1
+											).toString();
+										}
+									}}
+								/>
+								<p>/ {countPerAuthorPageCount()}</p>
+								<button
+									class="p-x-1"
+									onclick={() =>
+										setCurrCountPerAuthorPageIndex(
+											currCountPerAuthorPageIndex() + 1 >=
+												countPerAuthorPageCount()
+												? 0
+												: currCountPerAuthorPageIndex() + 1,
+										)
+									}
+								>
+									<div class="i-mingcute-right-fill"></div>
+								</button>
+							</div>{" "}
+							<button
+								class="group p-x-2"
+								onclick={(ev) => {
+									setFlipCountPerAuthor(!flipCountPerAuthor());
+									ev.currentTarget.classList.toggle("toggled");
+								}}
 							>
-								{(val) => (
-									<p>
-										{val[0]} - {val[1]}
-									</p>
-								)}
-							</For>
+								<div class="i-mingcute-sort-descending-fill group-[.toggled]:rotate-180 transition-all transition-250 transition-ease-in-out"></div>
+							</button>
 						</div>
 					</div>
 				</Match>
