@@ -162,15 +162,17 @@ export default function PieChart(props: {
 	return (
 		<div>
 			<div
+				hidden
 				ref={tooltip}
-				class="bg-gray w-fit shadow-md shadow-black absolute z-1"
+				class="bg-gray w-fit shadow-[0_0_16px_#000000] absolute z-1 select-none pointer-events-none rounded min-w-4rem p-2 overflow-hidden"
 			>
-				<p>{props.labels[0]}</p>
-				<p>{props.data[0]}</p>
+				<div class="color h-4px absolute w-full left-0 top-0"></div>
+				<p class="title font-bold">{props.labels[0]}</p>
+				<p class="value">{props.data[0]}</p>
 			</div>
 			<svg
 				viewBox="0 0 300 300"
-				class="w-300px h-300px drop-shadow-[0_0_12px_#000000A0] [&>g:hover]:scale-110 [&>g]:transition-ease-in-out [&>g]:transition-all [&>g]:transition-100"
+				class="w-300px h-300px drop-shadow-[0_0_12px_#000000A0] [&>g>g:hover]:scale-110 [&>g>g]:transition-ease-in-out [&>g>g]:transition-all [&>g>g]:transition-100"
 			>
 				<defs>
 					<mask id="clip" style={{ "mask-type": "luminance" }}>
@@ -178,163 +180,189 @@ export default function PieChart(props: {
 						<circle cx="150" cy="150" r="50" fill="black"></circle>
 					</mask>
 				</defs>
-				<For each={endPositionsPerSegment()}>
-					{(v, i) => {
-						return (
-							<g class="origin-center">
-								<path
-									id={`slice-${id}-${i()}`}
-									mask="url(#clip)"
-									fill={colors[i()]}
-									stroke="white"
-									stroke-width={0}
-									d={`M ${150} ${150} L ${v.start.x} ${v.start.y} A ${
-										150 - props.padding
-									} ${150 - props.padding} 0 ${v.angle > 180 ? "1" : "0"} 1 ${
-										v.end.x
-									} ${v.end.y} Z`}
-								></path>
-								<Show when={v.angle > 18}>
-									<text
-										// class="mix-blend-difference"
-										id={`text-${id}-${i()}`}
-										x={v.text.x}
-										y={v.text.y}
-										fill={textColors[i()]}
-										text-anchor="middle"
-										dominant-baseline="middle"
-										font-size="12"
-									>
-										{(() => {
-											let data = props.data[i()].toString();
-
-											let maxLength = data.length;
-
-											const letterWidth = 2;
-											//const textWidth = data.length * letterWidth;
-
-											const canvas = new OffscreenCanvas(0, 0);
-											const context = canvas.getContext("2d");
-											context.font = "10px DM Sans";
-
-											if (v.angle < 80) {
-												const center: Point = { x: 150, y: 150 };
-
-												const line1 = [center, v.start];
-												const line2 = [v.start, v.peak];
-												const line3 = [v.peak, v.end];
-												const line4 = [v.end, center];
-
-												function intersects(
-													lines: Point[][],
-													textLeft: Point,
-													textRight: Point,
-												) {
-													const intersect1 = doIntersect(
-														lines[0][0],
-														lines[0][1],
-														textLeft,
-														textRight,
-													);
-													const intersect2 = doIntersect(
-														lines[1][0],
-														lines[1][1],
-														textLeft,
-														textRight,
-													);
-													const intersect3 = doIntersect(
-														lines[2][0],
-														lines[2][1],
-														textLeft,
-														textRight,
-													);
-													const intersect4 = doIntersect(
-														lines[3][0],
-														lines[3][1],
-														textLeft,
-														textRight,
-													);
-
-													return (
-														intersect1 || intersect2 || intersect3 || intersect4
-													);
-												}
-
-												let textLeft = {
-													x: v.text.x - context.measureText(data).width / 2,
-													y: v.text.y,
-												};
-												let textRight = {
-													x: v.text.x + context.measureText(data).width / 2,
-													y: v.text.y,
-												};
-
-												let lettersDiscarded = 0;
-
-												while (
-													intersects(
-														[line1, line2, line3, line4],
-														textLeft,
-														textRight,
-													)
-												) {
-													if (maxLength - lettersDiscarded <= 0) break;
-													lettersDiscarded++;
-
-													textLeft = {
-														x:
-															v.text.x -
-															context.measureText(
-																data.slice(0, data.length - lettersDiscarded),
-															).width /
-																2,
-														y: v.text.y,
-													};
-													textRight = {
-														x:
-															v.text.x +
-															context.measureText(
-																data.slice(0, data.length - lettersDiscarded),
-															).width /
-																2,
-														y: v.text.y,
-													};
-												}
-
-												maxLength -= lettersDiscarded;
-											}
-											//}
-
-											// if (
-											//   v.centerAngleOnCircle % 180 > 15 &&
-											//   v.centerAngleOnCircle % 180 < 165 &&
-											//   v.angle < 90
-											// ) {
-											//   maxLength -= Math.ceil(
-											//     (v.centerAngleOnCircle / v.angle + 2) *
-											//       (1 - (textDistanceScale + 0.25) + textDistanceScale)
-											//   );
-											// }
-
-											// if (data.length > maxLength) {
-											//   data = data
-											//     .slice(0, data.length - (data.length - maxLength))
-											//     .padEnd(maxLength + 3, ".");
-											// }
-
-											if (maxLength == data.length) return data;
-											else {
-												return data
-													.slice(0, maxLength - 2)
-													.padEnd(maxLength + 1, ".");
-											}
-										})()}
-									</text>
-								</Show>
-							</g>
-						);
+				<g
+					onpointerleave={() => {
+						tooltip.hidden = true;
 					}}
-				</For>
+				>
+					<For each={endPositionsPerSegment()}>
+						{(v, i) => {
+							return (
+								<g
+									class="origin-center"
+									onpointermove={(ev) => {
+										tooltip.hidden = false;
+										tooltip.style.left = ev.pageX + 16 + "px";
+										tooltip.style.top = ev.pageY + 16 + "px";
+
+										(
+											tooltip.querySelector(".title") as HTMLParagraphElement
+										).innerText = props.labels[i()];
+										(
+											tooltip.querySelector(".value") as HTMLParagraphElement
+										).innerText = props.data[i()].toString();
+										(
+											tooltip.querySelector(".color") as HTMLDivElement
+										).style.backgroundColor = colors[i()];
+									}}
+								>
+									<path
+										id={`slice-${id}-${i()}`}
+										mask="url(#clip)"
+										fill={colors[i()]}
+										stroke="white"
+										stroke-width={0}
+										d={`M ${150} ${150} L ${v.start.x} ${v.start.y} A ${
+											150 - props.padding
+										} ${150 - props.padding} 0 ${v.angle > 180 ? "1" : "0"} 1 ${
+											v.end.x
+										} ${v.end.y} Z`}
+									></path>
+									<Show when={v.angle > 18}>
+										<text
+											class="select-none pointer-events-none"
+											id={`text-${id}-${i()}`}
+											x={v.text.x}
+											y={v.text.y}
+											fill={textColors[i()]}
+											text-anchor="middle"
+											dominant-baseline="middle"
+											font-size="12"
+										>
+											{(() => {
+												let data = props.data[i()].toString();
+
+												let maxLength = data.length;
+
+												const letterWidth = 2;
+												//const textWidth = data.length * letterWidth;
+
+												const canvas = new OffscreenCanvas(0, 0);
+												const context = canvas.getContext("2d");
+												context.font = "10px DM Sans";
+
+												if (v.angle < 80) {
+													const center: Point = { x: 150, y: 150 };
+
+													const line1 = [center, v.start];
+													const line2 = [v.start, v.peak];
+													const line3 = [v.peak, v.end];
+													const line4 = [v.end, center];
+
+													function intersects(
+														lines: Point[][],
+														textLeft: Point,
+														textRight: Point,
+													) {
+														const intersect1 = doIntersect(
+															lines[0][0],
+															lines[0][1],
+															textLeft,
+															textRight,
+														);
+														const intersect2 = doIntersect(
+															lines[1][0],
+															lines[1][1],
+															textLeft,
+															textRight,
+														);
+														const intersect3 = doIntersect(
+															lines[2][0],
+															lines[2][1],
+															textLeft,
+															textRight,
+														);
+														const intersect4 = doIntersect(
+															lines[3][0],
+															lines[3][1],
+															textLeft,
+															textRight,
+														);
+
+														return (
+															intersect1 ||
+															intersect2 ||
+															intersect3 ||
+															intersect4
+														);
+													}
+
+													let textLeft = {
+														x: v.text.x - context.measureText(data).width / 2,
+														y: v.text.y,
+													};
+													let textRight = {
+														x: v.text.x + context.measureText(data).width / 2,
+														y: v.text.y,
+													};
+
+													let lettersDiscarded = 0;
+
+													while (
+														intersects(
+															[line1, line2, line3, line4],
+															textLeft,
+															textRight,
+														)
+													) {
+														if (maxLength - lettersDiscarded <= 0) break;
+														lettersDiscarded++;
+
+														textLeft = {
+															x:
+																v.text.x -
+																context.measureText(
+																	data.slice(0, data.length - lettersDiscarded),
+																).width /
+																	2,
+															y: v.text.y,
+														};
+														textRight = {
+															x:
+																v.text.x +
+																context.measureText(
+																	data.slice(0, data.length - lettersDiscarded),
+																).width /
+																	2,
+															y: v.text.y,
+														};
+													}
+
+													maxLength -= lettersDiscarded;
+												}
+												//}
+
+												// if (
+												//   v.centerAngleOnCircle % 180 > 15 &&
+												//   v.centerAngleOnCircle % 180 < 165 &&
+												//   v.angle < 90
+												// ) {
+												//   maxLength -= Math.ceil(
+												//     (v.centerAngleOnCircle / v.angle + 2) *
+												//       (1 - (textDistanceScale + 0.25) + textDistanceScale)
+												//   );
+												// }
+
+												// if (data.length > maxLength) {
+												//   data = data
+												//     .slice(0, data.length - (data.length - maxLength))
+												//     .padEnd(maxLength + 3, ".");
+												// }
+
+												if (maxLength == data.length) return data;
+												else {
+													return data
+														.slice(0, maxLength - 2)
+														.padEnd(maxLength + 1, ".");
+												}
+											})()}
+										</text>
+									</Show>
+								</g>
+							);
+						}}
+					</For>
+				</g>
 			</svg>
 		</div>
 	);
