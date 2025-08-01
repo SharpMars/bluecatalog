@@ -186,9 +186,10 @@ export default function Stats() {
           */}
           </div>
           <div class="card w-fit">
-            <table class="bg-neutral-700 text-white block [&_td]:p-2 rounded-xl w-fit b-1 b-solid b-white [&_th]:p-2 text-center overflow-hidden">
-              <thead class="b-b-1 b-solid b-white bg-sky-800">
-                <tr class="[&>th:not(:first-child)]:b-l-1 [&>th]:b-l-solid [&>th]:b-l-white">
+            <p class="text-5 font-bold">Like count by days of the week:</p>
+            <table class="m-t-2 rounded-lg overflow-hidden b-2 b-neutral/25 b-solid block">
+              <thead class="light:bg-neutral-200 dark:bg-neutral-900">
+                <tr class="b-b-2 b-neutral/25 b-solid [&>th:not(:first-child)]:b-l-2 [&>th]:b-neutral/25 [&>th]:p-2">
                   <th>Mon</th>
                   <th>Tue</th>
                   <th>Wed</th>
@@ -198,8 +199,8 @@ export default function Stats() {
                   <th>Sun</th>
                 </tr>
               </thead>
-              <tbody>
-                <tr class="[&>td:not(:first-child)]:b-l-1 [&>td]:b-l-solid [&>td]:b-l-white">
+              <tbody class="[&>tr:not(:last-child)]:b-b-1 [&>tr]:b-neutral/25 [&_td]:p-2 [&_td]:text-center">
+                <tr class="">
                   <td>{countPerDay()[0]}</td>
                   <td>{countPerDay()[1]}</td>
                   <td>{countPerDay()[2]}</td>
@@ -213,7 +214,7 @@ export default function Stats() {
           </div>
           <div class="card w-fit">
             <p class="text-5 font-bold">Likes based on hour:</p>
-            <div class="flex gap-2 flex-wrap max-w-md justify-between">
+            <div class="flex gap-2 flex-wrap max-w-md justify-between m-t-2">
               <For
                 each={countPerHour()
                   .map((val, i) => {
