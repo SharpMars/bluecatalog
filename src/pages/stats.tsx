@@ -6,6 +6,7 @@ import ChartLegend from "../components/ChartLegend";
 import { agent, xrpc } from "../app";
 import { AppBskyActorDefs } from "@atcute/bluesky";
 import { Did } from "@atcute/lexicons";
+import createPagination from "../utils/pagination";
 
 export default function Stats() {
   let refetch = false;
@@ -105,30 +106,24 @@ export default function Stats() {
       }
     }
 
-    return res.entries().toArray();
+    let sorted = res
+      .entries()
+      .toArray()
+      .sort((a, b) => {
+        const diff = a[1].count - b[1].count;
+        if (diff == 0) return a[0].localeCompare(b[0]);
+
+        return diff;
+      });
+
+    sorted.reverse();
+
+    return sorted;
   });
 
-  const [currCountPerAuthorPageIndex, setCurrCountPerAuthorPageIndex] = createSignal(0);
-  const [flipCountPerAuthor, setFlipCountPerAuthor] = createSignal(false);
-
-  const countPerAuthorPageCount = createMemo(() => {
-    return Math.ceil(countPerAuthor()?.length / 10);
-  });
-
-  const currentPageCountPerAuthor = createMemo(() => {
-    let data = countPerAuthor().sort((a, b) => {
-      const diff = a[1].count - b[1].count;
-      if (diff == 0) return a[0].localeCompare(b[0]);
-
-      return diff;
-    });
-    if (!flipCountPerAuthor()) data.reverse();
-
-    return data?.slice(
-      0 + currCountPerAuthorPageIndex() * 10,
-      10 + currCountPerAuthorPageIndex() * 10 > data?.length ? data?.length : 10 + currCountPerAuthorPageIndex() * 10
-    );
-  });
+  const [flipPerAuthor, setFlipPerAuthor] = createSignal(false);
+  const [currentPerAuthorPage, perAuthorPageCount, currPerAuthorPageIndex, setCurrPerAuthorPageIndex] =
+    createPagination(countPerAuthor, 10, undefined, flipPerAuthor);
 
   const hasAltText = createMemo(() => {
     if (!(postsQuery.isSuccess && postsQuery.data != null)) return;
@@ -244,7 +239,7 @@ export default function Stats() {
                 </tr>
               </thead>
               <tbody class="[&>tr:not(:last-child)]:b-b-1 [&>tr]:b-neutral/25">
-                <For each={currentPageCountPerAuthor()}>
+                <For each={currentPerAuthorPage()}>
                   {(val) => (
                     <tr>
                       <td class="p-1 flex items-center">
@@ -302,10 +297,8 @@ export default function Stats() {
                 <button
                   class="p-x-1"
                   onclick={() =>
-                    setCurrCountPerAuthorPageIndex(
-                      currCountPerAuthorPageIndex() - 1 < 0
-                        ? countPerAuthorPageCount() - 1
-                        : currCountPerAuthorPageIndex() - 1
+                    setCurrPerAuthorPageIndex(
+                      currPerAuthorPageIndex() - 1 < 0 ? perAuthorPageCount() - 1 : currPerAuthorPageIndex() - 1
                     )
                   }
                 >
@@ -314,7 +307,7 @@ export default function Stats() {
                 <input
                   class="w-min field-sizing-content text-center m-0 moz-appearance-textfield [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none p-x-2"
                   type="number"
-                  value={currCountPerAuthorPageIndex() + 1}
+                  value={currPerAuthorPageIndex() + 1}
                   onkeypress={(e) => {
                     if (e.key != "Enter") return;
 
@@ -322,15 +315,15 @@ export default function Stats() {
                     try {
                       const newIndex = parseInt(val);
 
-                      if (newIndex > countPerAuthorPageCount()) throw new Error();
+                      if (newIndex > perAuthorPageCount()) throw new Error();
 
                       if (newIndex < 1) throw new Error();
 
-                      setCurrCountPerAuthorPageIndex(newIndex - 1);
+                      setCurrPerAuthorPageIndex(newIndex - 1);
                       e.currentTarget.value = newIndex.toString();
                       e.currentTarget.blur();
                     } catch (error) {
-                      e.currentTarget.value = (currCountPerAuthorPageIndex() + 1).toString();
+                      e.currentTarget.value = (currPerAuthorPageIndex() + 1).toString();
                       e.currentTarget.blur();
                     }
                   }}
@@ -339,25 +332,23 @@ export default function Stats() {
                     try {
                       const newIndex = parseInt(val);
 
-                      if (newIndex > countPerAuthorPageCount()) throw new Error();
+                      if (newIndex > perAuthorPageCount()) throw new Error();
 
                       if (newIndex < 1) throw new Error();
 
-                      setCurrCountPerAuthorPageIndex(newIndex - 1);
+                      setCurrPerAuthorPageIndex(newIndex - 1);
                       e.target.value = newIndex.toString();
                     } catch (error) {
-                      e.target.value = (currCountPerAuthorPageIndex() + 1).toString();
+                      e.target.value = (currPerAuthorPageIndex() + 1).toString();
                     }
                   }}
                 />
-                <p>/ {countPerAuthorPageCount()}</p>
+                <p>/ {perAuthorPageCount()}</p>
                 <button
                   class="p-x-1"
                   onclick={() =>
-                    setCurrCountPerAuthorPageIndex(
-                      currCountPerAuthorPageIndex() + 1 >= countPerAuthorPageCount()
-                        ? 0
-                        : currCountPerAuthorPageIndex() + 1
+                    setCurrPerAuthorPageIndex(
+                      currPerAuthorPageIndex() + 1 >= perAuthorPageCount() ? 0 : currPerAuthorPageIndex() + 1
                     )
                   }
                 >
@@ -367,7 +358,7 @@ export default function Stats() {
               <button
                 class="group p-x-2"
                 onclick={(ev) => {
-                  setFlipCountPerAuthor(!flipCountPerAuthor());
+                  setFlipPerAuthor(!flipPerAuthor());
                   ev.currentTarget.classList.toggle("toggled");
                 }}
               >

@@ -1,19 +1,5 @@
-import {
-  createEffect,
-  createMemo,
-  createSignal,
-  ErrorBoundary,
-  Match,
-  on,
-  onMount,
-  Switch,
-} from "solid-js";
-import {
-  AppBskyEmbedImages,
-  AppBskyEmbedVideo,
-  AppBskyFeedDefs,
-  AppBskyFeedPost,
-} from "@atcute/bluesky";
+import { createEffect, createMemo, createSignal, ErrorBoundary, Match, on, onMount, Switch } from "solid-js";
+import { AppBskyEmbedImages, AppBskyEmbedVideo, AppBskyFeedDefs, AppBskyFeedPost } from "@atcute/bluesky";
 import { useQuery, useQueryClient } from "@tanstack/solid-query";
 import MiniSearch from "minisearch";
 import { LoadingIndicator } from "../components/LoadingIndicator";
@@ -28,19 +14,13 @@ import { TextInput } from "../components/TextInput";
 import { createStore } from "solid-js/store";
 import { PostFilter } from "../components/PostFilter";
 import { countEmbeds } from "../utils/embed";
+import createPagination from "../utils/pagination";
 
 export default function LoggedIn() {
-  const [currentIndex, setCurrentIndex] = createSignal(
-    sessionStorage.getItem("currentIndex")
-      ? parseInt(sessionStorage.getItem("currentIndex"))
-      : 0
-  );
   const [searchVal, setSearchVal] = createSignal("");
   const [selectedAuthors, setSelectedAuthors] = createSignal<string[]>([]);
   const [selectedTab, setSelectedTab] = createSignal<"likes" | "pins">(
-    localStorage.getItem("lastTab")
-      ? (localStorage.getItem("lastTab") as "likes" | "pins")
-      : "likes"
+    localStorage.getItem("lastTab") ? (localStorage.getItem("lastTab") as "likes" | "pins") : "likes"
   );
   const [embedOptions, setEmbedOptions] = createStore<{
     none: boolean;
@@ -61,11 +41,7 @@ export default function LoggedIn() {
   createEffect(() => {
     setEmbedOptions("isAllFalse", () => {
       return (
-        !embedOptions.none &&
-        !embedOptions.image &&
-        !embedOptions.video &&
-        !embedOptions.post &&
-        !embedOptions.external
+        !embedOptions.none && !embedOptions.image && !embedOptions.video && !embedOptions.post && !embedOptions.external
       );
     });
   });
@@ -176,9 +152,7 @@ export default function LoggedIn() {
     if (searchVal().trim() !== "") {
       const result = searcher.search(searchVal(), { fuzzy: 0.2 });
 
-      posts = posts.filter(
-        (val) => result.find((res) => res.id == val.cid) !== undefined
-      );
+      posts = posts.filter((val) => result.find((res) => res.id == val.cid) !== undefined);
     }
 
     return posts;
@@ -190,11 +164,7 @@ export default function LoggedIn() {
     if (posts.length == 0) return posts;
 
     if (selectedAuthors().length > 0) {
-      posts = posts.filter(
-        (val) =>
-          selectedAuthors().find((author) => author == val.author.did) !==
-          undefined
-      );
+      posts = posts.filter((val) => selectedAuthors().find((author) => author == val.author.did) !== undefined);
     }
 
     if (!embedOptions.isAllFalse) {
@@ -222,25 +192,16 @@ export default function LoggedIn() {
     if (searchVal().trim() !== "") {
       const result = searcher.search(searchVal(), { fuzzy: 0.2 });
 
-      posts = posts.filter(
-        (val) => result.find((res) => res.id == val.cid) !== undefined
-      );
+      posts = posts.filter((val) => result.find((res) => res.id == val.cid) !== undefined);
     }
 
     return posts;
   });
 
-  const pageCount = createMemo(() => {
-    return Math.ceil(filteredPosts()?.length / 50);
-  });
-
-  const currentPagePosts = createMemo(() =>
-    filteredPosts()?.slice(
-      0 + currentIndex() * 50,
-      50 + currentIndex() * 50 > filteredPosts()?.length
-        ? filteredPosts()?.length
-        : 50 + currentIndex() * 50
-    )
+  const [currentPagePosts, pageCount, currentIndex, setCurrentIndex] = createPagination(
+    filteredPosts,
+    50,
+    sessionStorage.getItem("currentIndex") ? parseInt(sessionStorage.getItem("currentIndex")) : 0
   );
 
   const embedCount = createMemo(() => {
@@ -347,9 +308,7 @@ export default function LoggedIn() {
                       <Switch
                         fallback={
                           <>
-                            <Dialog.Label class="text-lg font-bold">
-                              Refresh the cache?
-                            </Dialog.Label>
+                            <Dialog.Label class="text-lg font-bold">Refresh the cache?</Dialog.Label>
                             <Dialog.Description class="text-wrap">
                               This will update currently cached likes. <br />
                               This will take a minute.
@@ -373,12 +332,9 @@ export default function LoggedIn() {
                       >
                         <Match when={postsQuery.isFetching}>
                           <>
-                            <Dialog.Label class="text-lg font-bold">
-                              Cancel refresh?
-                            </Dialog.Label>
+                            <Dialog.Label class="text-lg font-bold">Cancel refresh?</Dialog.Label>
                             <Dialog.Description class="text-wrap">
-                              This will cancel currently running cache refresh.{" "}
-                              <br />
+                              This will cancel currently running cache refresh. <br />
                             </Dialog.Description>
                             <div class="mt-3 flex justify-between text-white">
                               <Dialog.Close
