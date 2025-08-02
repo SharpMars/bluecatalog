@@ -163,9 +163,9 @@ export default function Stats() {
             </div>
             <Masonry columns={2} gap={8} verticalOnlyGap={8} maxWidth={576}>
               <div class="card max-w-[min(36rem,calc(100vw-32px))] w-full">
-                <div class="flex justify-center flex-col w-min">
+                <div class="flex justify-center flex-col w-full ">
                   <p class="text-5 font-bold text-center">How many likes have alt text:</p>
-                  <div class="flex gap-4">
+                  <div class="flex gap-4 justify-center">
                     <PieChart padding={17} data={Object.values(hasAltText())} labels={["Yes", "No"]}></PieChart>
                     <ChartLegend labels={["Yes", "No"]}></ChartLegend>
                   </div>
