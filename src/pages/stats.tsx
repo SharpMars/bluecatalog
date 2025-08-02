@@ -157,20 +157,21 @@ export default function Stats() {
       <Switch>
         <Match when={postsQuery.isSuccess && postsQuery.data != null}>
           <div class="flex flex-col items-center gap-8 p-y-4 p-x-2">
-            <div class="card min-[1192px]:max-w-[min(57.35rem,calc(100vw-32px))] w-full max-w-[min(calc(30rem+1px),calc(100vw-32px))]">
-              <p>Number of records: {postsQuery.data.records.length}</p>
-              <p>Number of unavailable posts: {postsQuery.data.records.length - postsQuery.data.posts.length}</p>
-            </div>
-            <Masonry columns={2} gap={8} verticalOnlyGap={8} maxWidth={576}>
-              <div class="card max-w-[min(36rem,calc(100vw-32px))] w-full">
-                <div class="flex justify-center flex-col w-full ">
-                  <p class="text-5 font-bold text-center">How many likes have alt text:</p>
-                  <div class="flex gap-4 justify-center">
-                    <PieChart padding={17} data={Object.values(hasAltText())} labels={["Yes", "No"]}></PieChart>
-                    <ChartLegend labels={["Yes", "No"]}></ChartLegend>
+            <div class="flex flex-col gap-8">
+              <div class="card">
+                <p>Number of records: {postsQuery.data.records.length}</p>
+                <p>Number of unavailable posts: {postsQuery.data.records.length - postsQuery.data.posts.length}</p>
+              </div>
+              <Masonry columns={2} gap={8} verticalOnlyGap={8} maxWidth={576}>
+                <div class="card max-w-[min(36rem,calc(100vw-32px))] w-full">
+                  <div class="flex justify-center flex-col w-full ">
+                    <p class="text-5 font-bold text-center">How many likes have alt text:</p>
+                    <div class="flex gap-4 justify-center">
+                      <PieChart padding={17} data={Object.values(hasAltText())} labels={["Yes", "No"]}></PieChart>
+                      <ChartLegend labels={["Yes", "No"]}></ChartLegend>
+                    </div>
                   </div>
-                </div>
-                {/*
+                  {/*
 						<div class="flex gap-4">	
             <PieChart
 								padding={17}
@@ -182,196 +183,197 @@ export default function Stats() {
 							<ChartLegend labels={["Yes", "No"]}></ChartLegend>
 						</div>
           */}
-              </div>
-              <div class="card max-w-[min(36rem,calc(100vw-32px))] w-full">
-                <p class="text-5 font-bold">Like count by days of the week:</p>
-                <div class="overflow-x-auto rounded-lg overflow-y-hidden b-2 b-neutral/25 b-solid">
-                  <table class="w-full">
-                    <thead class="light:bg-neutral-200 dark:bg-neutral-900 w-full">
-                      <tr class="b-b-2 b-neutral/25 b-solid [&>th:not(:first-child)]:b-l-2 [&>th]:b-neutral/25 [&>th]:p-2 [&>th]:w-[calc(100%/7)]">
-                        <th>Mon</th>
-                        <th>Tue</th>
-                        <th>Wed</th>
-                        <th>Thu</th>
-                        <th>Fri</th>
-                        <th>Sat</th>
-                        <th>Sun</th>
-                      </tr>
-                    </thead>
-                    <tbody class="[&>tr:not(:last-child)]:b-b-1 [&>tr]:b-neutral/25 [&_td]:p-2 [&_td]:text-center">
-                      <tr class="">
-                        <td>{countPerDay()[0]}</td>
-                        <td>{countPerDay()[1]}</td>
-                        <td>{countPerDay()[2]}</td>
-                        <td>{countPerDay()[3]}</td>
-                        <td>{countPerDay()[4]}</td>
-                        <td>{countPerDay()[5]}</td>
-                        <td>{countPerDay()[6]}</td>
-                      </tr>
-                    </tbody>
-                  </table>
                 </div>
-              </div>
-              <div class="card max-w-[min(36rem,calc(100vw-32px))] w-full">
-                <p class="text-5 font-bold">Likes based on hour:</p>
-                <div class="flex gap-2 flex-wrap max-w-md justify-between m-t-2">
-                  <For
-                    each={countPerHour()
-                      .map((val, i) => {
-                        return {
-                          hour: i.toString().padStart(2, "0"),
-                          count: val,
-                        };
-                      })
-                      .sort((a, b) => a.count - b.count)
-                      .reverse()}
-                  >
-                    {(val) => (
-                      <p class="bg-gray p-2 w-32 text-center">
-                        {val.hour}: {val.count}
-                      </p>
-                    )}
-                  </For>
-                </div>
-              </div>
-              <div class="card max-w-[min(36rem,calc(100vw-32px))] w-full">
-                <p class="font-bold text-5">Like count by author:</p>
-                <table class="m-t-2 rounded-t-lg overflow-hidden b-2 b-neutral/25 b-solid block">
-                  <thead class="light:bg-neutral-200 dark:bg-neutral-900">
-                    <tr class="b-b-2 b-neutral/25 b-solid [&>th:not(:first-child)]:b-l-2 [&>th]:b-neutral/25">
-                      <th class="p-2 w-full">Name</th>
-                      <th class="p-2">Count</th>
-                    </tr>
-                  </thead>
-                  <tbody class="[&>tr:not(:last-child)]:b-b-1 [&>tr]:b-neutral/25">
-                    <For each={currentPerAuthorPage()}>
-                      {(val) => (
-                        <tr>
-                          <td class="p-1 flex items-center">
-                            <div>
-                              <img
-                                class="rounded aspect-square"
-                                src={val[1].profile.avatar}
-                                width={32}
-                                height={32}
-                                onerror={(ev) => {
-                                  ev.currentTarget.src = "./fallback.svg";
-                                }}
-                              />
-                            </div>
-                            <div class="flex flex-col p-1 p-r-8">
-                              <span
-                                class="line-height-snug [&.expand]:h-7"
-                                classList={{
-                                  expand: !val[1].profile.displayName && val[1].profile.handle == "handle.invalid",
-                                }}
-                              >
-                                {(() => {
-                                  const profile = val[1].profile;
-
-                                  if (profile.displayName) return profile.displayName;
-                                  if (profile.handle != "handle.invalid") return profile.handle;
-
-                                  return profile.did;
-                                })()}
-                              </span>
-                              <span
-                                class="text-3 line-height-snug m-t--1 text-neutral"
-                                hidden={!val[1].profile.displayName && val[1].profile.handle == "handle.invalid"}
-                              >
-                                {(() => {
-                                  const profile = val[1].profile;
-
-                                  if (!profile.displayName) return profile.did;
-                                  if (profile.handle != "handle.invalid") return profile.handle;
-                                  if (profile.handle == "handle.invalid") return profile.did;
-
-                                  return "";
-                                })()}
-                              </span>
-                            </div>
-                          </td>
-                          <td class="p-1 text-center">{val[1].count}</td>
+                <div class="card max-w-[min(36rem,calc(100vw-32px))] w-full">
+                  <p class="text-5 font-bold">Like count by days of the week:</p>
+                  <div class="overflow-x-auto rounded-lg overflow-y-hidden b-2 b-neutral/25 b-solid">
+                    <table class="w-full">
+                      <thead class="light:bg-neutral-200 dark:bg-neutral-900 w-full">
+                        <tr class="b-b-2 b-neutral/25 b-solid [&>th:not(:first-child)]:b-l-2 [&>th]:b-neutral/25 [&>th]:p-2 [&>th]:w-[calc(100%/7)]">
+                          <th>Mon</th>
+                          <th>Tue</th>
+                          <th>Wed</th>
+                          <th>Thu</th>
+                          <th>Fri</th>
+                          <th>Sat</th>
+                          <th>Sun</th>
                         </tr>
+                      </thead>
+                      <tbody class="[&>tr:not(:last-child)]:b-b-1 [&>tr]:b-neutral/25 [&_td]:p-2 [&_td]:text-center">
+                        <tr class="">
+                          <td>{countPerDay()[0]}</td>
+                          <td>{countPerDay()[1]}</td>
+                          <td>{countPerDay()[2]}</td>
+                          <td>{countPerDay()[3]}</td>
+                          <td>{countPerDay()[4]}</td>
+                          <td>{countPerDay()[5]}</td>
+                          <td>{countPerDay()[6]}</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+                <div class="card max-w-[min(36rem,calc(100vw-32px))] w-full">
+                  <p class="text-5 font-bold">Likes based on hour:</p>
+                  <div class="flex gap-2 flex-wrap max-w-md justify-between m-t-2">
+                    <For
+                      each={countPerHour()
+                        .map((val, i) => {
+                          return {
+                            hour: i.toString().padStart(2, "0"),
+                            count: val,
+                          };
+                        })
+                        .sort((a, b) => a.count - b.count)
+                        .reverse()}
+                    >
+                      {(val) => (
+                        <p class="bg-gray p-2 w-32 text-center">
+                          {val.hour}: {val.count}
+                        </p>
                       )}
                     </For>
-                  </tbody>
-                </table>
-                <div class="light:bg-neutral-200 dark:bg-neutral-900 b-2 b-t-0 b-neutral/25 rounded-b-lg flex overflow-hidden justify-between">
-                  <div class="flex">
-                    <button
-                      class="p-x-1"
-                      onclick={() =>
-                        setCurrPerAuthorPageIndex(
-                          currPerAuthorPageIndex() - 1 < 0 ? perAuthorPageCount() - 1 : currPerAuthorPageIndex() - 1
-                        )
-                      }
-                    >
-                      <div class="i-mingcute-left-fill"></div>
-                    </button>
-                    <input
-                      class="w-min field-sizing-content text-center m-0 moz-appearance-textfield [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none p-x-2"
-                      type="number"
-                      value={currPerAuthorPageIndex() + 1}
-                      onkeypress={(e) => {
-                        if (e.key != "Enter") return;
-
-                        const val = e.currentTarget.value;
-                        try {
-                          const newIndex = parseInt(val);
-
-                          if (newIndex > perAuthorPageCount()) throw new Error();
-
-                          if (newIndex < 1) throw new Error();
-
-                          setCurrPerAuthorPageIndex(newIndex - 1);
-                          e.currentTarget.value = newIndex.toString();
-                          e.currentTarget.blur();
-                        } catch (error) {
-                          e.currentTarget.value = (currPerAuthorPageIndex() + 1).toString();
-                          e.currentTarget.blur();
-                        }
-                      }}
-                      onblur={(e) => {
-                        const val = e.target.value;
-                        try {
-                          const newIndex = parseInt(val);
-
-                          if (newIndex > perAuthorPageCount()) throw new Error();
-
-                          if (newIndex < 1) throw new Error();
-
-                          setCurrPerAuthorPageIndex(newIndex - 1);
-                          e.target.value = newIndex.toString();
-                        } catch (error) {
-                          e.target.value = (currPerAuthorPageIndex() + 1).toString();
-                        }
-                      }}
-                    />
-                    <p>/ {perAuthorPageCount()}</p>
-                    <button
-                      class="p-x-1"
-                      onclick={() =>
-                        setCurrPerAuthorPageIndex(
-                          currPerAuthorPageIndex() + 1 >= perAuthorPageCount() ? 0 : currPerAuthorPageIndex() + 1
-                        )
-                      }
-                    >
-                      <div class="i-mingcute-right-fill"></div>
-                    </button>
-                  </div>{" "}
-                  <button
-                    class="group p-x-2"
-                    onclick={(ev) => {
-                      setFlipPerAuthor(!flipPerAuthor());
-                      ev.currentTarget.classList.toggle("toggled");
-                    }}
-                  >
-                    <div class="i-mingcute-sort-descending-fill group-[.toggled]:rotate-180 transition-all transition-250 transition-ease-in-out"></div>
-                  </button>
+                  </div>
                 </div>
-              </div>
-            </Masonry>
+                <div class="card max-w-[min(36rem,calc(100vw-32px))] w-full">
+                  <p class="font-bold text-5">Like count by author:</p>
+                  <table class="m-t-2 rounded-t-lg overflow-hidden b-2 b-neutral/25 b-solid block">
+                    <thead class="light:bg-neutral-200 dark:bg-neutral-900">
+                      <tr class="b-b-2 b-neutral/25 b-solid [&>th:not(:first-child)]:b-l-2 [&>th]:b-neutral/25">
+                        <th class="p-2 w-full">Name</th>
+                        <th class="p-2">Count</th>
+                      </tr>
+                    </thead>
+                    <tbody class="[&>tr:not(:last-child)]:b-b-1 [&>tr]:b-neutral/25">
+                      <For each={currentPerAuthorPage()}>
+                        {(val) => (
+                          <tr>
+                            <td class="p-1 flex items-center">
+                              <div>
+                                <img
+                                  class="rounded aspect-square"
+                                  src={val[1].profile.avatar}
+                                  width={32}
+                                  height={32}
+                                  onerror={(ev) => {
+                                    ev.currentTarget.src = "./fallback.svg";
+                                  }}
+                                />
+                              </div>
+                              <div class="flex flex-col p-1 p-r-8">
+                                <span
+                                  class="line-height-snug [&.expand]:h-7"
+                                  classList={{
+                                    expand: !val[1].profile.displayName && val[1].profile.handle == "handle.invalid",
+                                  }}
+                                >
+                                  {(() => {
+                                    const profile = val[1].profile;
+
+                                    if (profile.displayName) return profile.displayName;
+                                    if (profile.handle != "handle.invalid") return profile.handle;
+
+                                    return profile.did;
+                                  })()}
+                                </span>
+                                <span
+                                  class="text-3 line-height-snug m-t--1 text-neutral"
+                                  hidden={!val[1].profile.displayName && val[1].profile.handle == "handle.invalid"}
+                                >
+                                  {(() => {
+                                    const profile = val[1].profile;
+
+                                    if (!profile.displayName) return profile.did;
+                                    if (profile.handle != "handle.invalid") return profile.handle;
+                                    if (profile.handle == "handle.invalid") return profile.did;
+
+                                    return "";
+                                  })()}
+                                </span>
+                              </div>
+                            </td>
+                            <td class="p-1 text-center">{val[1].count}</td>
+                          </tr>
+                        )}
+                      </For>
+                    </tbody>
+                  </table>
+                  <div class="light:bg-neutral-200 dark:bg-neutral-900 b-2 b-t-0 b-neutral/25 rounded-b-lg flex overflow-hidden justify-between">
+                    <div class="flex">
+                      <button
+                        class="p-x-1"
+                        onclick={() =>
+                          setCurrPerAuthorPageIndex(
+                            currPerAuthorPageIndex() - 1 < 0 ? perAuthorPageCount() - 1 : currPerAuthorPageIndex() - 1
+                          )
+                        }
+                      >
+                        <div class="i-mingcute-left-fill"></div>
+                      </button>
+                      <input
+                        class="w-min field-sizing-content text-center m-0 moz-appearance-textfield [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none p-x-2"
+                        type="number"
+                        value={currPerAuthorPageIndex() + 1}
+                        onkeypress={(e) => {
+                          if (e.key != "Enter") return;
+
+                          const val = e.currentTarget.value;
+                          try {
+                            const newIndex = parseInt(val);
+
+                            if (newIndex > perAuthorPageCount()) throw new Error();
+
+                            if (newIndex < 1) throw new Error();
+
+                            setCurrPerAuthorPageIndex(newIndex - 1);
+                            e.currentTarget.value = newIndex.toString();
+                            e.currentTarget.blur();
+                          } catch (error) {
+                            e.currentTarget.value = (currPerAuthorPageIndex() + 1).toString();
+                            e.currentTarget.blur();
+                          }
+                        }}
+                        onblur={(e) => {
+                          const val = e.target.value;
+                          try {
+                            const newIndex = parseInt(val);
+
+                            if (newIndex > perAuthorPageCount()) throw new Error();
+
+                            if (newIndex < 1) throw new Error();
+
+                            setCurrPerAuthorPageIndex(newIndex - 1);
+                            e.target.value = newIndex.toString();
+                          } catch (error) {
+                            e.target.value = (currPerAuthorPageIndex() + 1).toString();
+                          }
+                        }}
+                      />
+                      <p>/ {perAuthorPageCount()}</p>
+                      <button
+                        class="p-x-1"
+                        onclick={() =>
+                          setCurrPerAuthorPageIndex(
+                            currPerAuthorPageIndex() + 1 >= perAuthorPageCount() ? 0 : currPerAuthorPageIndex() + 1
+                          )
+                        }
+                      >
+                        <div class="i-mingcute-right-fill"></div>
+                      </button>
+                    </div>{" "}
+                    <button
+                      class="group p-x-2"
+                      onclick={(ev) => {
+                        setFlipPerAuthor(!flipPerAuthor());
+                        ev.currentTarget.classList.toggle("toggled");
+                      }}
+                    >
+                      <div class="i-mingcute-sort-descending-fill group-[.toggled]:rotate-180 transition-all transition-250 transition-ease-in-out"></div>
+                    </button>
+                  </div>
+                </div>
+              </Masonry>
+            </div>
           </div>
         </Match>
       </Switch>
