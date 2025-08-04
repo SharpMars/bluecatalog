@@ -35,9 +35,19 @@ export default function ChartLegend(props: { labels: string[]; isHorizontal: boo
   });
 
   const fullHorizontalWidth = createMemo(() => {
-    if (!horizontalWidths()) return;
+    if (props.isHorizontal)
+      return horizontalWidths().reduce((prev, next) => prev + next) + (horizontalWidths().length - 1) * 20;
+    else {
+      const canvas = new OffscreenCanvas(0, 0);
+      const ctx = canvas.getContext("2d");
+      ctx.font = "16px DM Sans";
 
-    return horizontalWidths().reduce((prev, next) => prev + next) + (horizontalWidths().length - 1) * 20;
+      const box = 30;
+      const gap = 5;
+
+      const longest = props.labels.reduce((a, b) => (a.length > b.length ? a : b));
+      return box + gap + ctx.measureText(longest).width;
+    }
   });
 
   const startPos = createMemo(() => {
@@ -72,14 +82,14 @@ export default function ChartLegend(props: { labels: string[]; isHorizontal: boo
   };
 
   return (
-    <svg width={props.isHorizontal ? fullHorizontalWidth() + 5 : 100} height={props.isHorizontal ? 20 : 300}>
+    <svg width={fullHorizontalWidth() + 5} height={props.isHorizontal ? 20 : 300}>
       <For each={props.labels}>
         {(v, i) => {
           return (
             <Switch>
               <Match when={!props.isHorizontal}>
                 <rect
-                  x={0}
+                  x={1}
                   y={verticalPos(startPos(), i())}
                   width={30}
                   height={15}
@@ -89,7 +99,7 @@ export default function ChartLegend(props: { labels: string[]; isHorizontal: boo
                   ry={"0.25rem"}
                 ></rect>
                 <text
-                  x={35}
+                  x={36}
                   y={verticalPos(startPos(), i())}
                   text-anchor="start"
                   dominant-baseline="hanging"
