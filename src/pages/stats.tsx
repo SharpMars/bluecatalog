@@ -166,9 +166,14 @@ export default function Stats() {
                 <div class="card max-w-[min(36rem,calc(100vw-32px))] w-full">
                   <div class="flex justify-center flex-col w-full ">
                     <p class="text-5 font-bold text-center">How many likes have alt text:</p>
-                    <div class="flex gap-4 justify-center">
+                    <div class="flex gap-4 justify-center flex-wrap">
                       <PieChart padding={17} data={Object.values(hasAltText())} labels={["Yes", "No"]}></PieChart>
-                      <ChartLegend labels={["Yes", "No"]}></ChartLegend>
+                      <div class="hidden min-[521px]:inline">
+                        <ChartLegend labels={["Yes", "No"]} isHorizontal={false}></ChartLegend>
+                      </div>
+                      <div class="min-[521px]:hidden inline">
+                        <ChartLegend labels={["Yes", "No"]} isHorizontal={true}></ChartLegend>
+                      </div>
                     </div>
                   </div>
                   {/*
