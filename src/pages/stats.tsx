@@ -242,7 +242,7 @@ export default function Stats() {
                 </div>
                 <div class="card max-w-[min(36rem,calc(100vw-32px))] w-full">
                   <p class="font-bold text-5">Like count by author:</p>
-                  <table class="m-t-2 rounded-t-lg overflow-hidden b-2 b-neutral/25 b-solid block">
+                  <table class="m-t-2 rounded-t-lg overflow-x-auto b-2 b-neutral/25 b-solid block">
                     <thead class="light:bg-neutral-200 dark:bg-neutral-900">
                       <tr class="b-b-2 b-neutral/25 b-solid [&>th:not(:first-child)]:b-l-2 [&>th]:b-neutral/25">
                         <th class="p-2 w-full">Name</th>
@@ -253,8 +253,8 @@ export default function Stats() {
                       <For each={currentPerAuthorPage()}>
                         {(val) => (
                           <tr>
-                            <td class="p-1 flex items-center">
-                              <div>
+                            <td class="p-1 flex items-center overflow-hidden">
+                              <div class="flex-shrink-0">
                                 <img
                                   class="rounded aspect-square"
                                   src={val[1].profile.avatar}
@@ -265,7 +265,7 @@ export default function Stats() {
                                   }}
                                 />
                               </div>
-                              <div class="flex flex-col p-1 p-r-8">
+                              <div class="flex flex-col p-1">
                                 <span
                                   class="line-height-snug [&.expand]:h-7"
                                   classList={{
