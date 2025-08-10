@@ -8,6 +8,8 @@ import { AppBskyActorDefs } from "@atcute/bluesky";
 import { Did } from "@atcute/lexicons";
 import createPagination from "../utils/pagination";
 import { Masonry } from "../components/Masonry";
+import { Axis, AxisCursor, AxisGrid, AxisLabel, AxisLine, AxisTooltip, Chart, Line, Point } from "solid-charts";
+import { curveCardinal } from "solid-charts/curves";
 
 export default function Stats() {
   let refetch = false;
@@ -152,6 +154,88 @@ export default function Stats() {
     return res;
   });
 
+  function daysInMonth(month: number, year: number) {
+    return new Date(year, month + 1, 0).getDate();
+  }
+
+  const postsCountByDay = createMemo(() => {
+    if (!(postsQuery.isSuccess && postsQuery.data != null)) return;
+
+    const map = new Map<number, Map<number, number[]>>();
+
+    for (const post of postsQuery.data.records.toReversed()) {
+      const date = new Date(post.createdAt);
+
+      if (!map.has(date.getFullYear())) {
+        map.set(date.getFullYear(), new Map());
+      }
+
+      if (!map.get(date.getFullYear()).has(date.getMonth())) {
+        map.get(date.getFullYear()).set(
+          date.getMonth(),
+          Array.from(new Array(daysInMonth(date.getMonth(), date.getFullYear())), () => 0)
+        );
+      }
+
+      map.get(date.getFullYear()).get(date.getMonth())[date.getDate() - 1]++;
+    }
+
+    return map;
+  });
+
+  function indexToMonth(index: number) {
+    switch (index) {
+      case 0:
+        return "Jan";
+      case 1:
+        return "Feb";
+      case 2:
+        return "Mar";
+      case 3:
+        return "Apr";
+      case 4:
+        return "May";
+      case 5:
+        return "Jun";
+      case 6:
+        return "Jul";
+      case 7:
+        return "Aug";
+      case 8:
+        return "Sep";
+      case 9:
+        return "Oct";
+      case 10:
+        return "Nov";
+      case 11:
+        return "Dec";
+      default:
+        throw new Error("Index out of bounds.");
+    }
+  }
+
+  const chartData = createMemo(() => {
+    if (postsCountByDay() == undefined) return [];
+
+    const res = [];
+
+    for (const year of postsCountByDay().keys()) {
+      const monthsMap = postsCountByDay().get(year);
+
+      for (const monthIndex of monthsMap.keys()) {
+        const daysCount = monthsMap.get(monthIndex).reduce((a, b) => a + b);
+
+        res.push({
+          tooltip: `${indexToMonth(monthIndex)} ${year}`,
+          xAxis: `${indexToMonth(monthIndex)}/${year - 2000}`,
+          value: daysCount,
+        });
+      }
+    }
+
+    return res.slice(-12);
+  });
+
   return (
     <>
       <Switch>
@@ -161,6 +245,38 @@ export default function Stats() {
               <div class="card">
                 <p>Number of records: {postsQuery.data.records.length}</p>
                 <p>Number of unavailable posts: {postsQuery.data.records.length - postsQuery.data.posts.length}</p>
+              </div>
+              <div class="card w-full max-w-120.5 min-[1193px]:max-w-222.75 flex flex-col overflow-hidden">
+                <p class="text-5 font-bold m-b-2">Like count in the past months:</p>
+                <Chart inset={12} height={241} data={chartData()}>
+                  <Axis axis="y" position="left" tickCount={4}>
+                    <AxisLabel />
+                    <AxisGrid stroke-opacity={0.5} />
+                  </Axis>
+                  <Axis dataKey="xAxis" axis="x" position="bottom">
+                    <AxisLabel />
+                    <AxisLine />
+                    <AxisCursor stroke-dasharray="10,10" stroke-width={2} />
+                    <AxisTooltip tickGap={-56} class="transition-opacity transition-ease-linear transition-10ms">
+                      {(props) => (
+                        <>
+                          <div class="bg-gray w-fit shadow-[0_0_16px_#000000] absolute z-1 select-none pointer-events-none rounded min-w-max p-2 overflow-hidden">
+                            <p class="title font-bold">{props.data.tooltip}</p>
+                            <p class="value">{props.data.value}</p>
+                          </div>
+                        </>
+                      )}
+                    </AxisTooltip>
+                  </Axis>
+                  <Line dataKey="value" stroke-width={4} curve={curveCardinal} class="stroke-sky-500" />
+                  <Point
+                    dataKey="value"
+                    r={5}
+                    stroke-width={2}
+                    activeProps={{ r: 10 }}
+                    class="fill-blue-500 transition-all"
+                  />
+                </Chart>
               </div>
               <Masonry columns={2} gap={8} verticalOnlyGap={8} maxWidth={576}>
                 <div class="card max-w-[min(36rem,calc(100vw-32px))] w-full">

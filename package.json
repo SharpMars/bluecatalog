@@ -37,6 +37,7 @@
     "localdata": "^0.1.4",
     "minisearch": "^7.1.2",
     "posthog-js": "^1.255.1",
+    "solid-charts": "^0.0.2",
     "solid-js": "^1.9.7"
   }
 }
