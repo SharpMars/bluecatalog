@@ -214,7 +214,7 @@ export default function Stats() {
     }
   }
 
-  const chartData = createMemo(() => {
+  const byDayChartData = createMemo(() => {
     if (postsCountByDay() == undefined) return [];
 
     const res = [];
@@ -236,6 +236,18 @@ export default function Stats() {
     return res.slice(-12);
   });
 
+  const hourChartData = createMemo(() => {
+    if (countPerHour() == undefined) return [];
+
+    return countPerHour().map((val, i) => {
+      return {
+        xAxis: i,
+        value: val,
+        tooltip: i + ":00",
+      };
+    });
+  });
+
   return (
     <>
       <Switch>
@@ -248,7 +260,7 @@ export default function Stats() {
               </div>
               <div class="card flex flex-col overflow-hidden">
                 <p class="text-5 font-bold m-b-2">Like count in the past months:</p>
-                <Chart inset={12} height={241} data={chartData()}>
+                <Chart inset={12} height={241} data={byDayChartData()}>
                   <Axis axis="y" position="left" tickCount={4}>
                     <AxisLabel />
                     <AxisGrid stroke-opacity={0.5} />
@@ -336,24 +348,36 @@ export default function Stats() {
                 </div>
                 <div class="card max-w-[min(36rem,calc(100vw-32px))] w-full">
                   <p class="text-5 font-bold">Likes based on hour:</p>
-                  <div class="flex gap-2 flex-wrap max-w-md justify-between m-t-2">
-                    <For
-                      each={countPerHour()
-                        .map((val, i) => {
-                          return {
-                            hour: i.toString().padStart(2, "0"),
-                            count: val,
-                          };
-                        })
-                        .sort((a, b) => a.count - b.count)
-                        .reverse()}
-                    >
-                      {(val) => (
-                        <p class="bg-gray p-2 w-32 text-center">
-                          {val.hour}: {val.count}
-                        </p>
-                      )}
-                    </For>
+                  <div class="m-t-2">
+                    <Chart data={hourChartData()}>
+                      <Axis axis="y" position="left" tickCount={4}>
+                        <AxisLabel />
+                        <AxisGrid stroke-opacity={0.5} />
+                      </Axis>
+                      <Axis dataKey="xAxis" axis="x" position="bottom">
+                        <AxisLabel />
+                        <AxisLine />
+                        <AxisCursor stroke-dasharray="10,10" stroke-width={2} />
+                        <AxisTooltip tickGap={-56} class="transition-opacity transition-ease-linear transition-10ms">
+                          {(props) => (
+                            <>
+                              <div class="bg-gray w-fit shadow-[0_0_16px_#000000] absolute z-1 select-none pointer-events-none rounded min-w-max p-2 overflow-hidden">
+                                <p class="title font-bold">{props.data.tooltip}</p>
+                                <p class="value">{props.data.value}</p>
+                              </div>
+                            </>
+                          )}
+                        </AxisTooltip>
+                      </Axis>
+                      <Line dataKey="value" stroke-width={4} curve={curveCardinal} class="stroke-sky-500" />
+                      <Point
+                        dataKey="value"
+                        r={5}
+                        stroke-width={2}
+                        activeProps={{ r: 10 }}
+                        class="fill-blue-500 transition-all"
+                      />{" "}
+                    </Chart>
                   </div>
                 </div>
                 <div class="card max-w-[min(36rem,calc(100vw-32px))] w-full">
