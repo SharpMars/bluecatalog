@@ -246,7 +246,7 @@ export default function Stats() {
                 <p>Number of records: {postsQuery.data.records.length}</p>
                 <p>Number of unavailable posts: {postsQuery.data.records.length - postsQuery.data.posts.length}</p>
               </div>
-              <div class="card w-full max-w-120.5 min-[1193px]:max-w-222.75 flex flex-col overflow-hidden">
+              <div class="card flex flex-col overflow-hidden">
                 <p class="text-5 font-bold m-b-2">Like count in the past months:</p>
                 <Chart inset={12} height={241} data={chartData()}>
                   <Axis axis="y" position="left" tickCount={4}>
