@@ -62,7 +62,6 @@ export default function Stats() {
       }
     },
     queryKey: ["followers"],
-    enabled: false,
   }));
 
   const countPerDay = createMemo(() => {
@@ -248,10 +247,25 @@ export default function Stats() {
     });
   });
 
+  const isFromFollowedAccount = createMemo(() => {
+    if (!(postsQuery.isSuccess && postsQuery.data != null) || !(followsQuery.isSuccess && followsQuery.data != null))
+      return;
+    const res = { yes: 0, no: 0 };
+
+    for (const post of postsQuery.data.posts) {
+      if (followsQuery.data.find((val) => val.did == post.author.did) != undefined) res.yes++;
+      else res.no++;
+    }
+
+    return res;
+  });
+
   return (
     <>
       <Switch>
-        <Match when={postsQuery.isSuccess && postsQuery.data != null}>
+        <Match
+          when={postsQuery.isSuccess && postsQuery.data != null && followsQuery.isSuccess && followsQuery.data != null}
+        >
           <div class="flex flex-col items-center gap-8 p-y-4 p-x-2">
             <div class="flex flex-col gap-8">
               <div class="card">
@@ -515,6 +529,24 @@ export default function Stats() {
                     >
                       <div class="i-mingcute-sort-descending-fill group-[.toggled]:rotate-180 transition-all transition-250 transition-ease-in-out"></div>
                     </button>
+                  </div>
+                </div>
+                <div class="card max-w-[min(36rem,calc(100vw-32px))] w-full">
+                  <div class="flex justify-center flex-col w-full ">
+                    <p class="text-5 font-bold">Like is from followed account:</p>
+                    <div class="flex gap-4 justify-center flex-wrap">
+                      <PieChart
+                        padding={17}
+                        data={Object.values(isFromFollowedAccount())}
+                        labels={["Yes", "No"]}
+                      ></PieChart>
+                      <div class="hidden min-[521px]:inline">
+                        <ChartLegend labels={["Yes", "No"]} isHorizontal={false}></ChartLegend>
+                      </div>
+                      <div class="min-[521px]:hidden inline">
+                        <ChartLegend labels={["Yes", "No"]} isHorizontal={true}></ChartLegend>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </Masonry>
