@@ -307,8 +307,8 @@ export default function Stats() {
               <Masonry columns={2} gap={8} verticalOnlyGap={8} maxWidth={576}>
                 <div class="card max-w-[min(36rem,calc(100vw-32px))] w-full">
                   <div class="flex justify-center flex-col w-full ">
-                    <p class="text-5 font-bold text-center">How many likes have alt text:</p>
-                    <div class="flex gap-4 justify-center flex-wrap">
+                    <p class="text-5 font-bold">How many likes have alt text:</p>
+                    <div class="flex gap-4 justify-center flex-wrap m-t-2">
                       <PieChart padding={17} data={Object.values(hasAltText())} labels={["Yes", "No"]}></PieChart>
                       <div class="hidden min-[521px]:inline">
                         <ChartLegend labels={["Yes", "No"]} isHorizontal={false}></ChartLegend>
@@ -333,7 +333,7 @@ export default function Stats() {
                 </div>
                 <div class="card max-w-[min(36rem,calc(100vw-32px))] w-full">
                   <p class="text-5 font-bold">Like count by days of the week:</p>
-                  <div class="overflow-x-auto rounded-lg overflow-y-hidden b-2 b-neutral/25 b-solid">
+                  <div class="overflow-x-auto rounded-lg overflow-y-hidden b-2 b-neutral/25 b-solid m-t-2">
                     <table class="w-full">
                       <thead class="light:bg-neutral-200 dark:bg-neutral-900 w-full">
                         <tr class="b-b-2 b-neutral/25 b-solid [&>th:not(:first-child)]:b-l-2 [&>th]:b-neutral/25 [&>th]:p-2 [&>th]:w-[calc(100%/7)]">
@@ -534,7 +534,7 @@ export default function Stats() {
                 <div class="card max-w-[min(36rem,calc(100vw-32px))] w-full">
                   <div class="flex justify-center flex-col w-full ">
                     <p class="text-5 font-bold">Like is from followed account:</p>
-                    <div class="flex gap-4 justify-center flex-wrap">
+                    <div class="flex gap-4 justify-center flex-wrap m-t-2">
                       <PieChart
                         padding={17}
                         data={Object.values(isFromFollowedAccount())}
