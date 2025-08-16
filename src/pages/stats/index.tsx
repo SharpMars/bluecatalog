@@ -1,15 +1,16 @@
 import { useQuery } from "@tanstack/solid-query";
-import { fetchLikes } from "../fetching/likes";
+import { fetchLikes } from "../../fetching/likes";
 import { createMemo, createSignal, For, Match, Switch } from "solid-js";
-import PieChart from "../components/PieChart";
-import ChartLegend from "../components/ChartLegend";
-import { agent, xrpc } from "../app";
+import PieChart from "../../components/PieChart";
+import ChartLegend from "../../components/ChartLegend";
+import { agent, xrpc } from "../../app";
 import { AppBskyActorDefs } from "@atcute/bluesky";
 import { Did } from "@atcute/lexicons";
-import createPagination from "../utils/pagination";
-import { Masonry } from "../components/Masonry";
+import createPagination from "../../utils/pagination";
+import { Masonry } from "../../components/Masonry";
 import { Axis, AxisCursor, AxisGrid, AxisLabel, AxisLine, AxisTooltip, Chart, Line, Point } from "solid-charts";
 import { curveCardinal } from "solid-charts/curves";
+import { A } from "@solidjs/router";
 
 export default function Stats() {
   let refetch = false;
@@ -260,6 +261,14 @@ export default function Stats() {
     return res;
   });
 
+  const unavailablePostCount = createMemo(() => {
+    if (!(postsQuery.isSuccess && postsQuery.data != null)) return 0;
+
+    return postsQuery.data.records
+      .filter((record) => !postsQuery.data.posts.find((post) => post.uri == record.subject.uri))
+      .filter((val) => val.subject.uri.includes("app.bsky.feed.post")).length;
+  });
+
   return (
     <>
       <Switch>
@@ -270,7 +279,12 @@ export default function Stats() {
             <div class="flex flex-col gap-8">
               <div class="card">
                 <p>Number of records: {postsQuery.data.records.length}</p>
-                <p>Number of unavailable posts: {postsQuery.data.records.length - postsQuery.data.posts.length}</p>
+                <p>
+                  Number of unavailable posts:{" "}
+                  <A href="./unavailable" class="underline underline-from-font underline-offset-2 after:content-['↗']">
+                    {unavailablePostCount()}
+                  </A>
+                </p>
               </div>
               <div class="card flex flex-col overflow-hidden">
                 <p class="text-5 font-bold m-b-2">Like count in the past months:</p>
