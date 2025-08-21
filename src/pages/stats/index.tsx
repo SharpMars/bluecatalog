@@ -13,6 +13,7 @@ import { curveCardinal } from "solid-charts/curves";
 import { A } from "@solidjs/router";
 import { LoadingIndicator } from "../../components/LoadingIndicator";
 import { gateRoute } from "../../utils/gate";
+import { countEmbeds } from "../../utils/embed";
 
 export default function Stats() {
   gateRoute();
@@ -264,6 +265,24 @@ export default function Stats() {
     for (const post of postsQuery.data.posts) {
       if (followsQuery.data.find((val) => val.did == post.author.did) != undefined) res.yes++;
       else res.no++;
+    }
+
+    return res;
+  });
+
+  const countByEmbed = createMemo(() => {
+    const res = {
+      none: 0,
+      image: 0,
+      video: 0,
+      post: 0,
+      external: 0,
+    };
+
+    if (postsQuery.isSuccess) {
+      for (const post of postsQuery.data.posts) {
+        countEmbeds(res, post.embed);
+      }
     }
 
     return res;
@@ -564,6 +583,36 @@ export default function Stats() {
                       </div>
                       <div class="min-[521px]:hidden inline">
                         <ChartLegend labels={["Yes", "No"]} isHorizontal={true}></ChartLegend>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="card max-w-[min(36rem,calc(100vw-32px))] w-full">
+                  <div class="flex justify-center flex-col w-full ">
+                    <p class="text-5 font-bold">Likes based on embed type:</p>
+                    <div class="flex gap-4 justify-center flex-wrap m-t-2">
+                      <PieChart
+                        padding={17}
+                        data={Object.values(countByEmbed())}
+                        labels={Object.keys(countByEmbed()).map((str) =>
+                          str.slice(0, 1).toLocaleUpperCase().concat(str.slice(1))
+                        )}
+                      ></PieChart>
+                      <div class="hidden min-[521px]:inline">
+                        <ChartLegend
+                          labels={Object.keys(countByEmbed()).map((str) =>
+                            str.slice(0, 1).toLocaleUpperCase().concat(str.slice(1))
+                          )}
+                          isHorizontal={false}
+                        ></ChartLegend>
+                      </div>
+                      <div class="min-[521px]:hidden inline">
+                        <ChartLegend
+                          labels={Object.keys(countByEmbed()).map((str) =>
+                            str.slice(0, 1).toLocaleUpperCase().concat(str.slice(1))
+                          )}
+                          isHorizontal={true}
+                        ></ChartLegend>
                       </div>
                     </div>
                   </div>
