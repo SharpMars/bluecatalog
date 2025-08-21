@@ -38,9 +38,9 @@ export default function Unavailable() {
 
   const missingPostsQuery = useQuery(() => ({
     queryFn: async ({ queryKey, signal }) => {
-      const missingPosts = postsQuery.data.records
-        .filter((record) => !postsQuery.data.posts.find((post) => post.uri == record.subject.uri))
-        .filter((val) => val.subject.uri.includes("app.bsky.feed.post"));
+      const missingPosts = postsQuery.data.records.filter(
+        (record) => !postsQuery.data.posts.find((post) => post.uri == record.subject.uri)
+      );
 
       if (missingPosts.length == 0) return [];
 

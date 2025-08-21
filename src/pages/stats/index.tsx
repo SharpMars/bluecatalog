@@ -269,14 +269,6 @@ export default function Stats() {
     return res;
   });
 
-  const unavailablePostCount = createMemo(() => {
-    if (!(postsQuery.isSuccess && postsQuery.data != null)) return 0;
-
-    return postsQuery.data.records
-      .filter((record) => !postsQuery.data.posts.find((post) => post.uri == record.subject.uri))
-      .filter((val) => val.subject.uri.includes("app.bsky.feed.post")).length;
-  });
-
   return (
     <>
       <Switch>
@@ -295,7 +287,7 @@ export default function Stats() {
                 <p>
                   Number of unavailable posts:{" "}
                   <A href="./unavailable" class="underline underline-from-font underline-offset-2 after:content-['↗']">
-                    {unavailablePostCount()}
+                    {postsQuery.data.records.length - postsQuery.data.posts.length}
                   </A>
                 </p>
               </div>

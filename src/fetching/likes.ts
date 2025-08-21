@@ -11,13 +11,11 @@ export async function fetchLikes(refetch: boolean, signal: AbortSignal) {
     records: [],
   };
 
-  const cacheJson = await new Promise(
-    (resolve: (value: string) => void, reject) => {
-      ldb.get("likes-cache", (value) => {
-        resolve(value);
-      });
-    }
-  );
+  const cacheJson = await new Promise((resolve: (value: string) => void, reject) => {
+    ldb.get("likes-cache", (value) => {
+      resolve(value);
+    });
+  });
 
   if (refetch) {
     let cursor = undefined;
@@ -37,12 +35,8 @@ export async function fetchLikes(refetch: boolean, signal: AbortSignal) {
         throw new Error(JSON.stringify(res.data));
       }
 
-      data.posts.push(
-        ...res.data.feed.map((feedViewPost) => feedViewPost.post)
-      );
-      authors.push(
-        ...res.data.feed.map((feedViewPost) => feedViewPost.post.author)
-      );
+      data.posts.push(...res.data.feed.map((feedViewPost) => feedViewPost.post));
+      authors.push(...res.data.feed.map((feedViewPost) => feedViewPost.post.author));
       cursor = res.data.cursor;
       if (res.data.feed.length === 0) {
         cursor = undefined;
@@ -74,14 +68,14 @@ export async function fetchLikes(refetch: boolean, signal: AbortSignal) {
       }
 
       rawRecords.push(
-        ...res.data.records.map((val) => val.value as AppBskyFeedLike.Main)
+        ...res.data.records
+          .map((val) => val.value as AppBskyFeedLike.Main)
+          .filter((val) => val.subject.uri.includes("app.bsky.feed.post"))
       );
 
       for (const did of rawRecords
         .filter((val) => val.via)
-        .map(
-          (val) => val.via.uri.replace("at://", "").split("/")[0]
-        ) as Did[]) {
+        .map((val) => val.via.uri.replace("at://", "").split("/")[0]) as Did[]) {
         viaDids.add(did);
       }
 
@@ -119,9 +113,7 @@ export async function fetchLikes(refetch: boolean, signal: AbortSignal) {
       };
 
       if (val.via) {
-        result.viaProfile = viaDidsProfiles.find(
-          (val1) => val1.did == val.via.uri.replace("at://", "").split("/")[0]
-        );
+        result.viaProfile = viaDidsProfiles.find((val1) => val1.did == val.via.uri.replace("at://", "").split("/")[0]);
       }
 
       return result;
