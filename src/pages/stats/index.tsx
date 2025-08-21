@@ -11,6 +11,7 @@ import { Masonry } from "../../components/Masonry";
 import { Axis, AxisCursor, AxisGrid, AxisLabel, AxisLine, AxisTooltip, Chart, Line, Point } from "solid-charts";
 import { curveCardinal } from "solid-charts/curves";
 import { A } from "@solidjs/router";
+import { LoadingIndicator } from "../../components/LoadingIndicator";
 
 export default function Stats() {
   let refetch = false;
@@ -272,6 +273,11 @@ export default function Stats() {
   return (
     <>
       <Switch>
+        <Match when={postsQuery.isLoading || followsQuery.isLoading}>
+          <div class="h-screen-md max-h-[calc(100vh-4rem)] flex flex-col justify-center items-center text-32">
+            <LoadingIndicator></LoadingIndicator>
+          </div>
+        </Match>
         <Match
           when={postsQuery.isSuccess && postsQuery.data != null && followsQuery.isSuccess && followsQuery.data != null}
         >

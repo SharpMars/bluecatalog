@@ -5,6 +5,7 @@ import { xrpc } from "../../app";
 import { AppBskyActorDefs } from "@atcute/bluesky";
 import { ActorIdentifier, ResourceUri } from "@atcute/lexicons";
 import { XRPCErrorPayload } from "@atcute/client";
+import { LoadingIndicator } from "../../components/LoadingIndicator";
 
 export default function Unavailable() {
   let refetch = false;
@@ -85,6 +86,11 @@ export default function Unavailable() {
   return (
     <>
       <Switch>
+        <Match when={postsQuery.isLoading}>
+          <div class="h-screen-md max-h-[calc(100vh-4rem)] flex flex-col justify-center items-center text-32">
+            <LoadingIndicator></LoadingIndicator>
+          </div>
+        </Match>
         <Match when={postsQuery.isSuccess && postsQuery.data != null}>
           <div class="flex flex-col items-center gap-8 p-y-4 p-x-2">
             <div class="card">
@@ -92,41 +98,51 @@ export default function Unavailable() {
               <p>Number of unavailable posts: {postsQuery.data.records.length - postsQuery.data.posts.length}</p>
             </div>
             <div class="card">
-              <table>
-                <Show when={missingPostsQuery.isSuccess && missingPostsQuery.data != null}>
-                  <For each={missingPostsQuery.data}>
-                    {(val, i) => (
-                      <tr class="h-10">
-                        <td>
-                          <p class="p-r-2">{i()}</p>
-                        </td>
-                        <td>
-                          <div class="flex gap-2 items-center">
-                            <Switch>
-                              <Match when={!val.profileMissing}>
-                                <img
-                                  class="rounded"
-                                  width={32}
-                                  height={32}
-                                  src={val.profile.avatar ? val.profile.avatar : "/fallback.svg"}
-                                />
-                                <p>{val.profile.handle}</p>
-                              </Match>
-                              <Match when={val.profileMissing}>{val.profileMissingReason}</Match>
-                            </Switch>
-                            <p>{val.likedAt}</p>
-                          </div>
-                        </td>
-                        <td>
-                          <a target="_blank" href={`https://constellation.microcosm.blue/links/all?target=${val.uri}`}>
-                            Ref
-                          </a>
-                        </td>
-                      </tr>
-                    )}
-                  </For>
-                </Show>
-              </table>
+              <Switch>
+                <Match when={!missingPostsQuery.isSuccess}>
+                  <div class="w-96 h-screen max-h-[calc(100vh-20rem)] flex flex-col justify-center items-center text-32">
+                    <LoadingIndicator></LoadingIndicator>
+                  </div>
+                </Match>
+                <Match when={missingPostsQuery.isSuccess && missingPostsQuery.data != null}>
+                  <table>
+                    <For each={missingPostsQuery.data}>
+                      {(val, i) => (
+                        <tr class="h-10">
+                          <td>
+                            <p class="p-r-2">{i()}</p>
+                          </td>
+                          <td>
+                            <div class="flex gap-2 items-center">
+                              <Switch>
+                                <Match when={!val.profileMissing}>
+                                  <img
+                                    class="rounded"
+                                    width={32}
+                                    height={32}
+                                    src={val.profile.avatar ? val.profile.avatar : "/fallback.svg"}
+                                  />
+                                  <p>{val.profile.handle}</p>
+                                </Match>
+                                <Match when={val.profileMissing}>{val.profileMissingReason}</Match>
+                              </Switch>
+                              <p>{val.likedAt}</p>
+                            </div>
+                          </td>
+                          <td>
+                            <a
+                              target="_blank"
+                              href={`https://constellation.microcosm.blue/links/all?target=${val.uri}`}
+                            >
+                              Ref
+                            </a>
+                          </td>
+                        </tr>
+                      )}
+                    </For>
+                  </table>
+                </Match>
+              </Switch>
             </div>
           </div>
         </Match>
