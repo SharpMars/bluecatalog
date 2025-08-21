@@ -55,14 +55,17 @@ export default function Unavailable() {
       const formatter = new Intl.DateTimeFormat();
 
       for (const record of missingPosts) {
+        if (signal.aborted) break;
+
         let profile: { notFound: boolean; reason?: string; data?: AppBskyActorDefs.ProfileViewDetailed };
         let did = record.subject.uri.replace("at://", "").split("/")[0];
 
         profile = await queryClient.fetchQuery({
           queryKey: [did],
-          queryFn: async ({ queryKey }) => {
+          queryFn: async ({ queryKey, signal }) => {
             const profileRes = await xrpc.get("app.bsky.actor.getProfile", {
               params: { actor: queryKey[0] as ActorIdentifier },
+              signal: signal,
             });
 
             if (profileRes.ok) {
