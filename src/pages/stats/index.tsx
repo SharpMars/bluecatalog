@@ -12,12 +12,17 @@ import { Axis, AxisCursor, AxisGrid, AxisLabel, AxisLine, AxisTooltip, Chart, Li
 import { curveCardinal } from "solid-charts/curves";
 import { A } from "@solidjs/router";
 import { LoadingIndicator } from "../../components/LoadingIndicator";
+import { gateRoute } from "../../utils/gate";
 
 export default function Stats() {
+  gateRoute();
+
   let refetch = false;
 
   const postsQuery = useQuery(() => ({
     queryFn: async ({ queryKey, signal }) => {
+      if (!xrpc) return;
+
       try {
         let data = await fetchLikes(refetch, signal);
         refetch = false;
@@ -37,6 +42,8 @@ export default function Stats() {
 
   const followsQuery = useQuery(() => ({
     queryFn: async ({ queryKey, signal }) => {
+      if (!xrpc) return;
+
       try {
         let follows: AppBskyActorDefs.ProfileView[] = [];
         let cursor = undefined;

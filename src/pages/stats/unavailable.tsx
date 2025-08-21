@@ -6,14 +6,19 @@ import { AppBskyActorDefs } from "@atcute/bluesky";
 import { ActorIdentifier, ResourceUri } from "@atcute/lexicons";
 import { XRPCErrorPayload } from "@atcute/client";
 import { LoadingIndicator } from "../../components/LoadingIndicator";
+import { gateRoute } from "../../utils/gate";
 
 export default function Unavailable() {
+  gateRoute();
+
   let refetch = false;
 
   const queryClient = useQueryClient();
 
   const postsQuery = useQuery(() => ({
     queryFn: async ({ queryKey, signal }) => {
+      if (!xrpc) return;
+
       try {
         let data = await fetchLikes(refetch, signal);
         refetch = false;
