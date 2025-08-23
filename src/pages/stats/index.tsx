@@ -351,7 +351,7 @@ export default function Stats() {
                       <div class="hidden min-[521px]:inline">
                         <ChartLegend labels={["Yes", "No"]} isHorizontal={false}></ChartLegend>
                       </div>
-                      <div class="min-[521px]:hidden inline">
+                      <div class="min-[521px]:hidden inline w-full">
                         <ChartLegend labels={["Yes", "No"]} isHorizontal={true}></ChartLegend>
                       </div>
                     </div>
@@ -581,7 +581,7 @@ export default function Stats() {
                       <div class="hidden min-[521px]:inline">
                         <ChartLegend labels={["Yes", "No"]} isHorizontal={false}></ChartLegend>
                       </div>
-                      <div class="min-[521px]:hidden inline">
+                      <div class="min-[521px]:hidden inline w-full">
                         <ChartLegend labels={["Yes", "No"]} isHorizontal={true}></ChartLegend>
                       </div>
                     </div>
@@ -606,7 +606,7 @@ export default function Stats() {
                           isHorizontal={false}
                         ></ChartLegend>
                       </div>
-                      <div class="min-[521px]:hidden inline">
+                      <div class="min-[521px]:hidden inline w-full">
                         <ChartLegend
                           labels={Object.keys(countByEmbed()).map((str) =>
                             str.slice(0, 1).toLocaleUpperCase().concat(str.slice(1))
