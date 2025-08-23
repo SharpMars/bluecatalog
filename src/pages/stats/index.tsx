@@ -301,6 +301,10 @@ export default function Stats() {
         >
           <div class="flex flex-col items-center gap-8 p-y-4 p-x-2">
             <div class="flex flex-col gap-8">
+              <div>
+                <h1 class="text-12 font-700 light:text-black dark:text-white">Likes Stats</h1>
+                <hr class="m-t-4 light:text-black dark:text-white rounded"></hr>
+              </div>
               <div class="card">
                 <p>Number of records: {postsQuery.data.records.length}</p>
                 <p>

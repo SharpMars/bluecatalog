@@ -102,6 +102,10 @@ export default function Unavailable() {
         <Match when={postsQuery.isSuccess && postsQuery.data != null}>
           <div class="flex flex-col items-center p-y-4 p-x-2">
             <div class="flex flex-col gap-8">
+              <div>
+                <h1 class="text-12 font-700 light:text-black dark:text-white">Unavailable Likes</h1>
+                <hr class="m-t-4 light:text-black dark:text-white rounded"></hr>
+              </div>
               <div class="card">
                 <p>Number of records: {postsQuery.data.records.length}</p>
                 <p>Number of unavailable posts: {postsQuery.data.records.length - postsQuery.data.posts.length}</p>
