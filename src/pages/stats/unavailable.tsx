@@ -55,27 +55,52 @@ export default function Unavailable() {
 
       const formatter = new Intl.DateTimeFormat();
 
-      for (const record of missingPosts) {
-        if (signal.aborted) break;
+      const profiles: Map<string, { notFound: boolean; reason?: string; data?: AppBskyActorDefs.ProfileViewDetailed }> =
+        new Map();
 
-        let profile: { notFound: boolean; reason?: string; data?: AppBskyActorDefs.ProfileViewDetailed };
-        let did = record.subject.uri.replace("at://", "").split("/")[0];
-
-        profile = await queryClient.fetchQuery({
-          queryKey: [did],
-          queryFn: async ({ queryKey, signal }) => {
-            const profileRes = await xrpc.get("app.bsky.actor.getProfile", {
-              params: { actor: queryKey[0] as ActorIdentifier },
-              signal: signal,
-            });
-
-            if (profileRes.ok) {
-              return { notFound: false, data: profileRes.data };
-            } else {
-              return { notFound: true, reason: (profileRes.data as XRPCErrorPayload).message };
-            }
-          },
+      const dids = missingPosts
+        .map((val) => val.subject.uri.replace("at://", "").split("/")[0])
+        .filter((val, index, array) => {
+          return array.findIndex((val1) => val == val1) == index;
         });
+
+      const didsCopy = [...dids];
+
+      while (didsCopy.length > 0) {
+        const slice = didsCopy.splice(0, 25);
+
+        const profilesRes = await xrpc.get("app.bsky.actor.getProfiles", {
+          params: { actors: slice as ActorIdentifier[] },
+          signal: signal,
+        });
+
+        if (profilesRes.ok) {
+          for (const profile of profilesRes.data.profiles) {
+            profiles.set(profile.did, { data: profile, notFound: false });
+          }
+        } else {
+          console.log(profilesRes.data);
+        }
+      }
+
+      const notFoundDids = dids.filter((val) => !profiles.values().find((val2) => val2.data.did == val));
+
+      for (const did of notFoundDids) {
+        const profileRes = await xrpc.get("app.bsky.actor.getProfile", {
+          params: { actor: did as ActorIdentifier },
+          signal: signal,
+        });
+
+        if (profileRes.ok) {
+          profiles.set(did, { data: profileRes.data, notFound: false });
+        } else {
+          profiles.set(did, { notFound: true, reason: (profileRes.data as XRPCErrorPayload).message });
+        }
+      }
+
+      for (const record of missingPosts) {
+        const did = record.subject.uri.replace("at://", "").split("/")[0];
+        const profile = profiles.get(did);
 
         res.push({
           uri: record.subject.uri,
