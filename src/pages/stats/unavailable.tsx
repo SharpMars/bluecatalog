@@ -7,6 +7,7 @@ import { ActorIdentifier, ResourceUri } from "@atcute/lexicons";
 import { XRPCErrorPayload } from "@atcute/client";
 import { LoadingIndicator } from "../../components/LoadingIndicator";
 import { gateRoute } from "../../utils/gate";
+import { useNavigate } from "@solidjs/router";
 
 export default function Unavailable() {
   gateRoute();
@@ -98,6 +99,14 @@ export default function Unavailable() {
           <div class="h-screen-md max-h-[calc(100vh-4rem)] flex flex-col justify-center items-center text-32">
             <LoadingIndicator></LoadingIndicator>
           </div>
+        </Match>
+        <Match when={postsQuery.data == null || postsQuery.isError}>
+          <>
+            {(() => {
+              useNavigate()("/stats");
+              return "";
+            })()}
+          </>
         </Match>
         <Match when={postsQuery.isSuccess && postsQuery.data != null}>
           <div class="flex flex-col items-center p-y-4 p-x-2">
