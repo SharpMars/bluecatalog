@@ -1,4 +1,4 @@
-import { useQuery, useQueryClient } from "@tanstack/solid-query";
+import { useQuery } from "@tanstack/solid-query";
 import { fetchLikes } from "../../fetching/likes";
 import { Switch, Match, For } from "solid-js";
 import { xrpc } from "../../app";
@@ -13,8 +13,6 @@ export default function Unavailable() {
   gateRoute();
 
   let refetch = false;
-
-  const queryClient = useQueryClient();
 
   const postsQuery = useQuery(() => ({
     queryFn: async ({ signal }) => {
@@ -79,7 +77,7 @@ export default function Unavailable() {
             profiles.set(profile.did, { data: profile, notFound: false });
           }
         } else {
-          console.log(profilesRes.data);
+          console.error((profilesRes.data as XRPCErrorPayload).message);
         }
       }
 
