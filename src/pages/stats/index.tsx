@@ -21,7 +21,7 @@ export default function Stats() {
   let refetch = false;
 
   const postsQuery = useQuery(() => ({
-    queryFn: async ({ queryKey, signal }) => {
+    queryFn: async ({ signal }) => {
       if (!xrpc) return;
 
       try {
@@ -42,7 +42,7 @@ export default function Stats() {
   }));
 
   const followsQuery = useQuery(() => ({
-    queryFn: async ({ queryKey, signal }) => {
+    queryFn: async ({ signal }) => {
       if (!xrpc) return;
 
       try {
@@ -480,18 +480,6 @@ export default function Stats() {
                         </div>
                       </div>
                     </div>
-                    {/*
-						<div class="flex gap-4">	
-            <PieChart
-								padding={17}
-								data={[99999999, 9999909, 9999909, 9999909, 9999909]}
-								//data={[999990900, 999990900, 999990900, 999990900, 999990900]}
-								//data={[1, 2, 3, 4]}
-								labels={["Yes", "No"]}
-							></PieChart>
-							<ChartLegend labels={["Yes", "No"]}></ChartLegend>
-						</div>
-          */}
                   </div>
                   <div class="card max-w-[min(36rem,calc(100vw-32px))] w-full">
                     <p class="text-5 font-bold">Like count by days of the week:</p>

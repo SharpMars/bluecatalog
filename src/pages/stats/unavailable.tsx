@@ -1,6 +1,6 @@
 import { useQuery, useQueryClient } from "@tanstack/solid-query";
 import { fetchLikes } from "../../fetching/likes";
-import { Switch, Match, For, Show } from "solid-js";
+import { Switch, Match, For } from "solid-js";
 import { xrpc } from "../../app";
 import { AppBskyActorDefs } from "@atcute/bluesky";
 import { ActorIdentifier, ResourceUri } from "@atcute/lexicons";
@@ -17,7 +17,7 @@ export default function Unavailable() {
   const queryClient = useQueryClient();
 
   const postsQuery = useQuery(() => ({
-    queryFn: async ({ queryKey, signal }) => {
+    queryFn: async ({ signal }) => {
       if (!xrpc) return;
 
       try {
@@ -38,7 +38,7 @@ export default function Unavailable() {
   }));
 
   const missingPostsQuery = useQuery(() => ({
-    queryFn: async ({ queryKey, signal }) => {
+    queryFn: async ({ signal }) => {
       const missingPosts = postsQuery.data.records.filter(
         (record) => !postsQuery.data.posts.find((post) => post.uri == record.subject.uri)
       );
