@@ -170,24 +170,68 @@ export default function Stats() {
   const postsCountByDay = createMemo(() => {
     if (!(postsQuery.isSuccess && postsQuery.data != null)) return;
 
-    const map = new Map<number, Map<number, number[]>>();
+    let map = new Map<number, Map<number, number[]>>();
 
     for (const post of postsQuery.data.records.toReversed()) {
       const date = new Date(post.createdAt);
 
       if (!map.has(date.getFullYear())) {
-        map.set(date.getFullYear(), new Map());
-      }
+        const months = new Map();
+        for (let month = 0; month < 12; month++) {
+          months.set(
+            month,
+            Array.from(new Array(daysInMonth(month, date.getFullYear())), () => 0)
+          );
+        }
 
-      if (!map.get(date.getFullYear()).has(date.getMonth())) {
-        map.get(date.getFullYear()).set(
-          date.getMonth(),
-          Array.from(new Array(daysInMonth(date.getMonth(), date.getFullYear())), () => 0)
-        );
+        map.set(date.getFullYear(), months);
       }
 
       map.get(date.getFullYear()).get(date.getMonth())[date.getDate() - 1]++;
     }
+
+    const currDay = new Date();
+    if (!map.has(currDay.getFullYear())) {
+      const months = new Map();
+      for (let month = 0; month < 12; month++) {
+        months.set(
+          month,
+          Array.from(new Array(daysInMonth(month, currDay.getFullYear())), () => 0)
+        );
+      }
+
+      map.set(currDay.getFullYear(), months);
+    }
+
+    let prevYear: number;
+
+    for (const year of map) {
+      const key = year[0];
+      if (!prevYear) {
+        prevYear = key;
+        continue;
+      }
+
+      const diff = key - prevYear;
+
+      if (diff > 1) {
+        for (let i = 1; i <= diff - 1; i++) {
+          const months = new Map();
+
+          for (let month = 0; month < 12; month++) {
+            months.set(
+              month,
+              Array.from(new Array(daysInMonth(month, prevYear + i)), () => 0)
+            );
+          }
+
+          map.set(prevYear + i, months);
+        }
+      }
+      prevYear = key;
+    }
+
+    map = new Map([...map].sort((a, b) => a[0] - b[0]));
 
     return map;
   });
@@ -242,7 +286,15 @@ export default function Stats() {
       }
     }
 
-    return res.slice(-12);
+    const currDay = new Date();
+    const marker = `${indexToMonth(currDay.getMonth())} ${currDay.getFullYear()}`;
+
+    const index = res.findIndex((val) => val.tooltip == marker);
+
+    if (index == -1) return [];
+    else {
+      return res.slice(0, index + 1).slice(-12);
+    }
   });
 
   const hourChartData = createMemo(() => {
