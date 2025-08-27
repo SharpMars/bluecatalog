@@ -78,7 +78,9 @@ export default function ChartLegend(props: { labels: string[]; isHorizontal: boo
         const nextLabel = labels[0];
         const addWidth = box + gap + ctx.measureText(nextLabel).width;
 
-        if (width + (set.length > 0 ? groupGap : 0) + addWidth > maxWidth()) break;
+        const isWider = width + (set.length > 0 ? groupGap : 0) + addWidth > maxWidth();
+
+        if (isWider && set.length != 0) break;
 
         width += addWidth + (set.length > 0 ? groupGap : 0);
         set.push(nextLabel);
