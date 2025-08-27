@@ -13,6 +13,7 @@
         "@atcute/oauth-browser-client": "^1.0.26",
         "@corvu/dialog": "^0.2.4",
         "@corvu/popover": "^0.2.0",
+        "@corvu/tooltip": "^0.2.2",
         "@solid-primitives/resize-observer": "^2.1.1",
         "@solidjs/router": "^0.15.3",
         "@tanstack/solid-query": "^5.81.2",
@@ -103,6 +104,8 @@
     "@corvu/dialog": ["@corvu/dialog@0.2.4", "", { "dependencies": { "@corvu/utils": "~0.4.2", "solid-dismissible": "~0.1.1", "solid-focus-trap": "~0.1.8", "solid-presence": "~0.2.0", "solid-prevent-scroll": "~0.1.10" }, "peerDependencies": { "solid-js": "^1.8" } }, "sha512-n54vJq+fOy8GVrnYBdJpD6JXNuyx7LOeMrRxwzAvZnYGpW8+AA12tnb/P/2emJj/HjOO5otheGKb0breshdFlA=="],
 
     "@corvu/popover": ["@corvu/popover@0.2.0", "", { "dependencies": { "@corvu/dialog": "~0.2.0", "@corvu/utils": "~0.3.0", "@floating-ui/dom": "^1.6.5" }, "peerDependencies": { "solid-js": "^1.8" } }, "sha512-zynRWyRV7mk2uX7t/COQL4OEa6H6FBgOxxlXLQJ1BV8hTiBJwmfAN/yB/9jy+zlp0G9vp64E8VdsNn6gxUEUEQ=="],
+
+    "@corvu/tooltip": ["@corvu/tooltip@0.2.2", "", { "dependencies": { "@corvu/utils": "~0.4.2", "@floating-ui/dom": "^1.6.13", "solid-dismissible": "~0.1.1", "solid-presence": "~0.2.0" }, "peerDependencies": { "solid-js": "^1.8" } }, "sha512-gyOBJ43GNAecDtmWc68A5YJvifXWwK0VZZdTOcFbX0rVQUA2ihBMltRE4oj7/lKidg2gXALjmFr71Blt5s3YuQ=="],
 
     "@corvu/utils": ["@corvu/utils@0.4.2", "", { "dependencies": { "@floating-ui/dom": "^1.6.11" }, "peerDependencies": { "solid-js": "^1.8" } }, "sha512-Ox2kYyxy7NoXdKWdHeDEjZxClwzO4SKM8plAaVwmAJPxHMqA0rLOoAsa+hBDwRLpctf+ZRnAd/ykguuJidnaTA=="],
 
