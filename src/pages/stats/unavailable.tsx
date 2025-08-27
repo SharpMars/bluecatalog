@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/solid-query";
 import { fetchLikes } from "../../fetching/likes";
-import { Switch, Match, For, createSignal } from "solid-js";
+import { Switch, Match, For, createSignal, createMemo } from "solid-js";
 import { xrpc } from "../../app";
 import { AppBskyActorDefs } from "@atcute/bluesky";
 import { ActorIdentifier, ResourceUri } from "@atcute/lexicons";
@@ -122,6 +122,20 @@ export default function Unavailable() {
     return missingPostsQuery.data;
   };
 
+  const accountUnavailableTypeCount = createMemo(() => {
+    const res = { suspended: 0, deactivated: 0 };
+
+    if (missingPostsQuery.isSuccess && missingPostsQuery.data != null) {
+      for (const missingPost of missingPostsQuery.data) {
+        if (!missingPost.profileMissing) continue;
+        if (missingPost.profileMissingReason.includes("deactivated")) res.deactivated++;
+        else if (missingPost.profileMissingReason.includes("suspended")) res.suspended++;
+      }
+    }
+
+    return res;
+  });
+
   const [flipMissingPosts, setFlipMissingPosts] = createSignal(false);
   const [currentMissingPostsPage, missingPostsPageCount, currMissingPostsPageIndex, setCurrMissingPostsPageIndex] =
     createPagination(missingPostsProxy, 15, undefined, flipMissingPosts);
@@ -152,6 +166,8 @@ export default function Unavailable() {
               <div class="card">
                 <p>Number of records: {postsQuery.data.records.length}</p>
                 <p>Number of unavailable posts: {postsQuery.data.records.length - postsQuery.data.posts.length}</p>
+                <p>Number of likes with suspended accounts: {accountUnavailableTypeCount().suspended}</p>
+                <p>Number of likes with deactivated accounts: {accountUnavailableTypeCount().deactivated}</p>
               </div>
               <div class="card">
                 <Switch>
