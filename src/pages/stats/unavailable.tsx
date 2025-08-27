@@ -146,7 +146,7 @@ export default function Unavailable() {
           <div class="flex flex-col items-center p-y-4 p-x-2">
             <div class="flex flex-col gap-8">
               <div>
-                <h1 class="text-12 font-700 light:text-black dark:text-white">Unavailable Likes</h1>
+                <h1 class="text-[clamp(2rem,8vw,3rem)] font-700 light:text-black dark:text-white">Unavailable Likes</h1>
                 <hr class="m-t-4 light:text-black dark:text-white rounded"></hr>
               </div>
               <div class="card">
