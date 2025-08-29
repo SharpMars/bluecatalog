@@ -75,7 +75,7 @@ export default function Stats() {
   }));
 
   const countPerDay = createMemo(() => {
-    if (!(postsQuery.isSuccess && postsQuery.data != null)) return;
+    if (!(postsQuery.isSuccess && postsQuery.data != null && postsQuery.data.records)) return;
 
     const res = [0, 0, 0, 0, 0, 0, 0];
 
@@ -89,7 +89,7 @@ export default function Stats() {
   });
 
   const countPerHour = createMemo(() => {
-    if (!(postsQuery.isSuccess && postsQuery.data != null)) return;
+    if (!(postsQuery.isSuccess && postsQuery.data != null && postsQuery.data.records)) return;
 
     let res: number[] = Array.from(new Array(24), () => 0);
 
@@ -168,7 +168,7 @@ export default function Stats() {
   }
 
   const postsCountByDay = createMemo(() => {
-    if (!(postsQuery.isSuccess && postsQuery.data != null)) return;
+    if (!(postsQuery.isSuccess && postsQuery.data != null && postsQuery.data.records)) return;
 
     let map = new Map<number, Map<number, number[]>>();
 
