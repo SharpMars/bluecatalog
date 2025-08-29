@@ -9,6 +9,7 @@ import { Router } from "@solidjs/router";
 import routes from "~solid-pages";
 
 import "@atcute/bluesky";
+import "@atcute/atproto";
 import { QueryClient, QueryClientProvider } from "@tanstack/solid-query";
 import { configureOAuth } from "@atcute/oauth-browser-client";
 

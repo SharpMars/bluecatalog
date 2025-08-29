@@ -1,14 +1,4 @@
-import {
-  createSignal,
-  onMount,
-  Suspense,
-  JSX,
-  Switch,
-  Match,
-  createResource,
-  createEffect,
-  Show,
-} from "solid-js";
+import { createSignal, onMount, Suspense, JSX, Switch, Match, createResource, createEffect, Show } from "solid-js";
 import {
   createAuthorizationUrl,
   deleteStoredSession,
@@ -40,13 +30,9 @@ export const [colorScheme, setColorScheme] = createSignal<ColorSchemeType>(
     : "auto"
 );
 
-export const [privacyUpdated, { refetch: refetchPrivacyUpdated }] =
-  createResource(() => {
-    return (
-      localStorage.getItem("previous-last-updated") !=
-      lastUpdatedPrivacy.toISOString()
-    );
-  });
+export const [privacyUpdated, { refetch: refetchPrivacyUpdated }] = createResource(() => {
+  return localStorage.getItem("previous-last-updated") != lastUpdatedPrivacy.toISOString();
+});
 
 const colorSchemeMedia = window.matchMedia("(prefers-color-scheme: dark)");
 
@@ -122,9 +108,7 @@ export default function App(props: { children: JSX.Element }) {
     try {
       setIsBeingLoggedIn(true);
 
-      const { identity, metadata } = await resolveFromIdentity(
-        handleInput.value
-      );
+      const { identity, metadata } = await resolveFromIdentity(handleInput.value);
 
       const authUrl = await createAuthorizationUrl({
         metadata: metadata,
@@ -203,14 +187,8 @@ export default function App(props: { children: JSX.Element }) {
               <Popover.Portal>
                 <Popover.Content>
                   <div class="flex justify-end p-x-3 m-t-1">
-                    <svg
-                      viewBox="0 0 100 100"
-                      class="w-4 light:text-neutral-300 dark:text-neutral-700"
-                    >
-                      <polygon
-                        points="0,100 50,0, 100,100"
-                        fill="currentColor"
-                      ></polygon>
+                    <svg viewBox="0 0 100 100" class="w-4 light:text-neutral-300 dark:text-neutral-700">
+                      <polygon points="0,100 50,0, 100,100" fill="currentColor"></polygon>
                     </svg>
                   </div>
                   <div class="light:bg-neutral-300 dark:bg-neutral-700 p-2 rounded light:text-black dark:text-white">
@@ -218,13 +196,21 @@ export default function App(props: { children: JSX.Element }) {
                       <p class="font-600">{profile().displayName}</p>
                       <p class="text-neutral-500">@{profile().handle}</p>
                     </Show>
-                    <div class="flex justify-evenly">
-                      <Popover.Close>
-                        <A href="/settings">
-                          <div class="i-mingcute-settings-5-line inline-block v--10%"></div>
-                          Settings
-                        </A>
-                      </Popover.Close>
+                    <div class="flex flex-col">
+                      <div class="flex justify-evenly">
+                        <Popover.Close>
+                          <A href="/stats">
+                            <div class="i-mingcute-chart-pie-2-line inline-block v--10%"></div>
+                            Stats
+                          </A>
+                        </Popover.Close>
+                        <Popover.Close>
+                          <A href="/settings">
+                            <div class="i-mingcute-settings-5-line inline-block v--10%"></div>
+                            Settings
+                          </A>
+                        </Popover.Close>
+                      </div>
                       <button onclick={logout} class="cursor-pointer">
                         <div class="i-mingcute-exit-line inline-block v--10%"></div>
                         Logout
@@ -248,9 +234,7 @@ export default function App(props: { children: JSX.Element }) {
                 <Dialog.Portal>
                   <Dialog.Overlay class="fixed inset-0 z-50 bg-black/50" />
                   <Dialog.Content class="fixed left-50% top-50% z-50 min-w-80 translate-x--50% translate-y--50% rounded-lg b-2 light:b-neutral-300 dark:b-neutral-700 px-6 py-5 light:bg-neutral-200 dark:bg-neutral-800 light:text-black dark:text-white">
-                    <Dialog.Label class="text-center font-700 text-6">
-                      Login
-                    </Dialog.Label>
+                    <Dialog.Label class="text-center font-700 text-6">Login</Dialog.Label>
                     <hr class="light:text-neutral-400 dark:text-neutral-600 m-y-2"></hr>
                     <label>Handle:</label>
                     {(() => {
@@ -296,21 +280,27 @@ export default function App(props: { children: JSX.Element }) {
       </main>
       <footer class="flex light:bg-neutral-100 dark:bg-neutral-800 light:text-black dark:text-white p-y-2 p-x-4 h-16 items-center justify-between">
         <div>
-          <a href="https://bsky.app/profile/did:plc:irx36xprktslecsbopbwnh5w">
-            Made by SharpMars
-          </a>
-        </div>
-        <div class="flex gap-4">
-          <a
-            class="relative after:bg-transparent after:content-[''] after:absolute after:w-2 after:h-2 [&.updated]:after:bg-red after:rounded after:top-0 after:right--1.5"
+          <A
+            class="relative after:bg-transparent after:content-[''] after:absolute after:w-2 after:h-2 [&.updated]:after:bg-red after:rounded after:top-0
+            after:right--1.5 text-neutral hover:text-white transition-a;; transition-200"
             classList={{
               updated: privacyUpdated(),
             }}
             href="/privacy"
           >
             Privacy Policy
+          </A>
+        </div>
+        <div class="flex gap-4">
+          <a
+            href="https://bsky.app/profile/did:plc:irx36xprktslecsbopbwnh5w"
+            class="flex items-center p-1 text-7 group cursor-pointer"
+          >
+            <div class="i-mingcute-bluesky-social-line text-neutral group-hover:text-white transition-all transition-200"></div>
           </a>
-          <a href="https://github.com/SharpMars/bluecatalog">GitHub</a>
+          <a href="https://github.com/SharpMars/bluecatalog" class="flex items-center p-1 text-7 group cursor-pointer">
+            <div class="i-mingcute-github-line text-neutral group-hover:text-white transition-all transition-200"></div>
+          </a>
         </div>
       </footer>
     </div>
@@ -350,9 +340,7 @@ const retrieveSession = async () => {
     agent = new OAuthUserAgent(session);
     xrpc = new Client({ handler: agent });
     xrpc.proxy = {
-      did: localStorage.getItem("proxyDid")
-        ? (localStorage.getItem("proxyDid") as Did)
-        : "did:web:api.bsky.app",
+      did: localStorage.getItem("proxyDid") ? (localStorage.getItem("proxyDid") as Did) : "did:web:api.bsky.app",
       serviceId: "#bsky_appview",
     };
     setLoginState(true);

@@ -6,7 +6,7 @@ export function Tabs(props: {
   getValue: Accessor<string>;
 }) {
   return (
-    <div class="flex text-white dark:b-slate-700 light:b-slate-400 b-1 b-solid rounded-lg overflow-clip">
+    <div class="flex text-white dark:b-slate-700 light:b-slate-400 b-1 b-solid rounded-lg overflow-clip w-fit">
       <For each={props.values}>
         {(val) => {
           return (
