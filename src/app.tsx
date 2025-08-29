@@ -280,19 +280,27 @@ export default function App(props: { children: JSX.Element }) {
       </main>
       <footer class="flex light:bg-neutral-100 dark:bg-neutral-800 light:text-black dark:text-white p-y-2 p-x-4 h-16 items-center justify-between">
         <div>
-          <a href="https://bsky.app/profile/did:plc:irx36xprktslecsbopbwnh5w">Made by SharpMars</a>
-        </div>
-        <div class="flex gap-4">
-          <a
-            class="relative after:bg-transparent after:content-[''] after:absolute after:w-2 after:h-2 [&.updated]:after:bg-red after:rounded after:top-0 after:right--1.5"
+          <A
+            class="relative after:bg-transparent after:content-[''] after:absolute after:w-2 after:h-2 [&.updated]:after:bg-red after:rounded after:top-0
+            after:right--1.5 text-neutral hover:text-white transition-a;; transition-200"
             classList={{
               updated: privacyUpdated(),
             }}
             href="/privacy"
           >
             Privacy Policy
+          </A>
+        </div>
+        <div class="flex gap-4">
+          <a
+            href="https://bsky.app/profile/did:plc:irx36xprktslecsbopbwnh5w"
+            class="flex items-center p-1 text-7 group cursor-pointer"
+          >
+            <div class="i-mingcute-bluesky-social-line text-neutral group-hover:text-white transition-all transition-200"></div>
           </a>
-          <a href="https://github.com/SharpMars/bluecatalog">GitHub</a>
+          <a href="https://github.com/SharpMars/bluecatalog" class="flex items-center p-1 text-7 group cursor-pointer">
+            <div class="i-mingcute-github-line text-neutral group-hover:text-white transition-all transition-200"></div>
+          </a>
         </div>
       </footer>
     </div>
