@@ -1,42 +1,118 @@
-import { Suspense } from "solid-js";
-import { PreviewPosts } from "../components/PreviewPosts";
+import { A } from "@solidjs/router";
+import { Tabs } from "../components/Tabs";
+import { createSignal } from "solid-js";
 
 export default function LoggedOut() {
+  type FeatureTabs = "search" | "pagination" | "stats";
+  const [featureTab, setFeatureTab] = createSignal<FeatureTabs>("search");
+
   return (
     <>
-      <section>
-        <div class="h-screen-lg max-h-[calc(100vh-4rem)] flex flex-col justify-center items-center relative">
-          <h1 class="text-[clamp(16px,15vw,4rem)] font-bold">
-            <span class="text-blue-500">Blue</span>
-            <span class="text-yellow-500">Catalog</span>
-          </h1>
-          <p class="text-[clamp(8px,7vw,2rem)] text-center light:text-black dark:text-white">
-            Search through your Bluesky
-            <br /> likes and bookmarks <b>easily</b>
+      <section class="light:text-black dark:text-white p-2">
+        <div class="flex flex-col items-center p-t-15dvh">
+          <div class="flex items-center gap-1">
+            <h1 class="text-[clamp(1.25rem,14vw,6rem)] font-bold">
+              <span class="text-blue-500">Blue</span>
+              <span class="text-yellow-500">Catalog</span>
+            </h1>
+            <img src="/icons/icon.svg" class="hidden sm:block w-[clamp(6rem,14vw,8rem)]" />
+          </div>
+          <p class="text-[clamp(1rem,6vw,2rem)] text-center max-w-128">
+            Easily search through your Bluesky likes and bookmarks
           </p>
-          <button
-            onClick={() => document.getElementById("login").click()}
-            class="light:bg-sky-500 light:hover:bg-sky-400 dark:bg-sky-600 dark:hover:bg-sky-500 text-white p-2 rounded m-t-4 w-48 transition-ease-linear transition-all transition-100"
-          >
-            Login
-          </button>
-          <div class="i-mingcute-align-arrow-down-line dark:text-white light:text-black text-4xl absolute bottom-4 animate-bounce"></div>
+          <div>
+            <button
+              onClick={() => document.getElementById("login").click()}
+              class="light:bg-sky-500 light:hover:bg-sky-400 dark:bg-sky-600 dark:hover:bg-sky-500 text-white p-3 text-5 rounded m-t-4 w-64 transition-ease-linear transition-all transition-100"
+            >
+              Login
+            </button>
+            <div class="flex gap-2 m-t-2 justify-center items-center">
+              <A href={"/privacy"} class="text-neutral hover:text-white transition-all transition-200 cursor-pointer">
+                Privacy Policy
+              </A>
+              <div class="w-.4 h-4 bg-gray" />
+              <div class="flex gap-.5">
+                <a
+                  target="_blank"
+                  href="https://github.com/SharpMars/bluecatalog"
+                  class="flex items-center p-1 text-5 group cursor-pointer"
+                >
+                  <div class="i-mingcute-github-line text-neutral group-hover:text-white transition-all transition-200"></div>
+                </a>
+                <a
+                  target="_blank"
+                  href="https://bsky.app/profile/did:plc:irx36xprktslecsbopbwnh5w"
+                  class="flex items-center p-1 text-5 group cursor-pointer"
+                >
+                  <div class="i-mingcute-bluesky-social-line text-neutral group-hover:text-white transition-all transition-200"></div>
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="m-x-4 md:m-x-auto max-w-192 m-t-15dvh rounded-xl overflow-hidden b-1 b-neutral b-solid shadow-black shadow-lg p-2 bg-black">
+          <img src="/screenshot.webp" class="rounded-lg" />
         </div>
       </section>
-      <section class="flex flex-col items-center p-2 p-y-4">
-        <h1 class="w-fit text-4xl font-bold dark:text-white light:text-black m-b-2">
-          Test it out
-        </h1>
-        <Suspense>
-          <PreviewPosts
-            posts={[
-              "at://did:plc:irx36xprktslecsbopbwnh5w/app.bsky.feed.post/3lpkllg56g227",
-              "at://did:plc:irx36xprktslecsbopbwnh5w/app.bsky.feed.post/3lotwufl6qk2i",
-              "at://did:plc:z72i7hdynmk6r22z27h6tvur/app.bsky.feed.post/3lh5iyaqqos24",
-              "at://did:plc:z72i7hdynmk6r22z27h6tvur/app.bsky.feed.post/3lktlkvngcc2k",
+      <section class="m-x-4 md:m-x-auto max-w-192 m-t-16 light:text-black dark:text-white p-1">
+        <h2 class="text-center text-8 font-bold">Features</h2>
+        <div class="flex justify-center m-t-2">
+          <Tabs
+            values={[
+              { displayName: "Search & Filters", value: "search" },
+              { displayName: "Pagination", value: "pagination" },
+              { displayName: "Stats", value: "stats" },
             ]}
-          ></PreviewPosts>
-        </Suspense>
+            getValue={featureTab}
+            setValue={(val) => setFeatureTab(val)}
+          />
+        </div>
+        <div
+          hidden={featureTab() != "search"}
+          class="flex flex-col md:flex-row gap-8 items-center p-y-4 justify-center"
+        >
+          <p class="text-center md:text-start">
+            Search using text or different types of filters. These filters include filtering by author or by the type of
+            embed in the post.
+          </p>
+          <img src="/search.webp" class="h-64 rounded-lg shadow-lg shadow-black/50" />
+        </div>
+        <div
+          hidden={featureTab() != "pagination"}
+          class="flex flex-col md:flex-row gap-8 items-center p-y-4 justify-center"
+        >
+          <p class="text-center md:text-start">
+            Instead of infinite scroll, posts are split by pages. Want to go to your oldest likes? Go to the last page!
+            Remember rougly where your favourite post was? Go to that page!
+          </p>
+          <div class="aspect-ratio-auto w-full max-h-64 flex justify-center">
+            <img src="/pagination.webp" class="h-full rounded-lg shadow-lg shadow-black/50" />
+          </div>
+        </div>
+        <div hidden={featureTab() != "stats"} class="flex flex-col md:flex-row gap-8 items-center p-y-4 justify-center">
+          <p class="text-center md:text-start">
+            Ever wanted stats about your Bluesky likes? Well, you're in luck! Available after sign-in in profile popup
+            in top right.
+          </p>
+          <img src="/stats.webp" class="h-64 rounded-lg shadow-lg shadow-black/50" />
+        </div>
+      </section>
+      <section class="m-x-4 md:m-x-auto max-w-192 m-t-16 light:text-black dark:text-white p-1 m-b-12">
+        <h2 class="text-10 font-bold text-center">Want to give it a try?</h2>
+        <p class="text-center">
+          Here is a demo version! <br />
+          <span class="text-neutral">(some features unavailable)</span>
+        </p>
+        <div class="flex justify-center">
+          <A
+            href="/preview"
+            class="m-x-auto light:bg-sky-500 light:hover:bg-sky-400 dark:bg-sky-600 dark:hover:bg-sky-500 text-white p-3 text-5 rounded m-t-4 w-64
+            transition-ease-linear transition-all transition-100 text-center cursor-pointer"
+          >
+            Go to demo!
+          </A>
+        </div>
       </section>
     </>
   );
