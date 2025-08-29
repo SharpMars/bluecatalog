@@ -385,7 +385,7 @@ export default function Stats() {
                   <LoadingIndicator></LoadingIndicator>
                 </div>
               </Match>
-              <Match when={postsQuery.isError}>
+              <Match when={postsQuery.isError || (postsQuery.data != null && !postsQuery.data.records)}>
                 <ErrorScreen />
               </Match>
               <Match when={postsQuery.data == null}>
