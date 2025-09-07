@@ -15,12 +15,13 @@ import { createStore } from "solid-js/store";
 import { PostFilter } from "../components/PostFilter";
 import { countEmbeds } from "../utils/embed";
 import createPagination from "../utils/pagination";
+import { fetchBookmarks } from "../fetching/bookmarks";
 
 export default function LoggedIn() {
   const [searchVal, setSearchVal] = createSignal("");
   const [selectedAuthors, setSelectedAuthors] = createSignal<string[]>([]);
-  const [selectedTab, setSelectedTab] = createSignal<"likes" | "pins">(
-    localStorage.getItem("lastTab") ? (localStorage.getItem("lastTab") as "likes" | "pins") : "likes"
+  const [selectedTab, setSelectedTab] = createSignal<"likes" | "pins" | "bookmarks">(
+    localStorage.getItem("lastTab") ? (localStorage.getItem("lastTab") as "likes" | "pins" | "bookmarks") : "likes"
   );
   const [embedOptions, setEmbedOptions] = createStore<{
     none: boolean;
@@ -101,6 +102,9 @@ export default function LoggedIn() {
             break;
           case "pins":
             data = await fetchPins(refetch, signal);
+            break;
+          case "bookmarks":
+            data = await fetchBookmarks(refetch, signal);
             break;
           default:
             throw new Error("unimplemented fetching");
@@ -270,11 +274,12 @@ export default function LoggedIn() {
           setValue={(value: string) => {
             localStorage.setItem("lastTab", value);
             refetch = false;
-            setSelectedTab(value as "likes" | "pins");
+            setSelectedTab(value as "likes" | "pins" | "bookmarks");
           }}
           getValue={selectedTab}
           values={[
             { value: "likes", displayName: "Likes" },
+            { value: "bookmarks", displayName: "Bookmarks" },
             { value: "pins", displayName: "Pins 📌" },
           ]}
         ></Tabs>
