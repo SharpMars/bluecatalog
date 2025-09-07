@@ -27,6 +27,8 @@ if (import.meta.env.VITE_POSTHOG_TOKEN) {
   posthog.init(import.meta.env.VITE_POSTHOG_TOKEN, {
     api_host: "https://eu.i.posthog.com",
     person_profiles: "never",
+    autocapture: false,
+    cookieless_mode: "always",
   });
 }
 
