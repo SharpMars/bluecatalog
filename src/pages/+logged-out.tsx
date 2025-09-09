@@ -12,8 +12,12 @@ export default function LoggedOut() {
         <div class="flex flex-col items-center p-t-15dvh">
           <div class="flex items-center gap-1">
             <h1 class="text-[clamp(1.25rem,14vw,6rem)] font-bold">
-              <span class="text-blue-500">Blue</span>
-              <span class="text-yellow-500">Catalog</span>
+              <span class="bg-linear-to-b from-[#1185feff] from-40% to-[#66a2ffff] to-80% bg-clip-text text-transparent">
+                Blue
+              </span>
+              <span class="bg-linear-to-b from-[#ffe24dff] from-40% to-[#ffab66ff] to-80% bg-clip-text text-transparent">
+                Catalog
+              </span>
             </h1>
             <img src="/icons/icon.svg" class="hidden sm:block w-[clamp(6rem,14vw,8rem)]" />
           </div>

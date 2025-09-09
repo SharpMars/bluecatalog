@@ -160,8 +160,12 @@ export default function App(props: { children: JSX.Element }) {
     <div class="flex flex-col min-h-screen">
       <nav class="flex light:bg-neutral-100 dark:bg-neutral-800 light:text-black dark:text-white p-x-3 justify-between items-center h-16">
         <A href="/" class="text-6 font-bold">
-          <span class="text-blue-500">Blue</span>
-          <span class="text-yellow-500">Catalog</span>
+          <span class="bg-linear-to-b from-[#1185feff] from-40% to-[#66a2ffff] to-80% bg-clip-text text-transparent">
+            Blue
+          </span>
+          <span class="bg-linear-to-b from-[#ffe24dff] from-40% to-[#ffab66ff] to-80% bg-clip-text text-transparent">
+            Catalog
+          </span>
         </A>
 
         <Switch>
