@@ -45,18 +45,13 @@ export default function Settings() {
   return (
     <section class="p-4 p-y-0 flex md:justify-center">
       <div class="md:min-w-2xl w-full md:w-a m-x-2 m-t-1">
-        <h1 class="text-12 font-700 light:text-black dark:text-white">
-          Settings
-        </h1>
+        <h1 class="text-12 font-700 light:text-black dark:text-white">Settings</h1>
         <hr class="m-y-4 light:text-black dark:text-white rounded"></hr>
         <div class="flex flex-col gap-4 p-x-2">
           <div>
-            <h2 class="text-7 font-600 light:text-black dark:text-white">
-              Cache
-            </h2>
+            <h2 class="text-7 font-600 light:text-black dark:text-white">Cache</h2>
             <p class="m-t--1 text-neutral-500 m-b-2">
-              Clears cache of your Bluesky likes currently stored on this device
-              (it can always be remade).
+              Clears cache of your Bluesky likes currently stored on this device (it can always be remade).
             </p>
             <Dialog>
               <Dialog.Trigger class="p-2 rounded text-white bg-red-700 hover:bg-red-800 active:bg-red-900 transition-all transition-100 transition-ease-linear">
@@ -65,18 +60,15 @@ export default function Settings() {
               <Dialog.Portal>
                 <Dialog.Overlay class="fixed inset-0 z-50 bg-black/50" />
                 <Dialog.Content class="fixed left-50% top-50% z-50 min-w-80 translate-x--50% translate-y--50% rounded-lg b-2 px-6 py-5 light:b-neutral-200 light:bg-neutral-300 light:text-black dark:b-neutral-700 dark:bg-neutral-800 dark:text-white">
-                  <Dialog.Label class="text-lg font-bold">
-                    Clear cache
-                  </Dialog.Label>
-                  <Dialog.Description>
-                    Are you sure you want to do this?
-                  </Dialog.Description>
+                  <Dialog.Label class="text-lg font-bold">Clear cache</Dialog.Label>
+                  <Dialog.Description>Are you sure you want to do this?</Dialog.Description>
                   <div class="mt-3 flex justify-between text-white">
                     <Dialog.Close
                       class="rounded-md px-3 py-2 bg-red-700 hover:bg-red-800 active:bg-red-900 transition-all transition-100 transition-ease-linear"
                       on:click={() => {
                         ldb.delete("likes-cache");
                         ldb.delete("pins-cache");
+                        ldb.delete("bookmarks-cache");
                       }}
                     >
                       Yes
@@ -90,9 +82,7 @@ export default function Settings() {
             </Dialog>
           </div>
           <div>
-            <h2 class="text-7 font-600 light:text-black dark:text-white m-b-1">
-              Theme
-            </h2>
+            <h2 class="text-7 font-600 light:text-black dark:text-white m-b-1">Theme</h2>
             <fieldset class="flex gap-2 light:text-black dark:text-white">
               <input
                 type="radio"
@@ -166,10 +156,7 @@ export default function Settings() {
                 onchange={(ev) => {
                   const num = ev.currentTarget.valueAsNumber;
                   if (!isNaN(num) && num > 0 && num <= 3) {
-                    localStorage.setItem(
-                      "masonry-columns",
-                      ev.currentTarget.value
-                    );
+                    localStorage.setItem("masonry-columns", ev.currentTarget.value);
                     setMasonryColumnCount(ev.currentTarget.valueAsNumber);
                   } else {
                     ev.currentTarget.valueAsNumber = masonryColumnCount();
@@ -180,12 +167,9 @@ export default function Settings() {
             </Show>
           </div>
           <div>
-            <h2 class="text-7 font-600 light:text-black dark:text-white m-b-1">
-              AppView
-            </h2>
+            <h2 class="text-7 font-600 light:text-black dark:text-white m-b-1">AppView</h2>
             <p class="m-t--1 text-neutral-500 m-b-2">
-              Allows you to set which API backend you want to use for fetching
-              data.
+              Allows you to set which API backend you want to use for fetching data.
             </p>
             <TextInput
               placeholder="did:web:api.bsky.app"
@@ -200,9 +184,7 @@ export default function Settings() {
                 }
 
                 if (isDid(value.trim())) {
-                  const doc = await docResolver.resolve(
-                    value.trim() as Did<"plc"> | Did<"web">
-                  );
+                  const doc = await docResolver.resolve(value.trim() as Did<"plc"> | Did<"web">);
 
                   if (doc.service.some((val) => val.id == "#bsky_appview")) {
                     localStorage.setItem("proxyDid", value.trim());
@@ -211,8 +193,7 @@ export default function Settings() {
                     appviewError.innerText = "";
                   } else {
                     setErrorState(true);
-                    appviewError.innerText =
-                      "Provided DID doesn't provide a Bluesky AppView.";
+                    appviewError.innerText = "Provided DID doesn't provide a Bluesky AppView.";
                   }
                 } else {
                   setErrorState(true);
