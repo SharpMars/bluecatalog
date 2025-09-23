@@ -1,13 +1,15 @@
 import { ComAtprotoRepoStrongRef } from "@atcute/atproto";
-import { AppBskyFeedDefs, AppBskyActorDefs } from "@atcute/bluesky";
-import { Datetime } from "@atcute/lexicons";
+import { AppBskyActorDefs } from "@atcute/bluesky";
+import { Datetime, Did, ResourceUri } from "@atcute/lexicons";
+import { Embeds } from "../utils/embed";
 
 export interface FetchData {
-  posts: AppBskyFeedDefs.PostView[];
-  authors: AppBskyActorDefs.ProfileViewBasic[];
-  records?: {
-    viaProfile?: AppBskyActorDefs.ProfileViewDetailed;
-    subject: ComAtprotoRepoStrongRef.Main;
-    createdAt: Datetime;
-  }[];
+  version: number;
+  posts: { uri: ResourceUri; author: Did; text: string; embed?: Embeds; createdAt: Datetime; langs?: string[] }[];
+  //authors: AppBskyActorDefs.ProfileViewBasic[];
+  //records?: {
+  //  viaProfile?: AppBskyActorDefs.ProfileViewDetailed;
+  //  subject: ComAtprotoRepoStrongRef.Main;
+  //  createdAt: Datetime;
+  //}[];
 }

@@ -1,9 +1,5 @@
 import { segmentize } from "@atcute/bluesky-richtext-segmenter";
-import {
-  AppBskyFeedDefs,
-  AppBskyFeedPost,
-  AppBskyRichtextFacet,
-} from "@atcute/bluesky";
+import { AppBskyFeedDefs, AppBskyFeedPost, AppBskyRichtextFacet } from "@atcute/bluesky";
 import { is } from "@atcute/lexicons";
 import { For, Match, Show, Switch } from "solid-js";
 import EmbedView from "./EmbedView";
@@ -31,9 +27,7 @@ export function BskyPost(props: BskyPostProps) {
             err.currentTarget.src = "./fallback.svg";
           }}
         ></img>
-        <span class="font-700 text-ellipsis overflow-hidden">
-          {author.displayName}
-        </span>
+        <span class="font-700 text-ellipsis overflow-hidden">{author.displayName}</span>
         <span class="light:text-neutral-600 dark:text-neutral-400 text-ellipsis overflow-hidden">
           {"@" + author.handle}
         </span>
@@ -43,12 +37,7 @@ export function BskyPost(props: BskyPostProps) {
           {(item) => {
             return (
               <Switch fallback={item.text}>
-                <Match
-                  when={
-                    item.features?.length > 0 &&
-                    is(AppBskyRichtextFacet.linkSchema, item.features[0])
-                  }
-                >
+                <Match when={item.features?.length > 0 && is(AppBskyRichtextFacet.linkSchema, item.features[0])}>
                   <a
                     href={(item.features[0] as AppBskyRichtextFacet.Link).uri}
                     class="text-blue hover:underline"
@@ -67,9 +56,7 @@ export function BskyPost(props: BskyPostProps) {
       </Show>
       <div class="flex justify-between">
         <a
-          href={`https://bsky.app/profile/${author.did}/post/${post.uri
-            .split("/")
-            .at(-1)}`}
+          href={`https://bsky.app/profile/${author.did}/post/${post.uri.split("/").at(-1)}`}
           class="relative after:transform-origin-left light:text-neutral-600 dark:text-neutral-400 light:hover:text-black dark:hover:text-white transition-all transition-100 transition-ease-linear after:scale-x-0 hover:after:scale-x-100 after:w-full after:bg-current after:h-2px after:rounded after:content-[''] after:absolute after:bottom--1 after:left-0 after:transition-all after:transition-100 after:transition-ease-linear"
           target="_blank"
         >

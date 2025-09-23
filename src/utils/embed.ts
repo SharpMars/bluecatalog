@@ -1,11 +1,37 @@
-import {
-  AppBskyEmbedExternal,
-  AppBskyEmbedImages,
-  AppBskyEmbedRecord,
-  AppBskyEmbedRecordWithMedia,
-  AppBskyEmbedVideo,
-} from "@atcute/bluesky";
-import { $type } from "@atcute/lexicons";
+export type Embeds = ExternalEmbed | ImagesEmbed | RecordEmbed | RecordWithMediaEmbed | VideoEmbed;
+
+export interface ExternalEmbed {
+  $type: "external";
+  title: string;
+  desc: string;
+}
+
+export interface ImagesEmbed {
+  $type: "images";
+  images: { alt: string }[];
+}
+
+export interface NestedRecord {
+  text: string;
+  embed?: Embeds;
+  langs?: string[];
+}
+
+export interface RecordEmbed {
+  $type: "record";
+  record?: NestedRecord;
+}
+
+export interface RecordWithMediaEmbed {
+  $type: "recordWithMedia";
+  record?: NestedRecord;
+  media: ExternalEmbed | ImagesEmbed | VideoEmbed;
+}
+
+export interface VideoEmbed {
+  $type: "video";
+  alt: string;
+}
 
 export function countEmbeds(
   res: {
@@ -15,52 +41,36 @@ export function countEmbeds(
     post: number;
     external: number;
   },
-  embed?: $type.enforce<
-    | AppBskyEmbedExternal.View
-    | AppBskyEmbedImages.View
-    | AppBskyEmbedRecord.View
-    | AppBskyEmbedRecordWithMedia.View
-    | AppBskyEmbedVideo.View
-  >,
+  embed?: ExternalEmbed | ImagesEmbed | RecordEmbed | RecordWithMediaEmbed | VideoEmbed,
   recursed?: true
 ) {
   if (embed) {
     switch (embed.$type) {
-      case "app.bsky.embed.images#view":
+      case "images":
         res.image++;
         break;
-      case "app.bsky.embed.video#view":
+      case "video":
         res.video++;
         break;
-      case "app.bsky.embed.external#view":
+      case "external":
         res.external++;
         break;
-      case "app.bsky.embed.record#view":
+      case "record":
         if (!recursed) {
           res.post++;
 
-          if (
-            embed.record.$type == "app.bsky.embed.record#viewRecord" &&
-            embed.record.embeds?.length > 0
-          ) {
-            for (const innerEmbed of embed.record.embeds) {
-              countEmbeds(res, innerEmbed, true);
-            }
+          if (embed.record && embed.record.embed) {
+            countEmbeds(res, embed.record.embed, true);
           }
         }
         break;
-      case "app.bsky.embed.recordWithMedia#view":
+      case "recordWithMedia":
         countEmbeds(res, embed.media, true);
         if (!recursed) {
           res.post++;
 
-          if (
-            embed.record.record.$type == "app.bsky.embed.record#viewRecord" &&
-            embed.record.record?.embeds.length > 0
-          ) {
-            for (const innerEmbed of embed.record.record.embeds) {
-              countEmbeds(res, innerEmbed, true);
-            }
+          if (embed.record && embed.record.embed) {
+            countEmbeds(res, embed.record.embed, true);
           }
         }
         break;
