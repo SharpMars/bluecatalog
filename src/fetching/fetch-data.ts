@@ -8,7 +8,7 @@ export interface FetchData {
     author: Did;
     text: string;
     embed?: Embeds;
-    createdAt: Datetime;
+    createdAt?: Datetime;
     langs?: string[];
     via?: { did: Did; handle: Handle; displayName?: string };
   }[];
