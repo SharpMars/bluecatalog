@@ -14,6 +14,7 @@ import { A } from "@solidjs/router";
 import { LoadingIndicator } from "../../components/LoadingIndicator";
 import { gateRoute } from "../../utils/gate";
 import { countEmbeds } from "../../utils/embed";
+import { FetchData } from "../../fetching/fetch-data";
 
 export default function Stats() {
   gateRoute();
@@ -75,11 +76,17 @@ export default function Stats() {
   }));
 
   const countPerDay = createMemo(() => {
-    if (!(postsQuery.isSuccess && postsQuery.data != null && postsQuery.data.records)) return;
+    if (!(postsQuery.isSuccess && postsQuery.data != null && postsQuery.data.missing)) return;
 
     const res = [0, 0, 0, 0, 0, 0, 0];
 
-    for (const record of postsQuery.data.records) {
+    for (const record of postsQuery.data.posts) {
+      const date = new Date(record.savedAt);
+
+      res[(date.getDay() + 6) % 7]++;
+    }
+
+    for (const record of postsQuery.data.missing) {
       const date = new Date(record.createdAt);
 
       res[(date.getDay() + 6) % 7]++;
@@ -89,11 +96,17 @@ export default function Stats() {
   });
 
   const countPerHour = createMemo(() => {
-    if (!(postsQuery.isSuccess && postsQuery.data != null && postsQuery.data.records)) return;
+    if (!(postsQuery.isSuccess && postsQuery.data != null && postsQuery.data.missing)) return;
 
     let res: number[] = Array.from(new Array(24), () => 0);
 
-    for (const record of postsQuery.data.records) {
+    for (const record of postsQuery.data.posts) {
+      const date = new Date(record.savedAt);
+
+      res[date.getHours()]++;
+    }
+
+    for (const record of postsQuery.data.missing) {
       const date = new Date(record.createdAt);
 
       res[date.getHours()]++;
@@ -105,15 +118,15 @@ export default function Stats() {
   const countPerAuthor = createMemo(() => {
     if (!(postsQuery.isSuccess && postsQuery.data != null)) return [];
 
-    let res: Map<Did, { count: number; profile: AppBskyActorDefs.ProfileViewBasic }> = new Map();
+    let res: Map<Did, { count: number; profile: FetchData["authors"][0] }> = new Map();
 
     for (const post of postsQuery.data.posts) {
-      if (!res.has(post.author.did)) {
-        res.set(post.author.did, { count: 1, profile: post.author });
+      if (!res.has(post.author)) {
+        res.set(post.author, { count: 1, profile: postsQuery.data.authors.find((val) => val.did == post.author) });
       } else {
-        res.set(post.author.did, {
-          count: res.get(post.author.did).count + 1,
-          profile: post.author,
+        res.set(post.author, {
+          count: res.get(post.author).count + 1,
+          profile: postsQuery.data.authors.find((val) => val.did == post.author),
         });
       }
     }
@@ -144,12 +157,12 @@ export default function Stats() {
     for (const post of postsQuery.data.posts) {
       if (post.embed) {
         switch (post.embed.$type) {
-          case "app.bsky.embed.images#view":
+          case "images":
             if (post.embed.images.map((val) => val.alt.trim() != "").reduce((a, b) => a && b)) res.yes++;
             else res.no++;
             break;
-          case "app.bsky.embed.recordWithMedia#view":
-            if (post.embed.media.$type == "app.bsky.embed.images#view") {
+          case "recordWithMedia":
+            if (post.embed.media.$type == "images") {
               if (post.embed.media.images.map((val) => val.alt.trim() != "").reduce((a, b) => a && b)) res.yes++;
               else res.no++;
             }
@@ -168,11 +181,29 @@ export default function Stats() {
   }
 
   const postsCountByDay = createMemo(() => {
-    if (!(postsQuery.isSuccess && postsQuery.data != null && postsQuery.data.records)) return;
+    if (!(postsQuery.isSuccess && postsQuery.data != null && postsQuery.data.missing)) return;
 
     let map = new Map<number, Map<number, number[]>>();
 
-    for (const post of postsQuery.data.records.toReversed()) {
+    for (const post of postsQuery.data.posts.toReversed()) {
+      const date = new Date(post.savedAt);
+
+      if (!map.has(date.getFullYear())) {
+        const months = new Map();
+        for (let month = 0; month < 12; month++) {
+          months.set(
+            month,
+            Array.from(new Array(daysInMonth(month, date.getFullYear())), () => 0)
+          );
+        }
+
+        map.set(date.getFullYear(), months);
+      }
+
+      map.get(date.getFullYear()).get(date.getMonth())[date.getDate() - 1]++;
+    }
+
+    for (const post of postsQuery.data.missing.toReversed()) {
       const date = new Date(post.createdAt);
 
       if (!map.has(date.getFullYear())) {
@@ -315,7 +346,7 @@ export default function Stats() {
     const res = { yes: 0, no: 0 };
 
     for (const post of postsQuery.data.posts) {
-      if (followsQuery.data.find((val) => val.did == post.author.did) != undefined) res.yes++;
+      if (followsQuery.data.find((val) => val.did == post.author) != undefined) res.yes++;
       else res.no++;
     }
 
@@ -385,7 +416,7 @@ export default function Stats() {
                   <LoadingIndicator></LoadingIndicator>
                 </div>
               </Match>
-              <Match when={postsQuery.isError || (postsQuery.data != null && !postsQuery.data.records)}>
+              <Match when={postsQuery.isError || (postsQuery.data != null && !postsQuery.data.missing)}>
                 <ErrorScreen />
               </Match>
               <Match when={postsQuery.data == null}>
@@ -423,14 +454,14 @@ export default function Stats() {
                   <hr class="m-t-4 light:text-black dark:text-white rounded"></hr>
                 </div>
                 <div class="card">
-                  <p>Number of records: {postsQuery.data.records.length}</p>
+                  <p>Number of records: {postsQuery.data.posts.length + postsQuery.data.missing?.length}</p>
                   <p>
                     Number of unavailable posts:{" "}
                     <A
                       href="./unavailable"
                       class="underline underline-from-font underline-offset-2 after:content-['↗']"
                     >
-                      {postsQuery.data.records.length - postsQuery.data.posts.length}
+                      {postsQuery.data.missing?.length}{" "}
                     </A>
                   </p>
                 </div>
@@ -561,7 +592,7 @@ export default function Stats() {
                                 <div class="flex-shrink-0">
                                   <img
                                     class="rounded aspect-square"
-                                    src={val[1].profile.avatar}
+                                    src={val[1].profile.avatar ? val[1].profile.avatar : "./fallback.svg"}
                                     width={32}
                                     height={32}
                                     onerror={(ev) => {
