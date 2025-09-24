@@ -368,7 +368,7 @@ export default function LoggedIn() {
                   embedCount={embedCount}
                   embedOptions={embedOptions}
                   setEmbedOptions={setEmbedOptions}
-                  authors={/*postsQuery.data.authors*/ []}
+                  authors={postsQuery.data.authors}
                   selectedAuthors={selectedAuthors}
                   setSelectedAuthors={setSelectedAuthors}
                 ></PostFilter>

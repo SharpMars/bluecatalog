@@ -16,7 +16,7 @@ export async function fetchLikes(refetch: boolean, signal: AbortSignal) {
   let data: FetchData = {
     version: 1,
     posts: [],
-    //authors: [],
+    authors: [],
     //records: [],
   };
 
@@ -104,7 +104,7 @@ export async function fetchLikes(refetch: boolean, signal: AbortSignal) {
   if (refetch) {
     let cursor = undefined;
 
-    //const authors: AppBskyActorDefs.ProfileViewBasic[] = [];
+    const authors: Map<Did, FetchData["authors"][0]> = new Map();
 
     do {
       const res = await xrpc.get("app.bsky.feed.getActorLikes", {
@@ -133,18 +133,28 @@ export async function fetchLikes(refetch: boolean, signal: AbortSignal) {
           };
         })
       );
-      //authors.push(...res.data.feed.map((feedViewPost) => feedViewPost.post.author));
+      for (const post of res.data.feed) {
+        const author = post.post.author;
+        const following = author.viewer ? !!author.viewer.following : false;
+        if (!authors.has(author.did))
+          authors.set(author.did, {
+            did: author.did,
+            displayName: author.displayName,
+            handle: author.handle,
+            following: following,
+          });
+      }
+
       cursor = res.data.cursor;
       if (res.data.feed.length === 0) {
         cursor = undefined;
       }
     } while (cursor);
 
-    //data.authors = authors
-    //  .filter((val, index, array) => {
-    //    return array.findIndex((val1) => val.did == val1.did) == index;
-    //  })
-    //  .sort((a, b) => a.handle.localeCompare(b.handle));
+    data.authors = authors
+      .values()
+      .toArray()
+      .sort((a, b) => a.handle.localeCompare(b.handle));
 
     //cursor = undefined;
     //let rawRecords: AppBskyFeedLike.Main[] = [];
