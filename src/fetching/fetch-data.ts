@@ -3,11 +3,19 @@ import { Embeds } from "../utils/embed";
 
 export interface FetchData {
   version: number;
-  posts: { uri: ResourceUri; author: Did; text: string; embed?: Embeds; createdAt: Datetime; langs?: string[] }[];
+  posts: {
+    uri: ResourceUri;
+    author: Did;
+    text: string;
+    embed?: Embeds;
+    createdAt: Datetime;
+    langs?: string[];
+    via?: { did: Did; handle: Handle; displayName?: string };
+  }[];
   authors: { did: Did; handle: Handle; displayName?: string; following: boolean }[];
-  //records?: {
-  //  viaProfile?: AppBskyActorDefs.ProfileViewDetailed;
-  //  subject: ComAtprotoRepoStrongRef.Main;
-  //  createdAt: Datetime;
-  //}[];
+  missing?: {
+    createdAt: Datetime;
+    uri: ResourceUri;
+    via?: { did: Did; handle: Handle };
+  }[];
 }
