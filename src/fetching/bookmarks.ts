@@ -51,7 +51,8 @@ export async function fetchBookmarks(refetch: boolean, signal: AbortSignal) {
             author: post.author.did,
             text: record.text,
             embed: convertToCustomEmbed(post.embed),
-            createdAt: bookmark.createdAt,
+            createdAt: record.createdAt,
+            savedAt: bookmark.createdAt,
             langs: record.langs,
           };
         })

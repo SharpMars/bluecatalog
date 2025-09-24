@@ -1,6 +1,6 @@
 import ldb from "localdata";
 import { agent, xrpc } from "../app";
-import { Did, ResourceUri } from "@atcute/lexicons";
+import { Datetime, Did, ResourceUri } from "@atcute/lexicons";
 import { FetchData } from "./fetch-data";
 import { AppBskyFeedLike, AppBskyFeedPost } from "@atcute/bluesky";
 import { convertToCustomEmbed } from "../utils/embed";
@@ -26,6 +26,7 @@ export async function fetchLikes(refetch: boolean, signal: AbortSignal) {
     const authors: Map<Did, FetchData["authors"][0]> = new Map();
     const likes: AppBskyFeedLike.Main[] = [];
     const viaMap = new Map<ResourceUri, Did>();
+    const savedAtMap = new Map<ResourceUri, Datetime>();
 
     const session = await agent.getSession();
     const carReq = await fetch(`${session.info.aud}xrpc/com.atproto.sync.getRepo?did=${session.info.sub}`);
@@ -38,6 +39,7 @@ export async function fetchLikes(refetch: boolean, signal: AbortSignal) {
       ) {
         const record = entry.record as AppBskyFeedLike.Main;
         likes.push(record);
+        savedAtMap.set(record.subject.uri, record.createdAt);
         if (record.via) viaMap.set(record.subject.uri, record.via.uri.replace("at://", "").split("/")[0] as Did);
       }
     }
@@ -96,6 +98,7 @@ export async function fetchLikes(refetch: boolean, signal: AbortSignal) {
             author: feedViewPost.post.author.did,
             text: post.text,
             createdAt: post.createdAt,
+            savedAt: savedAtMap.get(feedViewPost.post.uri),
             langs: post.langs,
             embed: convertToCustomEmbed(feedViewPost.post.embed),
             via:
