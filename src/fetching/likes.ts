@@ -1,16 +1,9 @@
 import ldb from "localdata";
 import { agent, xrpc } from "../app";
-import { $type, Did } from "@atcute/lexicons";
+import { Did } from "@atcute/lexicons";
 import { FetchData } from "./fetch-data";
-import {
-  AppBskyEmbedExternal,
-  AppBskyEmbedImages,
-  AppBskyEmbedRecord,
-  AppBskyEmbedRecordWithMedia,
-  AppBskyEmbedVideo,
-  AppBskyFeedPost,
-} from "@atcute/bluesky";
-import { ExternalEmbed, ImagesEmbed, RecordEmbed, RecordWithMediaEmbed, VideoEmbed } from "../utils/embed";
+import { AppBskyFeedPost } from "@atcute/bluesky";
+import { convertToCustomEmbed } from "../utils/embed";
 
 export async function fetchLikes(refetch: boolean, signal: AbortSignal) {
   let data: FetchData = {
@@ -19,81 +12,6 @@ export async function fetchLikes(refetch: boolean, signal: AbortSignal) {
     authors: [],
     //records: [],
   };
-
-  function convertToCustomEmbed(
-    embed?: $type.enforce<
-      | AppBskyEmbedExternal.View
-      | AppBskyEmbedImages.View
-      | AppBskyEmbedRecord.View
-      | AppBskyEmbedRecordWithMedia.View
-      | AppBskyEmbedVideo.View
-    >
-  ) {
-    if (!embed) return undefined;
-
-    switch (embed.$type) {
-      case "app.bsky.embed.external#view":
-        const external: ExternalEmbed = {
-          $type: "external",
-          title: embed.external.title,
-          desc: embed.external.description,
-        };
-
-        return external;
-      case "app.bsky.embed.images#view":
-        const image: ImagesEmbed = {
-          $type: "images",
-          images: embed.images.map((val) => {
-            return { alt: val.alt };
-          }),
-        };
-
-        return image;
-      case "app.bsky.embed.record#view":
-        const nestedRecord = embed.record.$type == "app.bsky.embed.record#viewRecord" ? embed.record : undefined;
-        const recordPost = nestedRecord ? (nestedRecord.value as AppBskyFeedPost.Main) : undefined;
-        const recordEmbed =
-          nestedRecord && nestedRecord.embeds && nestedRecord.embeds.length > 0
-            ? convertToCustomEmbed(nestedRecord.embeds[0])
-            : undefined;
-
-        const record: RecordEmbed = {
-          $type: "record",
-          record: nestedRecord ? { text: recordPost.text, langs: recordPost.langs, embed: recordEmbed } : undefined,
-        };
-
-        return record;
-
-      case "app.bsky.embed.recordWithMedia#view":
-        const withMediaNestedRecord =
-          embed.record.record.$type == "app.bsky.embed.record#viewRecord" ? embed.record.record : undefined;
-        const withMediaRecordPost = withMediaNestedRecord
-          ? (withMediaNestedRecord.value as AppBskyFeedPost.Main)
-          : undefined;
-        const withMediaRecordEmbed =
-          withMediaNestedRecord && withMediaNestedRecord.embeds && withMediaNestedRecord.embeds.length > 0
-            ? convertToCustomEmbed(withMediaNestedRecord.embeds[0])
-            : undefined;
-        const recordWithMedia: RecordWithMediaEmbed = {
-          $type: "recordWithMedia",
-          record: withMediaNestedRecord
-            ? { text: withMediaRecordPost.text, langs: withMediaRecordPost.langs, embed: withMediaRecordEmbed }
-            : undefined,
-          media: convertToCustomEmbed(embed.media) as ExternalEmbed | ImagesEmbed | VideoEmbed,
-        };
-
-        return recordWithMedia;
-      case "app.bsky.embed.video#view":
-        const video: VideoEmbed = {
-          $type: "video",
-          alt: embed.alt,
-        };
-
-        return video;
-      default:
-        return undefined;
-    }
-  }
 
   const cacheJson = await new Promise((resolve: (value: string) => void, reject) => {
     ldb.get("likes-cache", (value) => {
