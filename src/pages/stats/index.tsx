@@ -1,6 +1,6 @@
-import { useQuery } from "@tanstack/solid-query";
+import { useInfiniteQuery, useQuery } from "@tanstack/solid-query";
 import { fetchLikes } from "../../fetching/likes";
-import { createMemo, createSignal, ErrorBoundary, For, Match, Switch } from "solid-js";
+import { createMemo, createSignal, ErrorBoundary, For, Match, Suspense, Switch } from "solid-js";
 import PieChart from "../../components/PieChart";
 import ChartLegend from "../../components/ChartLegend";
 import { agent, xrpc } from "../../app";
@@ -145,6 +145,37 @@ export default function Stats() {
 
     return sorted;
   });
+
+  const [reqPage, setReqPage] = createSignal(0);
+  const avatarQuery = useInfiniteQuery(() => ({
+    queryFn: async ({ pageParam, signal }) => {
+      const res = await xrpc.get("app.bsky.actor.getProfiles", {
+        params: {
+          actors: countPerAuthor()
+            .slice(0 + pageParam * 10, 10 + pageParam * 10)
+            .map((val) => val[0]),
+          signal: signal,
+        },
+      });
+
+      if (!res.ok) throw new Error(JSON.stringify(res.data));
+
+      const map = new Map(res.data.profiles.filter((val) => val.avatar).map((val) => [val.did, val.avatar]));
+
+      return map;
+    },
+    initialPageParam: 0,
+    getNextPageParam: () => reqPage(),
+    queryKey: ["avatar-stats", JSON.stringify(countPerAuthor())],
+    enabled: countPerAuthor().length > 0,
+  }));
+
+  function requestPage(i: number) {
+    if (reqPage() == i || (avatarQuery.data && avatarQuery.data.pageParams.findIndex((val) => val == i) != -1)) return;
+
+    setReqPage(i);
+    avatarQuery.fetchNextPage();
+  }
 
   const [flipPerAuthor, setFlipPerAuthor] = createSignal(false);
   const [currentPerAuthorPage, perAuthorPageCount, currPerAuthorPageIndex, setCurrPerAuthorPageIndex] =
@@ -586,55 +617,93 @@ export default function Stats() {
                       </thead>
                       <tbody class="[&>tr:not(:last-child)]:b-b-1 [&>tr]:b-neutral/25">
                         <For each={currentPerAuthorPage()}>
-                          {(val) => (
-                            <tr>
-                              <td class="p-1 flex items-center overflow-hidden">
-                                <div class="flex-shrink-0">
-                                  <img
-                                    class="rounded aspect-square"
-                                    src={val[1].profile.avatar ? val[1].profile.avatar : "./fallback.svg"}
-                                    width={32}
-                                    height={32}
-                                    onerror={(ev) => {
-                                      ev.currentTarget.src = "./fallback.svg";
-                                    }}
-                                  />
-                                </div>
-                                <div class="flex flex-col p-1">
-                                  <span
-                                    class="line-height-snug [&.expand]:h-7"
-                                    classList={{
-                                      expand: !val[1].profile.displayName && val[1].profile.handle == "handle.invalid",
-                                    }}
-                                  >
-                                    {(() => {
-                                      const profile = val[1].profile;
+                          {(val, i) => {
+                            const did = val[1].profile.did;
+                            let index = !flipPerAuthor()
+                              ? currPerAuthorPageIndex()
+                              : perAuthorPageCount() - currPerAuthorPageIndex() - 1;
 
-                                      if (profile.displayName) return profile.displayName;
-                                      if (profile.handle != "handle.invalid") return profile.handle;
+                            const notExactCount = countPerAuthor().length % 10;
 
-                                      return profile.did;
-                                    })()}
-                                  </span>
-                                  <span
-                                    class="text-3 line-height-snug m-t--1 text-neutral"
-                                    hidden={!val[1].profile.displayName && val[1].profile.handle == "handle.invalid"}
-                                  >
-                                    {(() => {
-                                      const profile = val[1].profile;
+                            if (flipPerAuthor() && notExactCount != 0 && i() >= notExactCount) {
+                              index--;
+                            }
 
-                                      if (!profile.displayName) return profile.did;
-                                      if (profile.handle != "handle.invalid") return profile.handle;
-                                      if (profile.handle == "handle.invalid") return profile.did;
+                            requestPage(index);
 
-                                      return "";
-                                    })()}
-                                  </span>
-                                </div>
-                              </td>
-                              <td class="p-1 text-center">{val[1].count}</td>
-                            </tr>
-                          )}
+                            const avatar = () => {
+                              if (avatarQuery.data) {
+                                const pageIndex = avatarQuery.data.pageParams.findIndex((val) => val == index);
+                                if (pageIndex == -1) return "./fallback.svg";
+
+                                const page = avatarQuery.data.pages[pageIndex];
+                                if (page && page.has(did)) return page.get(did);
+                              }
+
+                              return "./fallback.svg";
+                            };
+                            return (
+                              <tr>
+                                <td class="p-1 flex items-center overflow-hidden">
+                                  <div class="flex-shrink-0">
+                                    <Suspense
+                                      fallback={
+                                        <img
+                                          class="rounded aspect-square"
+                                          src={"./fallback.svg"}
+                                          width={32}
+                                          height={32}
+                                        />
+                                      }
+                                    >
+                                      <img
+                                        class="rounded aspect-square"
+                                        src={avatar() ? avatar() : "./fallback.svg"}
+                                        width={32}
+                                        height={32}
+                                        onerror={(ev) => {
+                                          ev.currentTarget.src = "./fallback.svg";
+                                        }}
+                                      />
+                                    </Suspense>
+                                  </div>
+                                  <div class="flex flex-col p-1">
+                                    <span
+                                      class="line-height-snug [&.expand]:h-7"
+                                      classList={{
+                                        expand:
+                                          !val[1].profile.displayName && val[1].profile.handle == "handle.invalid",
+                                      }}
+                                    >
+                                      {(() => {
+                                        const profile = val[1].profile;
+
+                                        if (profile.displayName) return profile.displayName;
+                                        if (profile.handle != "handle.invalid") return profile.handle;
+
+                                        return profile.did;
+                                      })()}
+                                    </span>
+                                    <span
+                                      class="text-3 line-height-snug m-t--1 text-neutral"
+                                      hidden={!val[1].profile.displayName && val[1].profile.handle == "handle.invalid"}
+                                    >
+                                      {(() => {
+                                        const profile = val[1].profile;
+
+                                        if (!profile.displayName) return profile.did;
+                                        if (profile.handle != "handle.invalid") return profile.handle;
+                                        if (profile.handle == "handle.invalid") return profile.did;
+
+                                        return "";
+                                      })()}
+                                    </span>
+                                  </div>
+                                </td>
+                                <td class="p-1 text-center">{val[1].count}</td>
+                              </tr>
+                            );
+                          }}
                         </For>
                       </tbody>
                     </table>
