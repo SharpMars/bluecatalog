@@ -149,7 +149,7 @@ export function PreviewPosts(props: { posts: ResourceUri[] }) {
   const filteredPosts = createMemo(() => {
     let posts = searchedPosts();
 
-    if (posts.length == 0) return posts;
+    if (posts.length == 0) return posts.map((val) => val.uri);
 
     if (selectedAuthors().length > 0) {
       posts = posts.filter((val) => selectedAuthors().find((author) => author == val.author) !== undefined);
