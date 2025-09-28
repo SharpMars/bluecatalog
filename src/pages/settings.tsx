@@ -44,7 +44,7 @@ export default function Settings() {
 
   return (
     <section class="p-4 p-y-0 flex md:justify-center">
-      <div class="md:min-w-2xl w-full md:w-a m-x-2 m-t-1">
+      <div class="md:min-w-2xl w-full md:w-a m-x-2 m-t-1 m-b-4">
         <h1 class="text-12 font-700 light:text-black dark:text-white">Settings</h1>
         <hr class="m-y-4 light:text-black dark:text-white rounded"></hr>
         <div class="flex flex-col gap-4 p-x-2">
