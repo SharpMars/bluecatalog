@@ -2,7 +2,6 @@ import { createMemo, createSignal, For, Match, onCleanup, onMount, Switch } from
 
 export default function ChartLegend(props: { labels: string[]; isHorizontal: boolean }) {
   const colors = [
-    "rgb(221,221,221)",
     "rgb(46,37,133)",
     "rgb(51,117,56)",
     "rgb(93,168,153)",

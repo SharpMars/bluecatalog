@@ -65,7 +65,6 @@ export default function PieChart(props: { padding: number; labels: string[]; dat
   });
 
   const colors = [
-    "rgb(221,221,221)",
     "rgb(46,37,133)",
     "rgb(51,117,56)",
     "rgb(93,168,153)",
@@ -77,7 +76,6 @@ export default function PieChart(props: { padding: number; labels: string[]; dat
   ];
 
   const textColors = [
-    "rgb(34, 34, 34)",
     "rgb(231, 236, 187)",
     "rgb(255, 255, 255)",
     "rgb(0, 0, 0)",
@@ -153,7 +151,7 @@ export default function PieChart(props: { padding: number; labels: string[]; dat
       <div
         hidden
         ref={tooltip}
-        class="bg-gray w-fit shadow-[0_0_16px_#000000] absolute z-1 select-none pointer-events-none rounded min-w-4rem p-2 overflow-hidden"
+        class="light:text-black light:bg-zinc-300 dark:text-white dark:bg-zinc-700 w-fit shadow-[0_0_16px_#000000] absolute z-1 select-none pointer-events-none rounded min-w-4rem p-2 overflow-hidden"
       >
         <div class="color h-4px absolute w-full left-0 top-0"></div>
         <p class="title font-bold">{props.labels[0]}</p>

@@ -510,7 +510,10 @@ export default function Stats() {
                       <AxisTooltip tickGap={-56} class="transition-opacity transition-ease-linear transition-10ms">
                         {(props) => (
                           <>
-                            <div class="bg-gray w-fit shadow-[0_0_16px_#000000] absolute z-1 select-none pointer-events-none rounded min-w-max p-2 overflow-hidden">
+                            <div
+                              class="light:text-black light:bg-zinc-300 dark:text-white dark:bg-zinc-700 w-fit shadow-[0_0_16px_#000000] absolute z-1 select-none pointer-events-none rounded min-w-max p-2
+                              overflow-hidden"
+                            >
                               <p class="title font-bold">{props.data.tooltip}</p>
                               <p class="value">{props.data.value}</p>
                             </div>
@@ -587,7 +590,10 @@ export default function Stats() {
                           <AxisTooltip tickGap={-56} class="transition-opacity transition-ease-linear transition-10ms">
                             {(props) => (
                               <>
-                                <div class="bg-gray w-fit shadow-[0_0_16px_#000000] absolute z-1 select-none pointer-events-none rounded min-w-max p-2 overflow-hidden">
+                                <div
+                                  class="light:text-black light:bg-zinc-300 dark:text-white dark:bg-zinc-700 w-fit shadow-[0_0_16px_#000000] absolute z-1 select-none pointer-events-none rounded min-w-max p-2
+                                  overflow-hidden"
+                                >
                                   <p class="title font-bold">{props.data.tooltip}</p>
                                   <p class="value">{props.data.value}</p>
                                 </div>
