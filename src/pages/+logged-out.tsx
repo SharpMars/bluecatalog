@@ -32,7 +32,10 @@ export default function LoggedOut() {
               Login
             </button>
             <div class="flex gap-2 m-t-2 justify-center items-center">
-              <A href={"/privacy"} class="text-neutral hover:text-white transition-all transition-200 cursor-pointer">
+              <A
+                href={"/privacy"}
+                class="text-neutral light:hover:text-black dark:hover:text-white transition-all transition-200 cursor-pointer"
+              >
                 Privacy Policy
               </A>
               <div class="w-.4 h-4 bg-gray" />
@@ -42,14 +45,14 @@ export default function LoggedOut() {
                   href="https://github.com/SharpMars/bluecatalog"
                   class="flex items-center p-1 text-5 group cursor-pointer"
                 >
-                  <div class="i-mingcute-github-line text-neutral group-hover:text-white transition-all transition-200"></div>
+                  <div class="i-mingcute-github-line text-neutral light:hover:text-black dark:hover:text-white transition-all transition-200"></div>
                 </a>
                 <a
                   target="_blank"
                   href="https://bsky.app/profile/did:plc:irx36xprktslecsbopbwnh5w"
                   class="flex items-center p-1 text-5 group cursor-pointer"
                 >
-                  <div class="i-mingcute-bluesky-social-line text-neutral group-hover:text-white transition-all transition-200"></div>
+                  <div class="i-mingcute-bluesky-social-line text-neutral light:hover:text-black dark:hover:text-white transition-all transition-200"></div>
                 </a>
               </div>
             </div>
