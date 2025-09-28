@@ -39,10 +39,7 @@ export default function Unavailable() {
 
   const missingPostsQuery = useQuery(() => ({
     queryFn: async ({ signal }) => {
-      const missingPosts = postsQuery.data.records.filter(
-        (record) => !postsQuery.data.posts.find((post) => post.uri == record.subject.uri)
-      );
-
+      const missingPosts = postsQuery.data.missing;
       if (missingPosts.length == 0) return [];
 
       const res: {
@@ -59,7 +56,7 @@ export default function Unavailable() {
         new Map();
 
       const dids = missingPosts
-        .map((val) => val.subject.uri.replace("at://", "").split("/")[0])
+        .map((val) => val.uri.replace("at://", "").split("/")[0])
         .filter((val, index, array) => {
           return array.findIndex((val1) => val == val1) == index;
         });
@@ -99,11 +96,11 @@ export default function Unavailable() {
       }
 
       for (const record of missingPosts) {
-        const did = record.subject.uri.replace("at://", "").split("/")[0];
+        const did = record.uri.replace("at://", "").split("/")[0];
         const profile = profiles.get(did);
 
         res.push({
-          uri: record.subject.uri,
+          uri: record.uri,
           profileMissing: profile.notFound,
           profileMissingReason: profile.reason,
           profile: profile.data,
@@ -164,8 +161,8 @@ export default function Unavailable() {
                 <hr class="m-t-4 light:text-black dark:text-white rounded"></hr>
               </div>
               <div class="card">
-                <p>Number of records: {postsQuery.data.records.length}</p>
-                <p>Number of unavailable posts: {postsQuery.data.records.length - postsQuery.data.posts.length}</p>
+                <p>Number of records: {postsQuery.data.posts.length + postsQuery.data.missing?.length}</p>
+                <p>Number of unavailable posts: {postsQuery.data.missing?.length}</p>
                 <p>Number of likes with suspended accounts: {accountUnavailableTypeCount().suspended}</p>
                 <p>Number of likes with deactivated accounts: {accountUnavailableTypeCount().deactivated}</p>
               </div>

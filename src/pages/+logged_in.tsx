@@ -1,5 +1,4 @@
 import { createEffect, createMemo, createSignal, ErrorBoundary, Match, on, onMount, Switch } from "solid-js";
-import { AppBskyEmbedImages, AppBskyEmbedVideo, AppBskyFeedDefs, AppBskyFeedPost } from "@atcute/bluesky";
 import { useQuery, useQueryClient } from "@tanstack/solid-query";
 import MiniSearch from "minisearch";
 import { LoadingIndicator } from "../components/LoadingIndicator";
@@ -50,32 +49,29 @@ export default function LoggedIn() {
   let searcher;
   try {
     searcher = new MiniSearch({
-      idField: "cid",
+      idField: "uri",
       fields: ["text", "alt"],
       extractField: (document, fieldName) => {
-        const feedViewPost = document as AppBskyFeedDefs.PostView;
+        const post = document as FetchData["posts"][0];
 
-        if (fieldName == "cid") {
-          return feedViewPost.cid;
+        if (fieldName == "uri") {
+          return post.uri;
         }
 
         if (fieldName == "text") {
-          const record = feedViewPost.record as AppBskyFeedPost.Main;
-          return record.text;
+          return post.text;
         }
 
         if (fieldName == "alt") {
           let alt = "";
-          if (feedViewPost.embed === undefined) return alt;
+          if (!post.embed) return alt;
 
-          switch (feedViewPost.embed.$type) {
-            case "app.bsky.embed.images#view":
-              const imageView = feedViewPost.embed as AppBskyEmbedImages.View;
-              alt = imageView.images.map((image) => image.alt).join("\n");
+          switch (post.embed.$type) {
+            case "images":
+              alt = post.embed.images.map((image) => image.alt).join("\n");
               break;
-            case "app.bsky.embed.video#view": {
-              const videoView = feedViewPost.embed as AppBskyEmbedVideo.View;
-              alt = videoView.alt;
+            case "video": {
+              alt = post.embed.alt;
             }
           }
           return alt;
@@ -156,7 +152,7 @@ export default function LoggedIn() {
     if (searchVal().trim() !== "") {
       const result = searcher.search(searchVal(), { fuzzy: 0.2 });
 
-      posts = posts.filter((val) => result.find((res) => res.id == val.cid) !== undefined);
+      posts = posts.filter((val) => result.find((res) => res.id == val.uri) !== undefined);
     }
 
     return posts;
@@ -165,10 +161,10 @@ export default function LoggedIn() {
   const filteredPosts = createMemo(() => {
     let posts = searchedPosts();
 
-    if (posts.length == 0) return posts;
+    if (posts.length == 0) return posts.map((val) => val.uri);
 
     if (selectedAuthors().length > 0) {
-      posts = posts.filter((val) => selectedAuthors().find((author) => author == val.author.did) !== undefined);
+      posts = posts.filter((val) => selectedAuthors().find((author) => author == val.author) !== undefined);
     }
 
     if (!embedOptions.isAllFalse) {
@@ -196,10 +192,10 @@ export default function LoggedIn() {
     if (searchVal().trim() !== "") {
       const result = searcher.search(searchVal(), { fuzzy: 0.2 });
 
-      posts = posts.filter((val) => result.find((res) => res.id == val.cid) !== undefined);
+      posts = posts.filter((val) => result.find((res) => res.id == val.uri) !== undefined);
     }
 
-    return posts;
+    return posts.map((val) => val.uri);
   });
 
   const [currentPagePosts, pageCount, currentIndex, setCurrentIndex] = createPagination(

@@ -286,7 +286,7 @@ export default function App(props: { children: JSX.Element }) {
         <div>
           <A
             class="relative after:bg-transparent after:content-[''] after:absolute after:w-2 after:h-2 [&.updated]:after:bg-red after:rounded after:top-0
-            after:right--1.5 text-neutral hover:text-white transition-a;; transition-200"
+            after:right--1.5 text-neutral light:hover:text-black dark:hover:text-white transition-all transition-200"
             classList={{
               updated: privacyUpdated(),
             }}
@@ -300,10 +300,10 @@ export default function App(props: { children: JSX.Element }) {
             href="https://bsky.app/profile/did:plc:irx36xprktslecsbopbwnh5w"
             class="flex items-center p-1 text-7 group cursor-pointer"
           >
-            <div class="i-mingcute-bluesky-social-line text-neutral group-hover:text-white transition-all transition-200"></div>
+            <div class="i-mingcute-bluesky-social-line text-neutral light:group-hover:text-black dark:group-hover:text-white transition-all transition-200"></div>
           </a>
           <a href="https://github.com/SharpMars/bluecatalog" class="flex items-center p-1 text-7 group cursor-pointer">
-            <div class="i-mingcute-github-line text-neutral group-hover:text-white transition-all transition-200"></div>
+            <div class="i-mingcute-github-line text-neutral light:group-hover:text-black dark:group-hover:text-white transition-all transition-200"></div>
           </a>
         </div>
       </footer>

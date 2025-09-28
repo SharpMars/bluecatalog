@@ -1,53 +1,40 @@
-import { Client, simpleFetchHandler } from "@atcute/client";
-import { docResolver } from "../app";
-import {
-  createEffect,
-  createMemo,
-  createResource,
-  createSignal,
-} from "solid-js";
-import { Did, ResourceUri } from "@atcute/lexicons";
+import { createEffect, createMemo, createResource, createSignal } from "solid-js";
+import { ResourceUri } from "@atcute/lexicons";
 import { PostList } from "./PostList";
 import { TextInput } from "./TextInput";
 import { createStore } from "solid-js/store";
 import { PostFilter } from "./PostFilter";
-import { countEmbeds } from "../utils/embed";
+import { convertToCustomEmbed, countEmbeds } from "../utils/embed";
 import MiniSearch from "minisearch";
-import {
-  AppBskyFeedDefs,
-  AppBskyFeedPost,
-  AppBskyEmbedImages,
-  AppBskyEmbedVideo,
-} from "@atcute/bluesky";
+import { AppBskyFeedPost } from "@atcute/bluesky";
+import { useClient } from "../utils/client";
+import { FetchData } from "../fetching/fetch-data";
 
 export function PreviewPosts(props: { posts: ResourceUri[] }) {
   let searcher = new MiniSearch({
-    idField: "cid",
+    idField: "uri",
     fields: ["text", "alt"],
     extractField: (document, fieldName) => {
-      const feedViewPost = document as AppBskyFeedDefs.PostView;
+      const post = document as FetchData["posts"][0];
 
-      if (fieldName == "cid") {
-        return feedViewPost.cid;
+      if (fieldName == "uri") {
+        return post.uri;
       }
 
       if (fieldName == "text") {
-        const record = feedViewPost.record as AppBskyFeedPost.Main;
-        return record.text;
+        return post.text;
       }
 
       if (fieldName == "alt") {
         let alt = "";
-        if (feedViewPost.embed === undefined) return alt;
+        if (!post.embed) return alt;
 
-        switch (feedViewPost.embed.$type) {
-          case "app.bsky.embed.images#view":
-            const imageView = feedViewPost.embed as AppBskyEmbedImages.View;
-            alt = imageView.images.map((image) => image.alt).join("\n");
+        switch (post.embed.$type) {
+          case "images":
+            alt = post.embed.images.map((image) => image.alt).join("\n");
             break;
-          case "app.bsky.embed.video#view": {
-            const videoView = feedViewPost.embed as AppBskyEmbedVideo.View;
-            alt = videoView.alt;
+          case "video": {
+            alt = post.embed.alt;
           }
         }
         return alt;
@@ -58,33 +45,29 @@ export function PreviewPosts(props: { posts: ResourceUri[] }) {
   });
 
   const [fetchedData] = createResource(
-    async () => {
-      const proxyDid = localStorage.getItem("proxyDid");
-      let service;
-
-      if (proxyDid) {
-        const doc = await docResolver.resolve(
-          proxyDid.trim() as Did<"plc"> | Did<"web">
-        );
-
-        service = doc.service.find((val) => val.id == "#bsky_appview")
-          .serviceEndpoint as string;
-      } else {
-        service = "https://api.bsky.app";
-      }
-
-      const xrpc = new Client({
-        handler: simpleFetchHandler({ service: service }),
-      });
+    async (): Promise<FetchData> => {
+      const xrpc = await useClient();
 
       const res = await xrpc.get("app.bsky.feed.getPosts", {
         params: { uris: props.posts },
       });
 
       if (res.ok) {
-        const posts = res.data.posts;
-        const authors = posts
-          .map((val) => val.author)
+        const posts = res.data.posts.map((val) => ({
+          uri: val.uri,
+          author: val.author.did,
+          text: (val.record as AppBskyFeedPost.Main).text,
+          embed: convertToCustomEmbed(val.embed),
+          createdAt: (val.record as AppBskyFeedPost.Main).createdAt,
+          langs: (val.record as AppBskyFeedPost.Main).langs,
+        }));
+        const authors = res.data.posts
+          .map((val) => ({
+            did: val.author.did,
+            handle: val.author.handle,
+            displayName: val.author.displayName,
+            following: val.author.viewer ? !!val.author.viewer.following : false,
+          }))
           .filter((val, index, array) => {
             return array.findIndex((val1) => val.did == val1.did) == index;
           })
@@ -97,12 +80,12 @@ export function PreviewPosts(props: { posts: ResourceUri[] }) {
           console.error(error);
         }
 
-        return { posts: posts, authors: authors };
+        return { version: 1, posts: posts, authors: authors };
       }
 
-      return { posts: [], authors: [] };
+      return { version: 1, posts: [], authors: [] };
     },
-    { initialValue: { posts: [], authors: [] } }
+    { initialValue: { version: 1, posts: [], authors: [] } }
   );
 
   const [searchVal, setSearchVal] = createSignal("");
@@ -126,11 +109,7 @@ export function PreviewPosts(props: { posts: ResourceUri[] }) {
   createEffect(() => {
     setEmbedOptions("isAllFalse", () => {
       return (
-        !embedOptions.none &&
-        !embedOptions.image &&
-        !embedOptions.video &&
-        !embedOptions.post &&
-        !embedOptions.external
+        !embedOptions.none && !embedOptions.image && !embedOptions.video && !embedOptions.post && !embedOptions.external
       );
     });
   });
@@ -161,9 +140,7 @@ export function PreviewPosts(props: { posts: ResourceUri[] }) {
     if (searchVal().trim() !== "") {
       const result = searcher.search(searchVal(), { fuzzy: 0.2 });
 
-      posts = posts.filter(
-        (val) => result.find((res) => res.id == val.cid) !== undefined
-      );
+      posts = posts.filter((val) => result.find((res) => res.id == val.uri) !== undefined);
     }
 
     return posts;
@@ -172,14 +149,10 @@ export function PreviewPosts(props: { posts: ResourceUri[] }) {
   const filteredPosts = createMemo(() => {
     let posts = searchedPosts();
 
-    if (posts.length == 0) return posts;
+    if (posts.length == 0) return posts.map((val) => val.uri);
 
     if (selectedAuthors().length > 0) {
-      posts = posts.filter(
-        (val) =>
-          selectedAuthors().find((author) => author == val.author.did) !==
-          undefined
-      );
+      posts = posts.filter((val) => selectedAuthors().find((author) => author == val.author) !== undefined);
     }
 
     if (!embedOptions.isAllFalse) {
@@ -204,7 +177,7 @@ export function PreviewPosts(props: { posts: ResourceUri[] }) {
       });
     }
 
-    return posts;
+    return posts.map((val) => val.uri);
   });
 
   return (

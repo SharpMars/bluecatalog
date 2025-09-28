@@ -4,35 +4,37 @@
     "": {
       "name": "bluecatalog",
       "dependencies": {
-        "@atcute/atproto": "^3.1.1",
-        "@atcute/bluesky": "^3.1.3",
+        "@atcute/atproto": "^3.1.3",
+        "@atcute/bluesky": "^3.2.2",
         "@atcute/bluesky-richtext-segmenter": "^2.0.3",
+        "@atcute/car": "^3.1.1",
         "@atcute/client": "^4.0.3",
         "@atcute/identity-resolver": "^1.1.3",
-        "@atcute/lexicons": "^1.1.0",
+        "@atcute/lexicons": "^1.1.1",
         "@atcute/oauth-browser-client": "^1.0.26",
         "@corvu/dialog": "^0.2.4",
         "@corvu/popover": "^0.2.0",
         "@corvu/tooltip": "^0.2.2",
-        "@solid-primitives/resize-observer": "^2.1.1",
+        "@solid-primitives/resize-observer": "^2.1.3",
         "@solidjs/router": "^0.15.3",
-        "@tanstack/solid-query": "^5.81.2",
-        "hls.js": "^1.6.5",
+        "@tanstack/solid-query": "^5.87.1",
+        "@tanstack/solid-virtual": "^3.13.12",
+        "hls.js": "^1.6.11",
         "localdata": "^0.1.4",
         "minisearch": "^7.1.2",
-        "posthog-js": "^1.255.1",
+        "posthog-js": "^1.261.7",
         "solid-charts": "^0.0.2",
-        "solid-js": "^1.9.7",
+        "solid-js": "^1.9.9",
       },
       "devDependencies": {
-        "@iconify-json/mingcute": "^1.2.3",
-        "@types/bun": "^1.2.17",
-        "@unocss/preset-icons": "^66.2.3",
-        "@unocss/preset-wind4": "^66.2.3",
-        "unocss": "^66.2.3",
+        "@iconify-json/mingcute": "^1.2.5",
+        "@types/bun": "^1.2.21",
+        "@unocss/preset-icons": "^66.5.0",
+        "@unocss/preset-wind4": "^66.5.0",
+        "unocss": "^66.5.0",
         "vite": "npm:rolldown-vite@latest",
-        "vite-plugin-pages": "^0.33.0",
-        "vite-plugin-solid": "^2.11.6",
+        "vite-plugin-pages": "^0.33.1",
+        "vite-plugin-solid": "^2.11.8",
       },
     },
   },
@@ -46,6 +48,12 @@
     "@atcute/bluesky": ["@atcute/bluesky@3.2.2", "", { "dependencies": { "@atcute/atproto": "^3.1.3", "@atcute/lexicons": "^1.1.1" } }, "sha512-L8RrMNeRLGvSHMq2KDIAGXrpuNGA87YOXpXHY1yhmovVCjQ5n55FrR6JoQaxhprdXdKKQiefxNwQQQybDrfgFQ=="],
 
     "@atcute/bluesky-richtext-segmenter": ["@atcute/bluesky-richtext-segmenter@2.0.3", "", { "dependencies": { "@atcute/bluesky": "^3.0.2", "@atcute/lexicons": "^1.0.2" } }, "sha512-8Jy2EHdqx0mKI0k8l4h2cnaBN1pGgSzSazO0Gp85ttIQmgynZsQX6l4OWgaQx0aNZFmqZRXJ7N0rj/b2dlO1eQ=="],
+
+    "@atcute/car": ["@atcute/car@3.1.1", "", { "dependencies": { "@atcute/cbor": "^2.2.4", "@atcute/cid": "^2.2.3", "@atcute/uint8array": "^1.0.2", "@atcute/varint": "^1.0.2", "yocto-queue": "^1.2.1" } }, "sha512-yhez/LqIl0zHubG6z/G/gqWYHmg7wJ5L4jNkbXj5FvZ4eOvmzsw8+ojbdq6wfMU4p5NhP0pUJNLkTZHbYSPmLg=="],
+
+    "@atcute/cbor": ["@atcute/cbor@2.2.5", "", { "dependencies": { "@atcute/cid": "^2.2.3", "@atcute/multibase": "^1.1.4", "@atcute/uint8array": "^1.0.3" } }, "sha512-sBT8+6qau0mC3kwgmjl+nzqGn02xsE9b+kSgXm4/BRd9w8fwdRQYwcC9ApDlfaojrljJfcEkimppl/IcPOF3CA=="],
+
+    "@atcute/cid": ["@atcute/cid@2.2.3", "", { "dependencies": { "@atcute/multibase": "^1.1.4", "@atcute/uint8array": "^1.0.2" } }, "sha512-WEzNSL1EuCVtCQDFYEBIm4dEP6PcMEwi8IYUVIWvT77eO5EjY58F63z5T4qMABxSBM0+L4kqMxypdL1Fzf6LZw=="],
 
     "@atcute/client": ["@atcute/client@4.0.3", "", { "dependencies": { "@atcute/identity": "^1.0.2", "@atcute/lexicons": "^1.0.3" } }, "sha512-RIOZWFVLca/HiPAAUDqQPOdOreCxTbL5cb+WUf5yqQOKIu5yEAP3eksinmlLmgIrlr5qVOE7brazUUzaskFCfw=="],
 
@@ -62,6 +70,8 @@
     "@atcute/uint8array": ["@atcute/uint8array@1.0.4", "", {}, "sha512-9jASMDghzhhDwjF3+eW+ZIauvytnUWDPfUVGUValRwnf9AZ7Yqqkc76tC89HVzVDAlJdhwQIUG2dQBsiVqumUA=="],
 
     "@atcute/util-fetch": ["@atcute/util-fetch@1.0.1", "", { "dependencies": { "@badrap/valita": "^0.4.2" } }, "sha512-Clc0E/5ufyGBVfYBUwWNlHONlZCoblSr4Ho50l1LhmRPGB1Wu/AQ9Sz+rsBg7fdaW/auve8ulmwhRhnX2cGRow=="],
+
+    "@atcute/varint": ["@atcute/varint@1.0.2", "", {}, "sha512-0O31hePzzr4O3NGWHUKKOyta6CGSL+AtN8iir8grGxu9jXyI7DBARlw6PbgKA6uTAvsXdpmRmF8MX+p0TsLnNg=="],
 
     "@babel/code-frame": ["@babel/code-frame@7.27.1", "", { "dependencies": { "@babel/helper-validator-identifier": "^7.27.1", "js-tokens": "^4.0.0", "picocolors": "^1.1.1" } }, "sha512-cjQ7ZlQ0Mv3b47hABuTevyTuYN4i+loJKGeV9flcCgIK37cCXRh+L1bd3iBHlynerhQ7BhCkn2BPbQUL+rGqFg=="],
 
@@ -198,6 +208,10 @@
     "@tanstack/query-core": ["@tanstack/query-core@5.87.1", "", {}, "sha512-HOFHVvhOCprrWvtccSzc7+RNqpnLlZ5R6lTmngb8aq7b4rc2/jDT0w+vLdQ4lD9bNtQ+/A4GsFXy030Gk4ollA=="],
 
     "@tanstack/solid-query": ["@tanstack/solid-query@5.87.1", "", { "dependencies": { "@tanstack/query-core": "5.87.1" }, "peerDependencies": { "solid-js": "^1.6.0" } }, "sha512-ETm+gX1vG8I3nta+u+D68+0VLKMEJsSWantDUPIJLIGjuWmPOWe7ex9HcxRU6HwYHar7kvscY5Uv7msjaa6Bdg=="],
+
+    "@tanstack/solid-virtual": ["@tanstack/solid-virtual@3.13.12", "", { "dependencies": { "@tanstack/virtual-core": "3.13.12" }, "peerDependencies": { "solid-js": "^1.3.0" } }, "sha512-0dS8GkBTmbuM9cUR6Jni0a45eJbd32CAEbZj8HrZMWIj3lu974NpGz5ywcomOGJ9GdeHuDaRzlwtonBbKV1ihQ=="],
+
+    "@tanstack/virtual-core": ["@tanstack/virtual-core@3.13.12", "", {}, "sha512-1YBOJfRHV4sXUmWsFSf5rQor4Ss82G8dQWLRbnk3GA4jeP8hQt1hxXh0tmflpC0dz3VgEv/1+qwPyLeWkQuPFA=="],
 
     "@tybys/wasm-util": ["@tybys/wasm-util@0.10.0", "", { "dependencies": { "tslib": "^2.4.0" } }, "sha512-VyyPYFlOMNylG45GoAe0xDoLwWuowvf92F9kySqzYh8vmYm7D2u4iUJKa1tOUpS70Ku13ASrOkS4ScXFsTaCNQ=="],
 
@@ -630,6 +644,8 @@
     "yallist": ["yallist@3.1.1", "", {}, "sha512-a4UGQaWPH59mOXUYnAG2ewncQS4i4F43Tv3JoAM+s2VDAmS9NsK8GpDMLrCHPksFT7h3K6TOoUNn2pb7RoXx4g=="],
 
     "yaml": ["yaml@2.8.1", "", { "bin": { "yaml": "bin.mjs" } }, "sha512-lcYcMxX2PO9XMGvAJkJ3OsNMw+/7FKes7/hgerGUYWIoWu5j/+YQqcZr5JnPZWzOsEBgMbSbiSTn/dv/69Mkpw=="],
+
+    "yocto-queue": ["yocto-queue@1.2.1", "", {}, "sha512-AyeEbWOu/TAXdxlV9wmGcR0+yh2j3vYPGOECcIj2S7MkrLyC7ne+oye2BKTItt0ii2PHk4cDy+95+LshzbXnGg=="],
 
     "@babel/core/@babel/parser": ["@babel/parser@7.28.4", "", { "dependencies": { "@babel/types": "^7.28.4" }, "bin": "./bin/babel-parser.js" }, "sha512-yZbBqeM6TkpP9du/I2pUZnJsRMGGvOuIrhjzC1AwHwW+6he4mni6Bp/m8ijn0iOuZuPI2BfkCoSRunpyjnrQKg=="],
 

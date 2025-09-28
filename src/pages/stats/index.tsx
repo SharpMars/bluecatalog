@@ -1,6 +1,6 @@
-import { useQuery } from "@tanstack/solid-query";
+import { useInfiniteQuery, useQuery } from "@tanstack/solid-query";
 import { fetchLikes } from "../../fetching/likes";
-import { createMemo, createSignal, ErrorBoundary, For, Match, Switch } from "solid-js";
+import { createMemo, createSignal, ErrorBoundary, For, Match, Suspense, Switch } from "solid-js";
 import PieChart from "../../components/PieChart";
 import ChartLegend from "../../components/ChartLegend";
 import { agent, xrpc } from "../../app";
@@ -14,6 +14,7 @@ import { A } from "@solidjs/router";
 import { LoadingIndicator } from "../../components/LoadingIndicator";
 import { gateRoute } from "../../utils/gate";
 import { countEmbeds } from "../../utils/embed";
+import { FetchData } from "../../fetching/fetch-data";
 
 export default function Stats() {
   gateRoute();
@@ -75,11 +76,17 @@ export default function Stats() {
   }));
 
   const countPerDay = createMemo(() => {
-    if (!(postsQuery.isSuccess && postsQuery.data != null && postsQuery.data.records)) return;
+    if (!(postsQuery.isSuccess && postsQuery.data != null && postsQuery.data.missing)) return;
 
     const res = [0, 0, 0, 0, 0, 0, 0];
 
-    for (const record of postsQuery.data.records) {
+    for (const record of postsQuery.data.posts) {
+      const date = new Date(record.savedAt);
+
+      res[(date.getDay() + 6) % 7]++;
+    }
+
+    for (const record of postsQuery.data.missing) {
       const date = new Date(record.createdAt);
 
       res[(date.getDay() + 6) % 7]++;
@@ -89,11 +96,17 @@ export default function Stats() {
   });
 
   const countPerHour = createMemo(() => {
-    if (!(postsQuery.isSuccess && postsQuery.data != null && postsQuery.data.records)) return;
+    if (!(postsQuery.isSuccess && postsQuery.data != null && postsQuery.data.missing)) return;
 
     let res: number[] = Array.from(new Array(24), () => 0);
 
-    for (const record of postsQuery.data.records) {
+    for (const record of postsQuery.data.posts) {
+      const date = new Date(record.savedAt);
+
+      res[date.getHours()]++;
+    }
+
+    for (const record of postsQuery.data.missing) {
       const date = new Date(record.createdAt);
 
       res[date.getHours()]++;
@@ -105,15 +118,15 @@ export default function Stats() {
   const countPerAuthor = createMemo(() => {
     if (!(postsQuery.isSuccess && postsQuery.data != null)) return [];
 
-    let res: Map<Did, { count: number; profile: AppBskyActorDefs.ProfileViewBasic }> = new Map();
+    let res: Map<Did, { count: number; profile: FetchData["authors"][0] }> = new Map();
 
     for (const post of postsQuery.data.posts) {
-      if (!res.has(post.author.did)) {
-        res.set(post.author.did, { count: 1, profile: post.author });
+      if (!res.has(post.author)) {
+        res.set(post.author, { count: 1, profile: postsQuery.data.authors.find((val) => val.did == post.author) });
       } else {
-        res.set(post.author.did, {
-          count: res.get(post.author.did).count + 1,
-          profile: post.author,
+        res.set(post.author, {
+          count: res.get(post.author).count + 1,
+          profile: postsQuery.data.authors.find((val) => val.did == post.author),
         });
       }
     }
@@ -133,6 +146,37 @@ export default function Stats() {
     return sorted;
   });
 
+  const [reqPage, setReqPage] = createSignal(0);
+  const avatarQuery = useInfiniteQuery(() => ({
+    queryFn: async ({ pageParam, signal }) => {
+      const res = await xrpc.get("app.bsky.actor.getProfiles", {
+        params: {
+          actors: countPerAuthor()
+            .slice(0 + pageParam * 10, 10 + pageParam * 10)
+            .map((val) => val[0]),
+          signal: signal,
+        },
+      });
+
+      if (!res.ok) throw new Error(JSON.stringify(res.data));
+
+      const map = new Map(res.data.profiles.filter((val) => val.avatar).map((val) => [val.did, val.avatar]));
+
+      return map;
+    },
+    initialPageParam: 0,
+    getNextPageParam: () => reqPage(),
+    queryKey: ["avatar-stats", JSON.stringify(countPerAuthor())],
+    enabled: countPerAuthor().length > 0,
+  }));
+
+  function requestPage(i: number) {
+    if (reqPage() == i || (avatarQuery.data && avatarQuery.data.pageParams.findIndex((val) => val == i) != -1)) return;
+
+    setReqPage(i);
+    avatarQuery.fetchNextPage();
+  }
+
   const [flipPerAuthor, setFlipPerAuthor] = createSignal(false);
   const [currentPerAuthorPage, perAuthorPageCount, currPerAuthorPageIndex, setCurrPerAuthorPageIndex] =
     createPagination(countPerAuthor, 10, undefined, flipPerAuthor);
@@ -144,12 +188,12 @@ export default function Stats() {
     for (const post of postsQuery.data.posts) {
       if (post.embed) {
         switch (post.embed.$type) {
-          case "app.bsky.embed.images#view":
+          case "images":
             if (post.embed.images.map((val) => val.alt.trim() != "").reduce((a, b) => a && b)) res.yes++;
             else res.no++;
             break;
-          case "app.bsky.embed.recordWithMedia#view":
-            if (post.embed.media.$type == "app.bsky.embed.images#view") {
+          case "recordWithMedia":
+            if (post.embed.media.$type == "images") {
               if (post.embed.media.images.map((val) => val.alt.trim() != "").reduce((a, b) => a && b)) res.yes++;
               else res.no++;
             }
@@ -168,11 +212,29 @@ export default function Stats() {
   }
 
   const postsCountByDay = createMemo(() => {
-    if (!(postsQuery.isSuccess && postsQuery.data != null && postsQuery.data.records)) return;
+    if (!(postsQuery.isSuccess && postsQuery.data != null && postsQuery.data.missing)) return;
 
     let map = new Map<number, Map<number, number[]>>();
 
-    for (const post of postsQuery.data.records.toReversed()) {
+    for (const post of postsQuery.data.posts.toReversed()) {
+      const date = new Date(post.savedAt);
+
+      if (!map.has(date.getFullYear())) {
+        const months = new Map();
+        for (let month = 0; month < 12; month++) {
+          months.set(
+            month,
+            Array.from(new Array(daysInMonth(month, date.getFullYear())), () => 0)
+          );
+        }
+
+        map.set(date.getFullYear(), months);
+      }
+
+      map.get(date.getFullYear()).get(date.getMonth())[date.getDate() - 1]++;
+    }
+
+    for (const post of postsQuery.data.missing.toReversed()) {
       const date = new Date(post.createdAt);
 
       if (!map.has(date.getFullYear())) {
@@ -315,7 +377,7 @@ export default function Stats() {
     const res = { yes: 0, no: 0 };
 
     for (const post of postsQuery.data.posts) {
-      if (followsQuery.data.find((val) => val.did == post.author.did) != undefined) res.yes++;
+      if (followsQuery.data.find((val) => val.did == post.author) != undefined) res.yes++;
       else res.no++;
     }
 
@@ -385,7 +447,7 @@ export default function Stats() {
                   <LoadingIndicator></LoadingIndicator>
                 </div>
               </Match>
-              <Match when={postsQuery.isError || (postsQuery.data != null && !postsQuery.data.records)}>
+              <Match when={postsQuery.isError || (postsQuery.data != null && !postsQuery.data.missing)}>
                 <ErrorScreen />
               </Match>
               <Match when={postsQuery.data == null}>
@@ -423,14 +485,14 @@ export default function Stats() {
                   <hr class="m-t-4 light:text-black dark:text-white rounded"></hr>
                 </div>
                 <div class="card">
-                  <p>Number of records: {postsQuery.data.records.length}</p>
+                  <p>Number of records: {postsQuery.data.posts.length + postsQuery.data.missing?.length}</p>
                   <p>
                     Number of unavailable posts:{" "}
                     <A
                       href="./unavailable"
                       class="underline underline-from-font underline-offset-2 after:content-['↗']"
                     >
-                      {postsQuery.data.records.length - postsQuery.data.posts.length}
+                      {postsQuery.data.missing?.length}{" "}
                     </A>
                   </p>
                 </div>
@@ -448,7 +510,10 @@ export default function Stats() {
                       <AxisTooltip tickGap={-56} class="transition-opacity transition-ease-linear transition-10ms">
                         {(props) => (
                           <>
-                            <div class="bg-gray w-fit shadow-[0_0_16px_#000000] absolute z-1 select-none pointer-events-none rounded min-w-max p-2 overflow-hidden">
+                            <div
+                              class="light:text-black light:bg-zinc-300 dark:text-white dark:bg-zinc-700 w-fit shadow-[0_0_16px_#000000] absolute z-1 select-none pointer-events-none rounded min-w-max p-2
+                              overflow-hidden"
+                            >
                               <p class="title font-bold">{props.data.tooltip}</p>
                               <p class="value">{props.data.value}</p>
                             </div>
@@ -525,7 +590,10 @@ export default function Stats() {
                           <AxisTooltip tickGap={-56} class="transition-opacity transition-ease-linear transition-10ms">
                             {(props) => (
                               <>
-                                <div class="bg-gray w-fit shadow-[0_0_16px_#000000] absolute z-1 select-none pointer-events-none rounded min-w-max p-2 overflow-hidden">
+                                <div
+                                  class="light:text-black light:bg-zinc-300 dark:text-white dark:bg-zinc-700 w-fit shadow-[0_0_16px_#000000] absolute z-1 select-none pointer-events-none rounded min-w-max p-2
+                                  overflow-hidden"
+                                >
                                   <p class="title font-bold">{props.data.tooltip}</p>
                                   <p class="value">{props.data.value}</p>
                                 </div>
@@ -555,55 +623,93 @@ export default function Stats() {
                       </thead>
                       <tbody class="[&>tr:not(:last-child)]:b-b-1 [&>tr]:b-neutral/25">
                         <For each={currentPerAuthorPage()}>
-                          {(val) => (
-                            <tr>
-                              <td class="p-1 flex items-center overflow-hidden">
-                                <div class="flex-shrink-0">
-                                  <img
-                                    class="rounded aspect-square"
-                                    src={val[1].profile.avatar}
-                                    width={32}
-                                    height={32}
-                                    onerror={(ev) => {
-                                      ev.currentTarget.src = "./fallback.svg";
-                                    }}
-                                  />
-                                </div>
-                                <div class="flex flex-col p-1">
-                                  <span
-                                    class="line-height-snug [&.expand]:h-7"
-                                    classList={{
-                                      expand: !val[1].profile.displayName && val[1].profile.handle == "handle.invalid",
-                                    }}
-                                  >
-                                    {(() => {
-                                      const profile = val[1].profile;
+                          {(val, i) => {
+                            const did = val[1].profile.did;
+                            let index = !flipPerAuthor()
+                              ? currPerAuthorPageIndex()
+                              : perAuthorPageCount() - currPerAuthorPageIndex() - 1;
 
-                                      if (profile.displayName) return profile.displayName;
-                                      if (profile.handle != "handle.invalid") return profile.handle;
+                            const notExactCount = countPerAuthor().length % 10;
 
-                                      return profile.did;
-                                    })()}
-                                  </span>
-                                  <span
-                                    class="text-3 line-height-snug m-t--1 text-neutral"
-                                    hidden={!val[1].profile.displayName && val[1].profile.handle == "handle.invalid"}
-                                  >
-                                    {(() => {
-                                      const profile = val[1].profile;
+                            if (flipPerAuthor() && notExactCount != 0 && i() >= notExactCount) {
+                              index--;
+                            }
 
-                                      if (!profile.displayName) return profile.did;
-                                      if (profile.handle != "handle.invalid") return profile.handle;
-                                      if (profile.handle == "handle.invalid") return profile.did;
+                            requestPage(index);
 
-                                      return "";
-                                    })()}
-                                  </span>
-                                </div>
-                              </td>
-                              <td class="p-1 text-center">{val[1].count}</td>
-                            </tr>
-                          )}
+                            const avatar = () => {
+                              if (avatarQuery.data) {
+                                const pageIndex = avatarQuery.data.pageParams.findIndex((val) => val == index);
+                                if (pageIndex == -1) return "./fallback.svg";
+
+                                const page = avatarQuery.data.pages[pageIndex];
+                                if (page && page.has(did)) return page.get(did);
+                              }
+
+                              return "./fallback.svg";
+                            };
+                            return (
+                              <tr>
+                                <td class="p-1 flex items-center overflow-hidden">
+                                  <div class="flex-shrink-0">
+                                    <Suspense
+                                      fallback={
+                                        <img
+                                          class="rounded aspect-square"
+                                          src={"./fallback.svg"}
+                                          width={32}
+                                          height={32}
+                                        />
+                                      }
+                                    >
+                                      <img
+                                        class="rounded aspect-square"
+                                        src={avatar() ? avatar() : "./fallback.svg"}
+                                        width={32}
+                                        height={32}
+                                        onerror={(ev) => {
+                                          ev.currentTarget.src = "./fallback.svg";
+                                        }}
+                                      />
+                                    </Suspense>
+                                  </div>
+                                  <div class="flex flex-col p-1">
+                                    <span
+                                      class="line-height-snug [&.expand]:h-7"
+                                      classList={{
+                                        expand:
+                                          !val[1].profile.displayName && val[1].profile.handle == "handle.invalid",
+                                      }}
+                                    >
+                                      {(() => {
+                                        const profile = val[1].profile;
+
+                                        if (profile.displayName) return profile.displayName;
+                                        if (profile.handle != "handle.invalid") return profile.handle;
+
+                                        return profile.did;
+                                      })()}
+                                    </span>
+                                    <span
+                                      class="text-3 line-height-snug m-t--1 text-neutral"
+                                      hidden={!val[1].profile.displayName && val[1].profile.handle == "handle.invalid"}
+                                    >
+                                      {(() => {
+                                        const profile = val[1].profile;
+
+                                        if (!profile.displayName) return profile.did;
+                                        if (profile.handle != "handle.invalid") return profile.handle;
+                                        if (profile.handle == "handle.invalid") return profile.did;
+
+                                        return "";
+                                      })()}
+                                    </span>
+                                  </div>
+                                </td>
+                                <td class="p-1 text-center">{val[1].count}</td>
+                              </tr>
+                            );
+                          }}
                         </For>
                       </tbody>
                     </table>
