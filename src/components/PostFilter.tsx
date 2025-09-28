@@ -1,7 +1,6 @@
 import Popover from "@corvu/popover";
 import { Accessor, createEffect, createSignal, For, Setter, Show, Suspense } from "solid-js";
 import { SetStoreFunction, Store } from "solid-js/store";
-import { AppBskyActorDefs } from "@atcute/bluesky";
 import { createVirtualizer } from "@tanstack/solid-virtual";
 import { useInfiniteQuery } from "@tanstack/solid-query";
 import { xrpc } from "../app";
@@ -258,7 +257,7 @@ export function PostFilter(props: {
     post: number;
     external: number;
   }>;
-  authors: AppBskyActorDefs.ProfileViewBasic[];
+  authors: FetchData["authors"];
 }) {
   return (
     <Popover
