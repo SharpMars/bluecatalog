@@ -125,7 +125,7 @@ export default function Settings() {
           <div class="light:text-black dark:text-white">
             <h2 class="text-7 font-600 m-b-1">Masonry</h2>
             <p class="m-t--1 text-neutral-500 m-b-2">
-              DISCLAIMER: Don't use on your phone. <br />
+              DISCLAIMER: Doesn't effect small screens, so keep it disabled. <br />
               Allows you to have multiple columns of posts.
             </p>
             <div class="flex gap-2">
