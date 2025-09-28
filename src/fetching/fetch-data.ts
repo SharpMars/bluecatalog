@@ -9,7 +9,7 @@ export interface FetchData {
     text: string;
     embed?: Embeds;
     createdAt?: Datetime;
-    savedAt: Datetime;
+    savedAt?: Datetime;
     langs?: string[];
     via?: { did: Did; handle: Handle; displayName?: string };
   }[];

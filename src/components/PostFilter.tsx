@@ -3,9 +3,9 @@ import { Accessor, createEffect, createSignal, For, Setter, Show, Suspense } fro
 import { SetStoreFunction, Store } from "solid-js/store";
 import { createVirtualizer } from "@tanstack/solid-virtual";
 import { useInfiniteQuery } from "@tanstack/solid-query";
-import { xrpc } from "../app";
 import { FetchData } from "../fetching/fetch-data";
 import MiniSearch, { SearchResult } from "minisearch";
+import { useClient } from "../utils/client";
 
 function AuthorsPopup(props: {
   authors: FetchData["authors"];
@@ -58,6 +58,7 @@ function AuthorsPopup(props: {
 
   const avatarQuery = useInfiniteQuery(() => ({
     queryFn: async ({ pageParam, signal }) => {
+      const xrpc = await useClient();
       const res = await xrpc.get("app.bsky.actor.getProfiles", {
         params: {
           actors: props.authors.slice(0 + pageParam * 25, 25 + pageParam * 25).map((val) => val.did),

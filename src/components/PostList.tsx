@@ -3,7 +3,7 @@ import { BskyPost } from "./BskyPost";
 import { Masonry } from "./Masonry";
 import { ResourceUri } from "@atcute/lexicons";
 import { useQuery } from "@tanstack/solid-query";
-import { xrpc } from "../app";
+import { useClient } from "../utils/client";
 
 export function PostList(props: { posts: Accessor<ResourceUri[]> }) {
   const masonryEnabled = localStorage.getItem("masonry-enabled") !== null;
@@ -19,6 +19,8 @@ export function PostList(props: { posts: Accessor<ResourceUri[]> }) {
       const posts = [];
 
       let uris = props.posts();
+
+      const xrpc = await useClient();
 
       let res = await xrpc.get("app.bsky.feed.getPosts", {
         signal: signal,
