@@ -94,7 +94,7 @@ function AuthorsPopup(props: {
     <>
       <div class="flex gap-2 h-7">
         <input
-          class="flex-grow-1 dark:bg-slate-900 rounded-md p-l-1 min-w-0"
+          class="flex-grow-1 light:bg-slate-600 dark:bg-slate-900 rounded-md p-l-1 min-w-0"
           type="text"
           placeholder="Search..."
           oninput={(ev) => {
@@ -104,15 +104,14 @@ function AuthorsPopup(props: {
         />
         <div class="flex gap-1 items-center flex-nowrap text-nowrap">
           <input
-            class="min-w-0 dark:bg-slate-900 rounded-md p-l-1 overflow-hidden h-full [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+            class="min-w-0 light:bg-slate-600 dark:bg-slate-900 rounded-md p-l-1 overflow-hidden h-full [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none
+            [&::-webkit-inner-spin-button]:appearance-none"
             value={searchIndex()}
             ref={searchIndexSelectorRef}
             type="number"
             min={searchRes().length > 0 ? 1 : 0}
             max={searchRes().length}
             onchange={(ev) => {
-              console.log("onchange");
-
               if (isNaN(ev.currentTarget.valueAsNumber))
                 ev.currentTarget.valueAsNumber = searchRes().length > 0 ? 1 : 0;
               setSearchIndex(ev.currentTarget.valueAsNumber);
@@ -124,7 +123,6 @@ function AuthorsPopup(props: {
 
               if (isNaN(val)) {
                 ev.currentTarget.valueAsNumber = searchRes().length > 0 ? 1 : 0;
-                //setSearchIndex(searchRes().length > 0 ? 1 : 0);
               }
 
               if (searchRes().length > 0) {
