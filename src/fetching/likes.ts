@@ -152,7 +152,7 @@ export async function fetchLikes(refetch: boolean, signal: AbortSignal) {
     return null;
   } else {
     const cache = JSON.parse(cacheJson) as FetchData;
-    if (!cache.posts) throw new Error("Old or malformed cache.");
+    if (!cache.posts || cache.version == undefined) throw new Error("Old or malformed cache.");
 
     data = cache;
   }
